@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GeoChallenge — Geography Bee</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ocean: #0a2342;
+    --sea: #1a3a5c;
+    --wave: #1d6fa4;
+    --sky: #4da6d6;
+    --gold: #e8a020;
+    --coral: #e05c3a;
+    --green: #2e8b57;
+    --light: #f0f8ff;
+    --radius: 12px;
+    --shadow: 0 4px 24px rgba(10,35,66,0.18);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--ocean);
+    color: var(--light);
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse at 20% 80%, rgba(29,111,164,0.3) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(77,166,214,0.2) 0%, transparent 50%);
+  }
+  .globe-bg {
+    position: fixed; top: -100px; right: -100px;
+    width: 500px; height: 500px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, rgba(77,166,214,0.12), rgba(10,35,66,0.05));
+    border: 1px solid rgba(77,166,214,0.1);
+    pointer-events: none; z-index: 0;
+  }
+  .globe-bg::after { content:''; position:absolute; inset:20px; border-radius:50%; border:1px solid rgba(77,166,214,0.08); }
+
+  .screen { display:none; min-height:100vh; position:relative; z-index:1; }
+  .screen.active { display:flex; flex-direction:column; }
+
+  /* ── FIREBASE SETUP ── */
+  #firebase-setup {
+    align-items:center; justify-content:center; padding:2rem; text-align:center;
+  }
+  .setup-card {
+    background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.14);
+    border-radius:20px; padding:2.5rem; max-width:560px; width:100%; text-align:left;
+  }
+  .setup-card h2 { font-family:'Playfair Display',serif; font-size:1.8rem; margin-bottom:.5rem; text-align:center; }
+  .setup-card .sub { color:rgba(255,255,255,0.5); font-size:.9rem; text-align:center; margin-bottom:2rem; }
+  .setup-steps { margin-bottom:1.5rem; }
+  .step { display:flex; gap:.75rem; margin-bottom:1rem; align-items:flex-start; }
+  .step-num {
+    width:24px; height:24px; border-radius:50%; background:var(--wave);
+    display:flex; align-items:center; justify-content:center; font-size:.75rem; font-weight:700; flex-shrink:0; margin-top:2px;
+  }
+  .step p { font-size:.88rem; color:rgba(255,255,255,0.75); line-height:1.5; }
+  .step a { color:var(--sky); text-decoration:none; }
+  .step a:hover { text-decoration:underline; }
+  .step code { font-size:.8rem; background:rgba(255,255,255,0.1); padding:1px 6px; border-radius:4px; }
+  .fb-config-area {
+    width:100%; min-height:140px; padding:.85rem 1rem; border-radius:10px;
+    border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.07);
+    color:#7dd8a5; font-family:monospace; font-size:.82rem; outline:none; resize:vertical;
+    margin-bottom:1rem;
+  }
+  .fb-config-area:focus { border-color:var(--sky); }
+  .fb-config-area::placeholder { color:rgba(255,255,255,0.3); font-family:monospace; }
+
+  /* ── LANDING ── */
+  #landing { align-items:center; justify-content:center; text-align:center; padding:2rem; }
+  .logo-globe {
+    width:80px; height:80px; border-radius:50%; margin:0 auto 1.5rem;
+    background:linear-gradient(135deg,var(--wave),var(--sky));
+    display:flex; align-items:center; justify-content:center;
+    font-size:36px; box-shadow:0 0 40px rgba(77,166,214,0.4);
+    animation:pulse 3s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{box-shadow:0 0 40px rgba(77,166,214,0.4)} 50%{box-shadow:0 0 60px rgba(77,166,214,0.7)} }
+  h1.title {
+    font-family:'Playfair Display',serif;
+    font-size:clamp(2.5rem,6vw,4rem); font-weight:900; letter-spacing:-1px;
+    background:linear-gradient(135deg,#fff 30%,var(--sky));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    margin-bottom:.5rem;
+  }
+  .tagline { color:rgba(255,255,255,0.55); font-size:1.1rem; margin-bottom:3rem; font-weight:300; }
+  .role-cards { display:flex; gap:1.5rem; flex-wrap:wrap; justify-content:center; max-width:600px; }
+  .role-card {
+    flex:1; min-width:220px; padding:2rem 1.5rem; cursor:pointer;
+    background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12);
+    border-radius:16px; transition:all .25s; text-align:center;
+  }
+  .role-card:hover { background:rgba(255,255,255,0.12); transform:translateY(-4px); border-color:var(--sky); }
+  .role-icon { font-size:2.5rem; margin-bottom:1rem; }
+  .role-card h2 { font-family:'Playfair Display',serif; font-size:1.4rem; margin-bottom:.5rem; }
+  .role-card p { font-size:.9rem; color:rgba(255,255,255,0.6); }
+  .fb-indicator {
+    display:inline-flex; align-items:center; gap:.4rem; margin-bottom:2rem;
+    font-size:.8rem; color:#7dd8a5; background:rgba(46,139,87,0.15);
+    border:1px solid rgba(46,139,87,0.3); border-radius:20px; padding:.3rem .9rem;
+  }
+  .dot-green { width:7px; height:7px; border-radius:50%; background:#7dd8a5; animation:dotpulse 1.5s ease-in-out infinite; }
+  @keyframes dotpulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  /* ── SHARED FORM STYLES ── */
+  .inline-form { margin-top:1.5rem; width:100%; max-width:380px; }
+  .form-card { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:14px; padding:1.5rem; }
+  .form-card h4 { font-size:.95rem; color:var(--sky); margin-bottom:1rem; }
+  .form-group { margin-bottom:.85rem; }
+  .form-group label { font-size:.78rem; color:rgba(255,255,255,0.55); display:block; margin-bottom:.3rem; }
+  .form-group input, .form-group textarea {
+    width:100%; padding:.65rem .9rem; border-radius:8px;
+    border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.08);
+    color:#fff; font-size:.95rem; font-family:'DM Sans',sans-serif; outline:none; resize:vertical;
+  }
+  .form-group input:focus, .form-group textarea:focus { border-color:var(--sky); background:rgba(255,255,255,0.13); }
+  .form-group textarea { min-height:70px; }
+  .form-row { display:flex; gap:.6rem; margin-top:.25rem; flex-wrap:wrap; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    padding:.72rem 1.8rem; border-radius:8px; border:none; cursor:pointer;
+    font-size:.95rem; font-weight:600; font-family:'DM Sans',sans-serif; transition:all .2s;
+  }
+  .btn-primary { background:var(--wave); color:#fff; }
+  .btn-primary:hover { background:var(--sky); transform:scale(1.02); }
+  .btn-danger { background:var(--coral); color:#fff; }
+  .btn-danger:hover { background:#c94a2a; }
+  .btn-gold { background:var(--gold); color:var(--ocean); }
+  .btn-gold:hover { background:#d4901c; }
+  .btn-ghost { background:transparent; color:rgba(255,255,255,0.7); border:1px solid rgba(255,255,255,0.22); }
+  .btn-ghost:hover { background:rgba(255,255,255,0.1); color:#fff; }
+  .btn-sm { padding:.48rem .95rem; font-size:.83rem; }
+  .btn:disabled { opacity:.38; cursor:not-allowed; transform:none!important; }
+  .btn-link { background:none; border:none; color:var(--sky); cursor:pointer; font-size:.85rem; font-family:'DM Sans',sans-serif; padding:0; }
+  .btn-link:hover { text-decoration:underline; }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:1rem 1.5rem; background:rgba(10,35,66,0.75);
+    border-bottom:1px solid rgba(255,255,255,0.1); backdrop-filter:blur(12px);
+    position:sticky; top:0; z-index:100;
+  }
+  .topbar-brand { font-family:'Playfair Display',serif; font-size:1.2rem; display:flex; align-items:center; gap:.5rem; }
+  .topbar-info { font-size:.82rem; color:rgba(255,255,255,0.55); }
+  .topbar-actions { display:flex; gap:.5rem; align-items:center; }
+  .conn-dot { width:8px; height:8px; border-radius:50%; }
+  .conn-online { background:#7dd8a5; }
+  .conn-offline { background:var(--coral); }
+
+  /* ── HOST LAYOUT ── */
+  #host { flex-direction:column; }
+  .host-layout { display:grid; grid-template-columns:1fr 340px; gap:0; flex:1; min-height:0; }
+  .host-main { padding:1.5rem; overflow-y:auto; }
+  .host-sidebar {
+    background:rgba(0,0,0,0.28); border-left:1px solid rgba(255,255,255,0.08);
+    padding:1.25rem; overflow-y:auto; display:flex; flex-direction:column; gap:1.25rem;
+  }
+
+  /* question stage */
+  .question-stage {
+    background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12);
+    border-radius:16px; padding:1.75rem; margin-bottom:1.5rem; min-height:200px;
+    display:flex; flex-direction:column; justify-content:space-between;
+    position:relative; overflow:hidden;
+  }
+  .question-stage::before {
+    content:''; position:absolute; left:0; top:0; bottom:0; width:4px;
+    background:linear-gradient(180deg,var(--sky),var(--wave));
+  }
+  .q-label { font-size:.73rem; text-transform:uppercase; letter-spacing:2px; color:var(--sky); margin-bottom:.75rem; }
+  .q-text { font-size:1.4rem; line-height:1.5; font-weight:500; flex:1; }
+  .q-answer {
+    margin-top:1rem; padding:.75rem 1rem; border-radius:8px;
+    background:rgba(46,139,87,0.2); border:1px solid rgba(46,139,87,0.4);
+    color:#7dd8a5; font-weight:600; display:none;
+  }
+  .q-answer.visible { display:block; }
+  .stage-controls { display:flex; gap:.65rem; flex-wrap:wrap; margin-top:1rem; }
+
+  /* question bank */
+  .q-bank h3 { font-family:'Playfair Display',serif; font-size:1.2rem; margin-bottom:1rem; }
+  .q-item {
+    background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);
+    border-radius:10px; padding:.9rem 1rem; margin-bottom:.65rem; cursor:pointer;
+    transition:all .2s; position:relative;
+  }
+  .q-item:hover { background:rgba(255,255,255,0.09); border-color:rgba(77,166,214,0.4); }
+  .q-item.active-q { border-color:var(--sky); background:rgba(29,111,164,0.2); }
+  .q-item.used-q { opacity:.42; }
+  .q-item-num { font-size:.73rem; color:var(--sky); margin-bottom:.25rem; font-weight:600; }
+  .q-item-text { font-size:.88rem; line-height:1.4; }
+  .q-item-ans { font-size:.78rem; color:#7dd8a5; margin-top:.25rem; }
+  .q-item-delete {
+    position:absolute; top:.5rem; right:.5rem; width:24px; height:24px;
+    border-radius:50%; background:rgba(224,92,58,0.2); border:none; color:var(--coral);
+    cursor:pointer; font-size:14px; display:none; align-items:center; justify-content:center;
+  }
+  .q-item:hover .q-item-delete { display:flex; }
+  .q-item-delete:hover { background:rgba(224,92,58,0.5); }
+  .add-q-panel { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:1.2rem; margin-bottom:1rem; }
+  .add-q-panel h4 { font-size:.88rem; color:var(--sky); margin-bottom:.85rem; }
+
+  /* sidebar panels */
+  .panel { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:1.1rem; }
+  .panel h3 { font-size:.76rem; text-transform:uppercase; letter-spacing:2px; color:rgba(255,255,255,0.45); margin-bottom:.9rem; }
+  .no-data { color:rgba(255,255,255,0.38); font-size:.88rem; font-style:italic; }
+
+  /* buzz entries */
+  .buzzed-player {
+    display:flex; align-items:center; gap:.7rem; padding:.7rem .9rem;
+    border-radius:8px; background:rgba(232,160,32,0.13); border:1px solid rgba(232,160,32,0.28);
+    margin-bottom:.6rem; cursor:pointer; animation:slidein .25s ease;
+  }
+  @keyframes slidein { from{opacity:0;transform:translateX(-8px)} to{opacity:1;transform:translateX(0)} }
+  .buzzed-player:hover { background:rgba(232,160,32,0.22); }
+  .buzzed-num { font-size:1rem; font-weight:700; color:var(--gold); width:22px; }
+  .buzzed-name { font-weight:600; font-size:.9rem; }
+  .buzzed-first { margin-left:auto; font-size:.73rem; color:var(--gold); }
+
+  /* scoreboard */
+  .player-row {
+    display:flex; align-items:center; gap:.7rem; padding:.55rem .65rem;
+    border-radius:8px; margin-bottom:.4rem; transition:background .2s;
+  }
+  .player-row:hover { background:rgba(255,255,255,0.06); }
+  .player-rank { font-size:.78rem; color:rgba(255,255,255,0.38); width:18px; }
+  .player-avatar {
+    width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:.72rem; flex-shrink:0;
+  }
+  .player-name { font-weight:500; font-size:.88rem; flex:1; }
+  .player-pts { font-weight:700; font-size:1.05rem; }
+  .pts-pos { color:#7dd8a5; }
+  .pts-zero { color:rgba(255,255,255,0.38); }
+  .pts-neg { color:#f08060; }
+
+  /* room code display */
+  .room-display { font-family:'Playfair Display',serif; font-size:2rem; letter-spacing:5px; color:var(--gold); }
+
+  /* ── BADGE ── */
+  .badge { display:inline-flex; align-items:center; gap:.3rem; padding:.22rem .6rem; border-radius:20px; font-size:.73rem; font-weight:600; }
+  .badge-live { background:rgba(224,92,58,0.2); color:#f08060; border:1px solid rgba(224,92,58,0.3); }
+  .badge-wait { background:rgba(255,255,255,0.09); color:rgba(255,255,255,0.45); }
+  .badge-dot { width:6px; height:6px; border-radius:50%; background:currentColor; }
+  .badge-dot-pulse { animation:dotpulse 1.2s ease-in-out infinite; }
+
+  /* ── PLAYER SCREEN ── */
+  #player { flex-direction:column; }
+  .player-content { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:2rem 1.5rem; gap:1.75rem; }
+  .q-display {
+    width:100%; max-width:600px; background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.12); border-radius:16px; padding:1.75rem;
+    text-align:center; min-height:110px; display:flex; align-items:center; justify-content:center;
+  }
+  .q-display-text { font-size:1.25rem; line-height:1.6; }
+  .q-display-waiting { color:rgba(255,255,255,0.32); font-style:italic; font-size:1rem; }
+  .buzzer-wrap { display:flex; flex-direction:column; align-items:center; gap:.9rem; }
+  .buzzer-btn {
+    width:155px; height:155px; border-radius:50%; border:none; cursor:pointer;
+    font-family:'Playfair Display',serif; font-size:1.4rem; font-weight:700;
+    background:radial-gradient(circle at 35% 35%,#e8b830,#c4850e);
+    color:var(--ocean); box-shadow:0 8px 32px rgba(232,160,32,0.48),inset 0 -4px 8px rgba(0,0,0,0.2);
+    transition:all .15s; user-select:none;
+  }
+  .buzzer-btn:hover:not(:disabled) { transform:scale(1.05); box-shadow:0 12px 40px rgba(232,160,32,0.6),inset 0 -4px 8px rgba(0,0,0,0.2); }
+  .buzzer-btn:active:not(:disabled) { transform:scale(.95); box-shadow:0 4px 16px rgba(232,160,32,0.4),inset 0 4px 8px rgba(0,0,0,0.2); }
+  .buzzer-btn:disabled { background:radial-gradient(circle at 35% 35%,#555,#333); color:rgba(255,255,255,0.3); box-shadow:none; cursor:not-allowed; }
+  .buzzer-btn.buzzed-in { background:radial-gradient(circle at 35% 35%,#4da,#2a8); color:var(--ocean); box-shadow:0 8px 32px rgba(77,221,170,0.5); }
+  .buzz-status { font-size:.9rem; color:rgba(255,255,255,0.55); text-align:center; min-height:1.2em; }
+  .mini-section { width:100%; max-width:480px; }
+  .mini-section h4 { font-size:.73rem; text-transform:uppercase; letter-spacing:2px; color:rgba(255,255,255,0.38); margin-bottom:.7rem; text-align:center; }
+  .mini-row { display:flex; align-items:center; gap:.7rem; padding:.45rem .5rem; border-bottom:1px solid rgba(255,255,255,0.06); }
+  .mini-row:last-child { border-bottom:none; }
+
+  /* ── MODALS ── */
+  .modal-overlay {
+    display:none; position:fixed; inset:0; z-index:200;
+    background:rgba(10,35,66,0.88); backdrop-filter:blur(8px);
+    align-items:center; justify-content:center;
+  }
+  .modal-overlay.open { display:flex; }
+  .modal {
+    background:var(--sea); border:1px solid rgba(255,255,255,0.15);
+    border-radius:16px; padding:2rem; max-width:440px; width:90%;
+    box-shadow:var(--shadow); animation:modalin .22s ease;
+  }
+  @keyframes modalin { from{opacity:0;transform:scale(.94)} to{opacity:1;transform:scale(1)} }
+  .modal h2 { font-family:'Playfair Display',serif; margin-bottom:.85rem; }
+  .modal p { color:rgba(255,255,255,0.68); font-size:.93rem; line-height:1.5; margin-bottom:.65rem; }
+  .modal-actions { display:flex; gap:.65rem; justify-content:flex-end; flex-wrap:wrap; margin-top:1.25rem; }
+  .answer-row { display:flex; gap:.5rem; margin-top:.85rem; }
+  .answer-row input {
+    flex:1; padding:.65rem .85rem; border-radius:8px;
+    border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.08);
+    color:#fff; font-size:.95rem; font-family:'DM Sans',sans-serif; outline:none;
+  }
+  .answer-row input:focus { border-color:var(--sky); }
+  .judge-fb { margin-top:.75rem; padding:.7rem 1rem; border-radius:8px; font-size:.88rem; display:none; }
+  .judge-ok { background:rgba(46,139,87,0.2); border:1px solid rgba(46,139,87,0.3); color:#7dd8a5; }
+  .judge-bad { background:rgba(224,92,58,0.2); border:1px solid rgba(224,92,58,0.3); color:#f08060; }
+
+  /* ── WINNER ── */
+  #winner-screen {
+    display:none; position:fixed; inset:0; z-index:500;
+    background:var(--ocean); align-items:center; justify-content:center;
+    flex-direction:column; text-align:center; gap:1.5rem; padding:2rem;
+    background-image:radial-gradient(ellipse at 50% 50%,rgba(232,160,32,0.15),transparent 70%);
+  }
+  #winner-screen.open { display:flex; }
+  .trophy { font-size:5rem; animation:float 2s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+  .winner-name { font-family:'Playfair Display',serif; font-size:clamp(2rem,6vw,3.5rem); }
+  .winner-score { font-size:1.2rem; color:var(--gold); }
+
+  /* ── TOAST ── */
+  #toast {
+    position:fixed; bottom:1.5rem; left:50%; transform:translateX(-50%);
+    background:var(--sea); border:1px solid rgba(255,255,255,0.15); border-radius:8px;
+    padding:.72rem 1.4rem; font-size:.88rem; z-index:300;
+    opacity:0; transition:opacity .3s; pointer-events:none; white-space:nowrap;
+  }
+  #toast.show { opacity:1; }
+
+  /* ── LOADING ── */
+  #loading-overlay {
+    display:none; position:fixed; inset:0; z-index:400;
+    background:rgba(10,35,66,0.82); backdrop-filter:blur(6px);
+    align-items:center; justify-content:center; flex-direction:column; gap:1rem;
+  }
+  #loading-overlay.show { display:flex; }
+  .spinner {
+    width:40px; height:40px; border:3px solid rgba(255,255,255,0.15);
+    border-top-color:var(--sky); border-radius:50%; animation:spin .8s linear infinite;
+  }
+  @keyframes spin { to{transform:rotate(360deg)} }
+
+  @media(max-width:800px) {
+    .host-layout { grid-template-columns:1fr; }
+    .host-sidebar { border-left:none; border-top:1px solid rgba(255,255,255,0.08); }
+  }
+  @media(max-width:480px) {
+    .role-cards { flex-direction:column; }
+    .buzzer-btn { width:130px; height:130px; font-size:1.2rem; }
+  }
+</style>
+</head>
+<body>
+<div class="globe-bg"></div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 0: FIREBASE SETUP
+════════════════════════════════════════ -->
+<div id="firebase-setup" class="screen active">
+  <div style="display:flex;align-items:center;justify-content:center;flex:1;padding:2rem;">
+    <div class="setup-card">
+      <h2>🌍 GeoChallenge Setup</h2>
+      <p class="sub">Connect your Firebase project for real-time cross-device play</p>
+
+      <div class="setup-steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <p>Go to <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a> → Create a project (or use existing)</p>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <p>Click <strong>Realtime Database</strong> → Create database → Start in <strong>test mode</strong> (you can lock it down later)</p>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <p>Go to <strong>Project Settings</strong> → <strong>Your apps</strong> → Add Web app → Copy the <code>firebaseConfig</code> object and paste it below</p>
+        </div>
+      </div>
+
+      <label style="font-size:.8rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:.4rem;">Paste your firebaseConfig object here:</label>
+      <textarea class="fb-config-area" id="fb-config-input" placeholder='const firebaseConfig = {
+  apiKey: "AIza...",
+  authDomain: "your-app.firebaseapp.com",
+  databaseURL: "https://your-app-default-rtdb.firebaseio.com",
+  projectId: "your-app",
+  storageBucket: "your-app.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "1:123456789:web:abc123"
+};'></textarea>
+
+      <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+        <button class="btn btn-primary" style="flex:1" onclick="initFirebase()">Connect to Firebase →</button>
+        <button class="btn btn-ghost btn-sm" onclick="useSavedConfig()" id="btn-use-saved" style="display:none">Use saved config</button>
+      </div>
+      <p style="font-size:.78rem;color:rgba(255,255,255,0.35);margin-top:.85rem;text-align:center;">
+        Your config is saved in this browser so you won't need to paste it again.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 1: LANDING
+════════════════════════════════════════ -->
+<div id="landing" class="screen">
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:2rem;text-align:center;">
+    <div class="logo-globe">🌍</div>
+    <h1 class="title">GeoChallenge</h1>
+    <p class="tagline">Real-time Geography Bee — play from any device</p>
+    <div class="fb-indicator"><span class="dot-green"></span> Firebase connected · Live sync enabled</div>
+
+    <div class="role-cards">
+      <div class="role-card" onclick="showHostSetup()">
+        <div class="role-icon">🎓</div>
+        <h2>Host</h2>
+        <p>Create a room, manage questions, and run the game</p>
+      </div>
+      <div class="role-card" onclick="showPlayerSetup()">
+        <div class="role-icon">🙋</div>
+        <h2>Player</h2>
+        <p>Join a room, buzz in, and answer!</p>
+      </div>
+    </div>
+
+    <div id="host-setup" class="inline-form" style="display:none">
+      <div class="form-card">
+        <h4>Create a room</h4>
+        <div class="form-group"><label>Your name (host)</label><input id="host-name-input" placeholder="e.g. Mr. Garcia" maxlength="24"></div>
+        <div class="form-group"><label>Room code</label><input id="room-code-input" placeholder="e.g. GEO2024" maxlength="12" style="text-transform:uppercase"></div>
+        <div class="form-row">
+          <button class="btn btn-primary" style="flex:1" onclick="createRoom()">Create Room</button>
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('host-setup').style.display='none'">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="player-setup" class="inline-form" style="display:none">
+      <div class="form-card">
+        <h4>Join a room</h4>
+        <div class="form-group"><label>Your name</label><input id="player-name-input" placeholder="e.g. Alex" maxlength="24"></div>
+        <div class="form-group"><label>Room code</label><input id="join-code-input" placeholder="Ask the host" maxlength="12" style="text-transform:uppercase"></div>
+        <div class="form-row">
+          <button class="btn btn-primary" style="flex:1" onclick="joinRoom()">Join Room</button>
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('player-setup').style.display='none'">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-link" style="margin-top:2rem;color:rgba(255,255,255,0.3);font-size:.78rem;" onclick="showScreen('firebase-setup')">⚙ Change Firebase config</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 2: HOST
+════════════════════════════════════════ -->
+<div id="host" class="screen">
+  <div class="topbar">
+    <div class="topbar-brand">🌍 GeoChallenge <span id="host-room-label" style="font-size:.82rem;color:var(--sky);margin-left:.4rem;"></span></div>
+    <div id="host-status-badge" class="badge badge-wait"><span class="badge-dot"></span> Waiting</div>
+    <div class="topbar-actions">
+      <div class="conn-dot" id="conn-dot-host" title="Connection"></div>
+      <button class="btn btn-ghost btn-sm" onclick="showWinnerScreen()">🏆 End Game</button>
+      <button class="btn btn-ghost btn-sm" onclick="goHome()">← Exit</button>
+    </div>
+  </div>
+
+  <div class="host-layout">
+    <!-- main -->
+    <div class="host-main">
+      <!-- stage -->
+      <div class="question-stage">
+        <div>
+          <div class="q-label">Current Question</div>
+          <div class="q-text" id="stage-text">No question selected — pick one from the bank →</div>
+          <div class="q-answer" id="stage-answer"></div>
+        </div>
+        <div class="stage-controls">
+          <button class="btn btn-primary btn-sm" id="btn-reveal" onclick="revealAnswer()" disabled>Reveal Answer</button>
+          <button class="btn btn-gold btn-sm" id="btn-correct" onclick="awardCorrect()" disabled>✓ Correct</button>
+          <button class="btn btn-danger btn-sm" id="btn-wrong" onclick="awardWrong()" disabled>✗ Wrong</button>
+          <button class="btn btn-ghost btn-sm" id="btn-clear" onclick="clearBuzzers()" disabled>Clear Buzzers</button>
+          <button class="btn btn-ghost btn-sm" id="btn-next" onclick="nextQuestion()" disabled>Next →</button>
+        </div>
+      </div>
+
+      <!-- question bank -->
+      <div class="q-bank">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+          <h3>Question Bank <span id="q-count" style="font-size:.78rem;color:rgba(255,255,255,0.38);"></span></h3>
+          <button class="btn-link" onclick="toggleAddForm()">+ Add Question</button>
+        </div>
+        <div id="add-q-panel" class="add-q-panel" style="display:none">
+          <h4>New Question</h4>
+          <div class="form-group"><label>Question</label><textarea id="new-q-text" placeholder="e.g. What is the capital of Mongolia?"></textarea></div>
+          <div class="form-group"><label>Answer</label><input id="new-q-ans" placeholder="e.g. Ulaanbaatar"></div>
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+            <button class="btn btn-primary btn-sm" onclick="addQuestion()">Add</button>
+            <button class="btn btn-ghost btn-sm" onclick="bulkPasteModal()">📋 Bulk Paste</button>
+            <button class="btn btn-ghost btn-sm" onclick="toggleAddForm()">Cancel</button>
+          </div>
+        </div>
+        <div id="q-list"></div>
+      </div>
+    </div>
+
+    <!-- sidebar -->
+    <div class="host-sidebar">
+      <div class="panel">
+        <h3>Buzz Order</h3>
+        <div id="buzz-list"><p class="no-data">Waiting for buzzers…</p></div>
+      </div>
+      <div class="panel">
+        <h3>Scoreboard</h3>
+        <div id="scoreboard-list"><p class="no-data">No players yet</p></div>
+      </div>
+      <div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:1rem;">
+        <p style="font-size:.73rem;color:rgba(255,255,255,0.38);margin-bottom:.4rem;">SHARE ROOM CODE</p>
+        <div class="room-display" id="room-code-display"></div>
+        <p style="font-size:.73rem;color:rgba(255,255,255,0.38);margin-top:.4rem;">Players open this page → Player → enter code</p>
+        <p id="player-count" style="font-size:.8rem;color:rgba(255,255,255,0.45);margin-top:.4rem;"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 3: PLAYER
+════════════════════════════════════════ -->
+<div id="player" class="screen">
+  <div class="topbar">
+    <div class="topbar-brand">🌍 GeoChallenge</div>
+    <div id="player-room-info" class="topbar-info"></div>
+    <div class="topbar-actions">
+      <div class="conn-dot" id="conn-dot-player" title="Connection"></div>
+      <button class="btn btn-ghost btn-sm" onclick="goHome()">← Leave</button>
+    </div>
+  </div>
+  <div class="player-content">
+    <div class="q-display"><div id="player-q-text" class="q-display-waiting">Waiting for host to start a question…</div></div>
+    <div class="buzzer-wrap">
+      <button class="buzzer-btn" id="player-buzzer" onclick="buzzIn()" disabled>BUZZ</button>
+      <div class="buzz-status" id="buzz-status">Waiting for question…</div>
+    </div>
+    <div class="mini-section" id="player-buzz-section" style="display:none">
+      <h4>Buzz Order</h4>
+      <div id="player-buzz-list"></div>
+    </div>
+    <div class="mini-section">
+      <h4>Scores</h4>
+      <div id="player-scoreboard"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ BULK PASTE MODAL ══ -->
+<div class="modal-overlay" id="bulk-modal">
+  <div class="modal">
+    <h2>📋 Bulk Add Questions</h2>
+    <p>One question per line in this format:<br>
+    <code style="font-size:.8rem;color:var(--sky)">Q: [question] | A: [answer]</code></p>
+    <textarea id="bulk-text" style="width:100%;min-height:160px;margin-top:.75rem;padding:.75rem;border-radius:8px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);color:#fff;font-family:'DM Sans',sans-serif;font-size:.88rem;outline:none;resize:vertical;"
+      placeholder="Q: What river forms the border between USA and Mexico? | A: Rio Grande&#10;Q: Which country has the most natural lakes? | A: Canada"></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('bulk-modal')">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="processBulk()">Add Questions</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ JUDGE MODAL ══ -->
+<div class="modal-overlay" id="judge-modal">
+  <div class="modal">
+    <h2 id="judge-title">Judge answer</h2>
+    <p id="judge-q" style="font-weight:500;color:#fff;font-size:1rem;"></p>
+    <p>Correct answer: <span id="judge-ans" style="color:#7dd8a5;font-weight:600;"></span></p>
+    <div class="answer-row">
+      <input id="judge-input" placeholder="Player's answer…" onkeydown="if(event.key==='Enter')aiJudge()">
+      <button class="btn btn-primary btn-sm" onclick="aiJudge()">AI Judge</button>
+    </div>
+    <div id="judge-fb" class="judge-fb"></div>
+    <div class="modal-actions">
+      <button class="btn btn-danger btn-sm" onclick="judgeManual(false)">✗ Wrong −5</button>
+      <button class="btn btn-gold btn-sm" onclick="judgeManual(true)">✓ Correct +10</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('judge-modal')">Skip</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ WINNER ══ -->
+<div id="winner-screen">
+  <div style="font-size:2rem">⭐ 🌟 ⭐</div>
+  <div class="trophy">🏆</div>
+  <div class="winner-name" id="winner-name">Champion!</div>
+  <div class="winner-score" id="winner-score"></div>
+  <p style="color:rgba(255,255,255,0.45);font-size:.9rem;">Geography Bee Champion</p>
+  <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin-top:1rem;">
+    <button class="btn btn-primary" onclick="document.getElementById('winner-screen').classList.remove('open')">Back to Game</button>
+    <button class="btn btn-ghost" onclick="goHome()">New Game</button>
+  </div>
+</div>
+
+<!-- ══ LOADING ══ -->
+<div id="loading-overlay">
+  <div class="spinner"></div>
+  <p id="loading-msg" style="color:rgba(255,255,255,0.6);font-size:.9rem;">Connecting…</p>
+</div>
+
+<!-- ══ TOAST ══ -->
+<div id="toast"></div>
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import {
+  getDatabase, ref, set, get, update, push, onValue, off, remove, serverTimestamp
+} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+
+// ══════════════════════════════════════
+// GLOBALS
+// ══════════════════════════════════════
+let db = null;
+let firebaseApp = null;
+let myRole = null;
+let myName = '';
+let myRoom = '';
+let myId = 'u_' + Math.random().toString(36).slice(2, 9);
+let currentBuzzer = null;
+let roomRef = null;
+let unsubscribes = [];
+
+const PLAYER_COLORS = ['#4da6d6','#e8a020','#e05c3a','#2e8b57','#9b59b6','#e91e8c','#1abc9c','#f39c12'];
+const SAMPLE_QUESTIONS = [
+  {q:'What is the longest river in the world?', a:'The Nile (or Amazon)'},
+  {q:'Which country has the largest land area?', a:'Russia'},
+  {q:'What is the capital of Australia?', a:'Canberra'},
+  {q:'On which continent is the Sahara Desert located?', a:'Africa'},
+  {q:'What is the name of the highest mountain in the world?', a:'Mount Everest'},
+  {q:'Which ocean is the largest?', a:'Pacific Ocean'},
+  {q:'What country has the most natural lakes?', a:'Canada'},
+  {q:'What is the capital of Brazil?', a:'Brasília'},
+];
+
+// ══════════════════════════════════════
+// FIREBASE INIT
+// ══════════════════════════════════════
+// ── Firebase config is hardcoded — no setup screen needed ──
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyAocCjypE6suHOfHyKjxWDay5FUNhPV2w8",
+  authDomain: "geo-challenge-cc73b.firebaseapp.com",
+  databaseURL: "https://geo-challenge-cc73b-default-rtdb.firebaseio.com",
+  projectId: "geo-challenge-cc73b",
+  storageBucket: "geo-challenge-cc73b.appspot.com",
+  messagingSenderId: "445772138713",
+  appId: "1:445772138713:web:00fefd6a38fb9ab3d2d6c8"
+};
+
+// ══════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════
+window.showScreen = function(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+};
+
+window.showHostSetup = function() {
+  document.getElementById('player-setup').style.display = 'none';
+  document.getElementById('host-setup').style.display = 'block';
+  const codes = ['GEO2024','ATLAS','WORLD','MAPS','GLOBE'];
+  document.getElementById('room-code-input').value = codes[Math.floor(Math.random() * codes.length)];
+};
+
+window.showPlayerSetup = function() {
+  document.getElementById('host-setup').style.display = 'none';
+  document.getElementById('player-setup').style.display = 'block';
+};
+
+window.goHome = async function() {
+  // Remove player entry on leave
+  if (myRole === 'player' && db && myRoom) {
+    try { await remove(ref(db, `rooms/${myRoom}/players/${myId}`)); } catch(_) {}
+  }
+  // Unsubscribe all listeners
+  unsubscribes.forEach(u => u());
+  unsubscribes = [];
+  myRole = null; myRoom = ''; myName = ''; roomRef = null; currentBuzzer = null;
+  showScreen('landing');
+};
+
+// ══════════════════════════════════════
+// HOST
+// ══════════════════════════════════════
+window.createRoom = async function() {
+  const name = document.getElementById('host-name-input').value.trim();
+  const code = document.getElementById('room-code-input').value.trim().toUpperCase();
+  if (!name) { toast('Enter your name'); return; }
+  if (!code || code.length < 2) { toast('Enter a room code'); return; }
+  if (!db) { toast('Firebase not connected'); return; }
+
+  showLoading('Creating room…');
+  myRole = 'host'; myName = name; myRoom = code;
+  roomRef = ref(db, `rooms/${code}`);
+
+  const initialState = {
+    hostName: name,
+    currentQ: -1,
+    answerVisible: false,
+    buzzers: [],
+    status: 'waiting',
+    questions: SAMPLE_QUESTIONS.map((q, i) => ({ ...q, id: 'q' + i, used: false })),
+    players: {},
+    createdAt: Date.now()
+  };
+
+  try {
+    await set(roomRef, initialState);
+    hideLoading();
+    document.getElementById('host-room-label').textContent = code;
+    document.getElementById('room-code-display').textContent = code;
+    showScreen('host');
+    subscribeHost();
+    toast(`Room "${code}" created!`);
+  } catch(e) {
+    hideLoading();
+    toast('Error creating room: ' + e.message);
+  }
+};
+
+function subscribeHost() {
+  const unsub = onValue(roomRef, snap => {
+    if (!snap.exists()) return;
+    const state = snap.val();
+    renderHostUI(state);
+    setConnDot('host', true);
+  }, () => setConnDot('host', false));
+  unsubscribes.push(() => off(roomRef));
+}
+
+window.selectQuestion = async function(idx) {
+  await update(roomRef, { currentQ: idx, answerVisible: false, buzzers: [], status: 'question' });
+  toast('Question sent to players!');
+};
+
+window.revealAnswer = async function() {
+  await update(roomRef, { answerVisible: true });
+};
+
+window.clearBuzzers = async function() {
+  await update(roomRef, { buzzers: [] });
+  currentBuzzer = null;
+};
+
+window.nextQuestion = async function() {
+  await update(roomRef, { currentQ: -1, answerVisible: false, buzzers: [], status: 'waiting' });
+  currentBuzzer = null;
+};
+
+window.awardCorrect = function() {
+  const snap = getCurrentState();
+  if (!snap) return;
+  const buzzers = snap.buzzers || [];
+  if (!buzzers.length) { toast('No one buzzed in'); return; }
+  currentBuzzer = Array.isArray(buzzers) ? buzzers[0] : Object.values(buzzers)[0];
+  openJudgeModal(currentBuzzer, snap);
+};
+
+window.awardWrong = async function() {
+  const snap = getCurrentState();
+  if (!snap) return;
+  const buzzers = snap.buzzers || [];
+  if (!buzzers.length) { toast('No one buzzed in'); return; }
+  const buzzer = Array.isArray(buzzers) ? buzzers[0] : Object.values(buzzers)[0];
+  const pid = buzzer.id;
+  const score = (snap.players?.[pid]?.score || 0) - 5;
+  const newBuzzers = normalizeBuzzers(snap.buzzers).filter(b => b.id !== pid);
+  await update(roomRef, {
+    [`players/${pid}/score`]: score,
+    buzzers: newBuzzers
+  });
+  currentBuzzer = null;
+  toast('Wrong! −5 points');
+};
+
+window.addQuestion = async function() {
+  const q = document.getElementById('new-q-text').value.trim();
+  const a = document.getElementById('new-q-ans').value.trim();
+  if (!q || !a) { toast('Enter both question and answer'); return; }
+  const snap = getCurrentState();
+  if (!snap) return;
+  const questions = snap.questions || [];
+  questions.push({ id: 'q_' + Date.now(), q, a, used: false });
+  await update(roomRef, { questions });
+  document.getElementById('new-q-text').value = '';
+  document.getElementById('new-q-ans').value = '';
+  toast('Question added!');
+};
+
+window.deleteQuestion = async function(qid) {
+  const snap = getCurrentState();
+  if (!snap) return;
+  const questions = (snap.questions || []).filter(q => q.id !== qid);
+  const updates = { questions };
+  if (snap.currentQ >= questions.length) {
+    updates.currentQ = -1; updates.answerVisible = false; updates.buzzers = []; updates.status = 'waiting';
+  }
+  await update(roomRef, updates);
+};
+
+window.toggleAddForm = function() {
+  const p = document.getElementById('add-q-panel');
+  p.style.display = p.style.display === 'none' ? 'block' : 'none';
+  if (p.style.display === 'block') document.getElementById('new-q-text').focus();
+};
+
+window.bulkPasteModal = function() { document.getElementById('bulk-modal').classList.add('open'); };
+
+window.processBulk = async function() {
+  const text = document.getElementById('bulk-text').value;
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  const snap = getCurrentState();
+  if (!snap) return;
+  const questions = snap.questions || [];
+  let added = 0;
+  lines.forEach(line => {
+    const m = line.match(/Q:\s*(.+?)\s*\|\s*A:\s*(.+)/i);
+    if (m) { questions.push({ id: 'q_' + Date.now() + '_' + added, q: m[1].trim(), a: m[2].trim(), used: false }); added++; }
+  });
+  if (!added) { toast('No valid lines. Use: Q: … | A: …'); return; }
+  await update(roomRef, { questions });
+  closeModal('bulk-modal');
+  document.getElementById('bulk-text').value = '';
+  toast(`Added ${added} question${added > 1 ? 's' : ''}!`);
+};
+
+window.showWinnerScreen = function() {
+  const snap = getCurrentState();
+  if (!snap) return;
+  const players = Object.values(snap.players || {});
+  if (!players.length) { toast('No players yet'); return; }
+  players.sort((a, b) => (b.score || 0) - (a.score || 0));
+  const w = players[0];
+  document.getElementById('winner-name').textContent = w.name;
+  document.getElementById('winner-score').textContent = `${w.score || 0} points`;
+  document.getElementById('winner-screen').classList.add('open');
+  update(roomRef, { status: 'done' });
+};
+
+// ══════════════════════════════════════
+// PLAYER
+// ══════════════════════════════════════
+window.joinRoom = async function() {
+  const name = document.getElementById('player-name-input').value.trim();
+  const code = document.getElementById('join-code-input').value.trim().toUpperCase();
+  if (!name) { toast('Enter your name'); return; }
+  if (!code) { toast('Enter a room code'); return; }
+  if (!db) { toast('Firebase not connected'); return; }
+
+  showLoading('Joining room…');
+  try {
+    const snap = await get(ref(db, `rooms/${code}`));
+    if (!snap.exists()) { hideLoading(); toast('Room not found. Check the code!'); return; }
+
+    myRole = 'player'; myName = name; myRoom = code;
+    roomRef = ref(db, `rooms/${code}`);
+
+    const state = snap.val();
+    const playerCount = Object.keys(state.players || {}).length;
+    const color = PLAYER_COLORS[playerCount % PLAYER_COLORS.length];
+
+    await update(ref(db, `rooms/${code}/players/${myId}`), { name, score: 0, color });
+    hideLoading();
+    document.getElementById('player-room-info').textContent = `Room: ${code} · Host: ${state.hostName}`;
+    showScreen('player');
+    subscribePlayer();
+
+    // On disconnect cleanup
+    // (Firebase onDisconnect would require REST or server SDK — skipping for simplicity)
+  } catch(e) {
+    hideLoading();
+    toast('Error joining: ' + e.message);
+  }
+};
+
+function subscribePlayer() {
+  const unsub = onValue(roomRef, snap => {
+    if (!snap.exists()) return;
+    renderPlayerUI(snap.val());
+    setConnDot('player', true);
+  }, () => setConnDot('player', false));
+  unsubscribes.push(() => off(roomRef));
+}
+
+window.buzzIn = async function() {
+  if (!roomRef) return;
+  const snap = getCurrentState();
+  if (!snap || snap.status !== 'question') return;
+  const buzzers = normalizeBuzzers(snap.buzzers);
+  if (buzzers.find(b => b.id === myId)) { toast('Already buzzed in!'); return; }
+  buzzers.push({ id: myId, name: myName, ts: Date.now() });
+  await update(roomRef, { buzzers });
+};
+
+// ══════════════════════════════════════
+// JUDGE
+// ══════════════════════════════════════
+function openJudgeModal(buzzer, state) {
+  const q = state.questions?.[state.currentQ];
+  if (!q) return;
+  document.getElementById('judge-title').textContent = `⚡ ${buzzer.name} buzzed in!`;
+  document.getElementById('judge-q').textContent = q.q;
+  document.getElementById('judge-ans').textContent = q.a;
+  document.getElementById('judge-input').value = '';
+  document.getElementById('judge-fb').style.display = 'none';
+  currentBuzzer = buzzer;
+  document.getElementById('judge-modal').classList.add('open');
+  setTimeout(() => document.getElementById('judge-input').focus(), 100);
+}
+
+window.aiJudge = async function() {
+  const given = document.getElementById('judge-input').value.trim();
+  if (!given) return;
+  const snap = getCurrentState();
+  if (!snap) return;
+  const q = snap.questions?.[snap.currentQ];
+  const fb = document.getElementById('judge-fb');
+  fb.textContent = '🤔 Checking with AI…';
+  fb.className = 'judge-fb';
+  fb.style.display = 'block';
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 80,
+        messages: [{ role: 'user', content:
+          `Geography bee answer check. Question: "${q.q}". Official answer: "${q.a}". Player answered: "${given}". Is the player's answer correct (allow reasonable spelling variations, abbreviations, or alternate accepted names)? Reply ONLY with JSON: {"correct": true/false, "feedback": "brief one-line reason"}`
+        }]
+      })
+    });
+    const data = await res.json();
+    const txt = data.content?.find(c => c.type === 'text')?.text || '{}';
+    const parsed = JSON.parse(txt.replace(/```json|```/g, '').trim());
+    if (parsed.correct) {
+      fb.className = 'judge-fb judge-ok';
+      fb.textContent = '✓ Correct! ' + (parsed.feedback || '');
+      setTimeout(() => { judgeManual(true); closeModal('judge-modal'); }, 1100);
+    } else {
+      fb.className = 'judge-fb judge-bad';
+      fb.textContent = '✗ Incorrect. ' + (parsed.feedback || '');
+    }
+  } catch(e) {
+    fb.className = 'judge-fb judge-bad';
+    fb.textContent = 'AI check failed — judge manually below.';
+  }
+};
+
+window.judgeManual = async function(isCorrect) {
+  if (!currentBuzzer || !roomRef) return;
+  const snap = getCurrentState();
+  if (!snap) return;
+  const pid = currentBuzzer.id;
+  const delta = isCorrect ? 10 : -5;
+  const score = (snap.players?.[pid]?.score || 0) + delta;
+  const newBuzzers = normalizeBuzzers(snap.buzzers).filter(b => b.id !== pid);
+  const updates = {
+    [`players/${pid}/score`]: score,
+    buzzers: newBuzzers
+  };
+  if (isCorrect) {
+    const questions = [...(snap.questions || [])];
+    if (questions[snap.currentQ]) questions[snap.currentQ].used = true;
+    updates.questions = questions;
+    updates.status = 'waiting';
+  }
+  await update(roomRef, updates);
+  currentBuzzer = null;
+  closeModal('judge-modal');
+  toast(isCorrect ? '✓ +10 points!' : '✗ −5 points');
+};
+
+// ══════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════
+let _lastState = null;
+function getCurrentState() { return _lastState; }
+
+function renderHostUI(state) {
+  _lastState = state;
+  const q = state.currentQ >= 0 ? state.questions?.[state.currentQ] : null;
+  const buzzers = normalizeBuzzers(state.buzzers);
+
+  // stage
+  document.getElementById('stage-text').textContent = q ? q.q : 'No question selected — pick one from the bank →';
+  const ansDiv = document.getElementById('stage-answer');
+  ansDiv.textContent = q ? `Answer: ${q.a}` : '';
+  ansDiv.className = 'q-answer' + (state.answerVisible && q ? ' visible' : '');
+
+  const hasBuzz = buzzers.length > 0;
+  document.getElementById('btn-reveal').disabled = !q;
+  document.getElementById('btn-correct').disabled = !hasBuzz;
+  document.getElementById('btn-wrong').disabled = !hasBuzz;
+  document.getElementById('btn-clear').disabled = !hasBuzz;
+  document.getElementById('btn-next').disabled = !q;
+
+  // status badge
+  const sb = document.getElementById('host-status-badge');
+  if (state.status === 'question') {
+    sb.className = 'badge badge-live';
+    sb.innerHTML = '<span class="badge-dot badge-dot-pulse"></span> LIVE';
+  } else {
+    sb.className = 'badge badge-wait';
+    sb.innerHTML = '<span class="badge-dot"></span> Waiting';
+  }
+
+  // question bank
+  const ql = document.getElementById('q-list');
+  const qs = state.questions || [];
+  document.getElementById('q-count').textContent = `(${qs.length})`;
+  ql.innerHTML = qs.length ? qs.map((q, i) => `
+    <div class="q-item ${state.currentQ === i ? 'active-q' : ''} ${q.used ? 'used-q' : ''}" onclick="selectQuestion(${i})">
+      <button class="q-item-delete" onclick="event.stopPropagation();deleteQuestion('${q.id}')">×</button>
+      <div class="q-item-num">Q${i + 1}${q.used ? ' · used' : ''}</div>
+      <div class="q-item-text">${esc(q.q)}</div>
+      <div class="q-item-ans">→ ${esc(q.a)}</div>
+    </div>`).join('') : '<p style="color:rgba(255,255,255,0.4);font-size:.88rem;">No questions yet — add some above!</p>';
+
+  // buzz list
+  const bl = document.getElementById('buzz-list');
+  bl.innerHTML = buzzers.length ? buzzers.map((b, i) => {
+    const color = state.players?.[b.id]?.color || 'var(--sky)';
+    return `<div class="buzzed-player" onclick='hostClickBuzzer(${JSON.stringify(b)})'>
+      <div class="buzzed-num">${i + 1}</div>
+      <div class="player-avatar" style="width:28px;height:28px;font-size:.68rem;background:${color}22;color:${color}">${b.name.slice(0,2).toUpperCase()}</div>
+      <div class="buzzed-name">${esc(b.name)}</div>
+      ${i === 0 ? '<div class="buzzed-first">⚡ FIRST</div>' : ''}
+    </div>`;
+  }).join('') : '<p class="no-data">Waiting for buzzers…</p>';
+
+  // scoreboard
+  const players = Object.entries(state.players || {}).map(([id, p]) => ({ id, ...p }));
+  players.sort((a, b) => (b.score || 0) - (a.score || 0));
+  const sl = document.getElementById('scoreboard-list');
+  sl.innerHTML = players.length ? players.map((p, i) => `
+    <div class="player-row">
+      <div class="player-rank">${i + 1}</div>
+      <div class="player-avatar" style="background:${p.color}22;color:${p.color}">${p.name.slice(0,2).toUpperCase()}</div>
+      <div class="player-name">${esc(p.name)}</div>
+      <div class="player-pts ${(p.score||0)>0?'pts-pos':(p.score||0)<0?'pts-neg':'pts-zero'}">${p.score || 0}</div>
+    </div>`).join('') : '<p class="no-data">No players yet</p>';
+
+  const pc = players.length;
+  document.getElementById('player-count').textContent = `${pc} player${pc !== 1 ? 's' : ''} connected`;
+}
+
+window.hostClickBuzzer = function(buzzer) {
+  openJudgeModal(buzzer, _lastState);
+};
+
+function renderPlayerUI(state) {
+  _lastState = state;
+  const q = state.currentQ >= 0 ? state.questions?.[state.currentQ] : null;
+  const buzzers = normalizeBuzzers(state.buzzers);
+
+  // question
+  const qt = document.getElementById('player-q-text');
+  if (q && state.status === 'question') {
+    qt.className = 'q-display-text'; qt.textContent = q.q;
+  } else {
+    qt.className = 'q-display-waiting'; qt.textContent = 'Waiting for host to start a question…';
+  }
+
+  // buzzer button
+  const btn = document.getElementById('player-buzzer');
+  const bst = document.getElementById('buzz-status');
+  const myBuzz = buzzers.find(b => b.id === myId);
+  const myPos = buzzers.findIndex(b => b.id === myId);
+
+  if (!q || state.status !== 'question') {
+    btn.disabled = true; btn.className = 'buzzer-btn';
+    bst.textContent = 'Waiting for question…';
+  } else if (myBuzz) {
+    btn.disabled = true; btn.className = 'buzzer-btn buzzed-in';
+    bst.textContent = myPos === 0 ? '⚡ You buzzed first!' : `You're #${myPos + 1} in line`;
+  } else {
+    btn.disabled = false; btn.className = 'buzzer-btn';
+    bst.textContent = 'Press BUZZ or Space!';
+  }
+
+  // buzz queue for player
+  const bqs = document.getElementById('player-buzz-section');
+  const bql = document.getElementById('player-buzz-list');
+  if (buzzers.length) {
+    bqs.style.display = 'block';
+    bql.innerHTML = buzzers.map((b, i) => {
+      const color = state.players?.[b.id]?.color || 'var(--sky)';
+      return `<div class="mini-row">
+        <span style="color:rgba(255,255,255,0.38);font-size:.78rem;width:20px;">${i+1}</span>
+        <div class="player-avatar" style="width:26px;height:26px;font-size:.63rem;background:${color}22;color:${color}">${b.name.slice(0,2).toUpperCase()}</div>
+        <span style="font-size:.88rem;${b.id===myId?'color:var(--gold);font-weight:600;':''}">${esc(b.name)}</span>
+        ${i === 0 ? '<span style="margin-left:auto;font-size:.72rem;color:var(--gold);">⚡</span>' : ''}
+      </div>`;
+    }).join('');
+  } else { bqs.style.display = 'none'; }
+
+  // mini scoreboard
+  const players = Object.entries(state.players || {}).map(([id, p]) => ({ id, ...p }));
+  players.sort((a, b) => (b.score || 0) - (a.score || 0));
+  document.getElementById('player-scoreboard').innerHTML = players.map((p, i) => `
+    <div class="mini-row" style="${p.id===myId?'background:rgba(255,255,255,0.06);border-radius:6px;':''}">
+      <span style="color:rgba(255,255,255,0.38);font-size:.78rem;width:20px;">${i+1}</span>
+      <div class="player-avatar" style="width:26px;height:26px;font-size:.63rem;background:${p.color}22;color:${p.color}">${p.name.slice(0,2).toUpperCase()}</div>
+      <span style="font-size:.88rem;flex:1;${p.id===myId?'font-weight:600;':''}">${esc(p.name)}</span>
+      <span style="font-weight:700;font-size:.88rem;color:${(p.score||0)>0?'#7dd8a5':(p.score||0)<0?'#f08060':'rgba(255,255,255,0.38)'}">${p.score||0}</span>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════
+function normalizeBuzzers(buzzers) {
+  if (!buzzers) return [];
+  if (Array.isArray(buzzers)) return buzzers;
+  // Firebase sometimes converts arrays to objects
+  return Object.values(buzzers).sort((a, b) => a.ts - b.ts);
+}
+
+function setConnDot(role, online) {
+  const id = role === 'host' ? 'conn-dot-host' : 'conn-dot-player';
+  const el = document.getElementById(id);
+  if (el) { el.className = 'conn-dot ' + (online ? 'conn-online' : 'conn-offline'); }
+}
+
+window.closeModal = function(id) { document.getElementById(id).classList.remove('open'); };
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showLoading(msg) {
+  document.getElementById('loading-msg').textContent = msg || 'Loading…';
+  document.getElementById('loading-overlay').classList.add('show');
+}
+function hideLoading() { document.getElementById('loading-overlay').classList.remove('show'); }
+
+window.toast = function(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+};
+
+// Spacebar to buzz
+document.addEventListener('keydown', e => {
+  if (e.code === 'Space' && myRole === 'player') {
+    e.preventDefault();
+    const btn = document.getElementById('player-buzzer');
+    if (!btn.disabled) window.buzzIn();
+  }
+});
+
+// Auto-connect using hardcoded config — must be last so all functions are defined
+async function autoConnect() {
+  showLoading('Connecting to Firebase…');
+  try {
+    firebaseApp = initializeApp(FIREBASE_CONFIG, 'geochallenge');
+    db = getDatabase(firebaseApp);
+    hideLoading();
+    showScreen('landing');
+  } catch(e) {
+    hideLoading();
+    alert('Firebase connection failed: ' + e.message);
+  }
+}
+autoConnect();
+</script>
+</body>
+</html>
