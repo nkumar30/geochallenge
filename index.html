@@ -552,9 +552,9 @@ AI will figure it out!"></textarea>
 <div id="toast"></div>
 
 
-<script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getDatabase, ref, set, get, update, onValue, off, remove } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script>
 
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyAocCjypE6suHOfHyKjxWDay5FUNhPV2w8",
@@ -613,7 +613,7 @@ window.showPlayerSetup=function(){document.getElementById('host-setup').style.di
 window.switchTab=function(id,btn){document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.host-tab').forEach(b=>b.classList.remove('active'));document.getElementById(id).classList.add('active');btn.classList.add('active');};
 window.goHome=async function(){
   stopReadTimer();
-  if(myRole==='player'&&db&&myRoom){try{await remove(ref(db,`rooms/${myRoom}/players/${myId}`));}catch(_){}}
+  if(myRole==='player'&&db&&myRoom){try{await db.ref(`rooms/${myRoom}/players/${myId}`).remove();}catch(_){}}
   unsubscribes.forEach(u=>u());unsubscribes=[];
   myRole=null;myRoom='';myName='';roomRef=null;currentBuzzer=null;_state=null;
   showScreen('landing');
@@ -632,15 +632,15 @@ function startReadTimer(){
   readTimer=setInterval(async()=>{
     const cur=S();if(!cur)return;
     const wi=(cur.wordIdx||0)+1;
-    if(wi>=words.length){stopReadTimer();await update(roomRef,{wordIdx:wi,paused:true});return;}
-    await update(roomRef,{wordIdx:wi});
+    if(wi>=words.length){stopReadTimer();await roomRef.update({wordIdx:wi,paused:true});return;}
+    await roomRef.update({wordIdx:wi});
   },wordSpeed);
 }
 
 window.toggleReadTimer=async function(){
   const s=S();if(!s)return;
   const nowPaused=!s.paused;
-  await update(roomRef,{paused:nowPaused});
+  await roomRef.update({paused:nowPaused});
   if(nowPaused){stopReadTimer();}else{startReadTimer();}
 };
 
@@ -651,7 +651,7 @@ window.stepWord=async function(dir){
   const q=bankQs[s.currentQ];if(!q)return;
   const words=q.q.split(' ');
   const wi=Math.max(0,Math.min(words.length-1,(s.wordIdx||0)+dir));
-  await update(roomRef,{wordIdx:wi,paused:true});
+  await roomRef.update({wordIdx:wi,paused:true});
 };
 
 window.updateWordSpeed=function(){
@@ -692,13 +692,13 @@ window.createRoom=async function(){
   const code=document.getElementById('room-code-input').value.trim().toUpperCase();
   if(!name){toast('Enter your name');return;}if(!code||code.length<2){toast('Enter a room code');return;}
   showLoading('Creating room…');
-  myRole='host';myName=name;myRoom=code;roomRef=ref(db,`rooms/${code}`);
+  myRole='host';myName=name;myRoom=code;roomRef=db.ref(`rooms/${code}`);
   const init={hostName:name,currentQ:-1,answerVisible:false,buzzers:[],status:'waiting',activeSet:'__all__',
     wordIdx:0,paused:false,
     questions:SAMPLE_QUESTIONS.map((q,i)=>({...q,id:'q'+i,used:false,sets:q.sets||[]})),
     players:{},categories:SAMPLE_CATS,sets:SAMPLE_SETS,createdAt:Date.now()};
   try{
-    await set(roomRef,init);
+    await roomRef.set(init);
     hideLoading();
     document.getElementById('host-room-label').textContent=code;
     document.getElementById('room-code-display').textContent=code;
@@ -709,26 +709,26 @@ window.createRoom=async function(){
 };
 
 function subscribeHost(){
-  const unsub=onValue(roomRef,snap=>{if(!snap.exists())return;renderHostUI(snap.val());setConnDot('host',true);},()=>setConnDot('host',false));
-  unsubscribes.push(()=>off(roomRef));
+  const unsub=roomRef.on('value', snap =>{if(!snap.exists())return;renderHostUI(snap.val());setConnDot('host',true);},()=>setConnDot('host',false));
+  unsubscribes.push(()=>roomRef.off());
 }
 
 // ── GAME CONTROLS ──
 window.selectQuestion=async function(idx){
   stopReadTimer();
-  await update(roomRef,{currentQ:idx,answerVisible:false,buzzers:[],status:'question',wordIdx:0,paused:false});
+  await roomRef.update({currentQ:idx,answerVisible:false,buzzers:[],status:'question',wordIdx:0,paused:false});
   toast('Question started!');
   startReadTimer();
 };
-window.revealAnswer=async function(){stopReadTimer();await update(roomRef,{answerVisible:true,paused:true});};
-window.clearBuzzers=async function(){await update(roomRef,{buzzers:[]});currentBuzzer=null;};
-window.nextQuestion=async function(){stopReadTimer();await update(roomRef,{currentQ:-1,answerVisible:false,buzzers:[],status:'waiting',wordIdx:0,paused:false});currentBuzzer=null;};
-window.resetUsed=async function(){const s=S();if(!s)return;const qs=(s.questions||[]).map(q=>({...q,used:false}));await update(roomRef,{questions:qs});toast('Reset!');};
+window.revealAnswer=async function(){stopReadTimer();await roomRef.update({answerVisible:true,paused:true});};
+window.clearBuzzers=async function(){await roomRef.update({buzzers:[]});currentBuzzer=null;};
+window.nextQuestion=async function(){stopReadTimer();await roomRef.update({currentQ:-1,answerVisible:false,buzzers:[],status:'waiting',wordIdx:0,paused:false});currentBuzzer=null;};
+window.resetUsed=async function(){const s=S();if(!s)return;const qs=(s.questions||[]).map(q=>({...q,used:false}));await roomRef.update({questions:qs});toast('Reset!');};
 window.awardCorrect=function(){const s=S();if(!s)return;const bz=normBuzzers(s.buzzers);if(!bz.length){toast('No one buzzed in');return;}openJudgeModal(bz[0],s);};
 window.awardWrong=async function(){
   const s=S();if(!s)return;const bz=normBuzzers(s.buzzers);if(!bz.length){toast('No one buzzed in');return;}
   const b=bz[0];const score=(s.players?.[b.id]?.score||0)-5;
-  await update(roomRef,{[`players/${b.id}/score`]:score,buzzers:bz.filter(x=>x.id!==b.id)});
+  await roomRef.update({[`players/${b.id}/score`]:score,buzzers:bz.filter(x=>x.id!==b.id)});
   currentBuzzer=null;toast('Wrong! −5');
 };
 
@@ -738,7 +738,7 @@ window.changeActiveSet=async function(val){
   const s=S();if(!s)return;
   const setName=val==='__all__'?'All Questions':(s.sets||[]).find(x=>x.id===val)?.name||'Unknown';
   document.getElementById('active-set-name').textContent=setName;
-  await update(roomRef,{currentQ:-1,answerVisible:false,buzzers:[],status:'waiting',activeSet:val,wordIdx:0,paused:false});
+  await roomRef.update({currentQ:-1,answerVisible:false,buzzers:[],status:'waiting',activeSet:val,wordIdx:0,paused:false});
   renderQuestionBank();toast(`Loaded: ${setName}`);
 };
 
@@ -769,7 +769,7 @@ window.saveSet=async function(){
   const desc=document.getElementById('set-desc-input').value.trim();
   if(editingSetId){const idx=sets.findIndex(x=>x.id===editingSetId);if(idx>=0)sets[idx]={...sets[idx],name,desc,icon};}
   else{sets.push({id:'set_'+Date.now(),name,desc,icon,createdAt:Date.now()});}
-  await update(roomRef,{sets});closeModal('set-modal');toast(editingSetId?'Set updated!':'Set created!');
+  await roomRef.update({sets});closeModal('set-modal');toast(editingSetId?'Set updated!':'Set created!');
 };
 window.deleteSet=async function(setId){
   const s=S();if(!s)return;
@@ -777,7 +777,7 @@ window.deleteSet=async function(setId){
   const questions=(s.questions||[]).map(q=>({...q,sets:(q.sets||[]).filter(sid=>sid!==setId)}));
   const updates={sets,questions};
   if(s.activeSet===setId){updates.activeSet='__all__';}
-  await update(roomRef,updates);
+  await roomRef.update(updates);
   if(activeSetFilter===setId){activeSetFilter='__all__';document.getElementById('active-set-name').textContent='All Questions';}
   toast('Set deleted');
 };
@@ -796,7 +796,7 @@ window.confirmAddToSet=async function(){
     if(q.id!==addToSetQid)return q;
     const sets=[...(q.sets||[])];if(!sets.includes(setId))sets.push(setId);return{...q,sets};
   });
-  await update(roomRef,{questions});closeModal('addtoset-modal');
+  await roomRef.update({questions});closeModal('addtoset-modal');
   toast('Added to set!');
 };
 
@@ -809,7 +809,7 @@ window.addQuestion=async function(){
   const setId=document.getElementById('new-q-set').value;
   if(!q||!a){toast('Enter both question and answer');return;}
   const s=S();if(!s)return;
-  await update(roomRef,{questions:[...(s.questions||[]),{id:'q_'+Date.now(),q,a,cat:cat||'',sets:setId?[setId]:[],used:false}]});
+  await roomRef.update({questions:[...(s.questions||[]),{id:'q_'+Date.now(),q,a,cat:cat||'',sets:setId?[setId]:[],used:false}]});
   document.getElementById('new-q-text').value='';document.getElementById('new-q-ans').value='';
   toast('Question added!');
 };
@@ -818,7 +818,7 @@ window.deleteQuestion=async function(qid){
   const questions=(s.questions||[]).filter(q=>q.id!==qid);
   const updates={questions};
   if(s.currentQ>=questions.length){updates.currentQ=-1;updates.answerVisible=false;updates.buzzers=[];updates.status='waiting';}
-  await update(roomRef,updates);
+  await roomRef.update(updates);
 };
 
 // ── CATEGORIES ──
@@ -826,12 +826,12 @@ window.addCategory=async function(){
   const val=document.getElementById('new-cat-input').value.trim();if(!val){toast('Enter a name');return;}
   const s=S();if(!s)return;const cats=[...(s.categories||[])];
   if(cats.includes(val)){toast('Already exists');return;}
-  cats.push(val);await update(roomRef,{categories:cats});
+  cats.push(val);await roomRef.update({categories:cats});
   document.getElementById('new-cat-input').value='';toast(`"${val}" added!`);
 };
 window.deleteCategory=async function(cat){
   const s=S();if(!s)return;
-  await update(roomRef,{categories:(s.categories||[]).filter(c=>c!==cat),questions:(s.questions||[]).map(q=>q.cat===cat?{...q,cat:''}:q)});
+  await roomRef.update({categories:(s.categories||[]).filter(c=>c!==cat),questions:(s.questions||[]).map(q=>q.cat===cat?{...q,cat:''}:q)});
   toast(`"${cat}" removed`);
 };
 
@@ -854,11 +854,7 @@ window.smartParse=async function(){
   try{
     const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,messages:[{role:'user',
-        content:`Extract ALL question-answer pairs from this text. Available categories: ${cats.join(', ')||'none'}. Suggest best category for each or leave blank. Return ONLY a JSON array, no markdown:
-[{"q":"question","a":"answer","cat":"category or empty"}]
-
-Text:
-${text}`}]})});
+        content:'Extract ALL question-answer pairs from this text. Available categories: '+(cats.length?cats.join(', '):'none')+'. Suggest the best matching category or leave blank. Return ONLY a valid JSON array, example: [{"q":"...","a":"...","cat":"..."}]. Text to parse: '+text}]})});
     const data=await res.json();
     const raw=data.content?.find(c=>c.type==='text')?.text||'[]';
     let parsed=[];
@@ -873,8 +869,7 @@ ${text}`}]})});
 window.bulkPaste=async function(){
   const text=document.getElementById('import-text').value;
   const defSet=document.getElementById('import-set-sel').value;
-  const lines=text.split('
-').map(l=>l.trim()).filter(Boolean);
+  const lines=text.split('\n').map(l=>l.trim()).filter(Boolean);
   const s=S();if(!s)return;
   const questions=[...(s.questions||[])];let added=0;
   lines.forEach(line=>{
@@ -882,7 +877,7 @@ window.bulkPaste=async function(){
     if(m){questions.push({id:'q_'+Date.now()+'_'+added,q:m[1].trim(),a:m[2].trim(),cat:(m[3]||'').trim(),sets:defSet?[defSet]:[],used:false});added++;}
   });
   if(!added){toast('No valid lines. Use: Q: … | A: … | C: category');return;}
-  await update(roomRef,{questions});
+  await roomRef.update({questions});
   document.getElementById('import-text').value='';document.getElementById('parse-status').innerHTML='';
   toast(`✅ ${added} question${added!==1?'s':''} added!`);
   switchTab('tab-bank',document.querySelector('.host-tab'));
@@ -904,7 +899,7 @@ window.removePI=function(i){parsedPreview.splice(i,1);renderPreview(S()?.categor
 window.confirmImport=async function(){
   if(!parsedPreview.length)return;const s=S();if(!s)return;
   const questions=[...(s.questions||[]),...parsedPreview];
-  await update(roomRef,{questions});
+  await roomRef.update({questions});
   document.getElementById('import-preview').style.display='none';document.getElementById('import-text').value='';document.getElementById('parse-status').innerHTML='';
   const added=parsedPreview.length;parsedPreview=[];
   toast(`✅ ${added} questions added!`);
@@ -960,7 +955,7 @@ window.judgeManual=async function(isCorrect){
   const newBz=normBuzzers(s.buzzers).filter(b=>b.id!==pid);
   const updates={[`players/${pid}/score`]:score,buzzers:newBz};
   if(isCorrect){const qs=[...(s.questions||[])];if(qs[s.currentQ])qs[s.currentQ].used=true;updates.questions=qs;updates.status='waiting';stopReadTimer();}
-  await update(roomRef,updates);currentBuzzer=null;closeModal('judge-modal');
+  await roomRef.update(updates);currentBuzzer=null;closeModal('judge-modal');
   toast(isCorrect?`✓ +${pts} pts!`:'✗ −5');
 };
 
@@ -971,19 +966,19 @@ window.joinRoom=async function(){
   if(!name){toast('Enter your name');return;}if(!code){toast('Enter a room code');return;}
   showLoading('Joining…');
   try{
-    const snap=await get(ref(db,`rooms/${code}`));
+    const snap=await db.ref(`rooms/${code}`).once("value");
     if(!snap.exists()){hideLoading();toast('Room not found!');return;}
-    myRole='player';myName=name;myRoom=code;roomRef=ref(db,`rooms/${code}`);
+    myRole='player';myName=name;myRoom=code;roomRef=db.ref(`rooms/${code}`);
     const state=snap.val();const color=PLAYER_COLORS[Object.keys(state.players||{}).length%PLAYER_COLORS.length];
-    await update(ref(db,`rooms/${code}/players/${myId}`),{name,score:0,color});
+    await db.ref(`rooms/${code}/players/${myId}`).update({name,score:0,color});
     hideLoading();document.getElementById('player-room-info').textContent=`Room: ${code} · Host: ${state.hostName}`;
     showScreen('player');subscribePlayer();
   }catch(e){hideLoading();toast('Error: '+e.message);}
 };
 
 function subscribePlayer(){
-  const unsub=onValue(roomRef,snap=>{if(!snap.exists())return;renderPlayerUI(snap.val());setConnDot('player',true);},()=>setConnDot('player',false));
-  unsubscribes.push(()=>off(roomRef));
+  const unsub=roomRef.on('value', snap =>{if(!snap.exists())return;renderPlayerUI(snap.val());setConnDot('player',true);},()=>setConnDot('player',false));
+  unsubscribes.push(()=>roomRef.off());
 }
 
 window.buzzIn=async function(){
@@ -991,7 +986,7 @@ window.buzzIn=async function(){
   const bz=normBuzzers(s.buzzers);if(bz.find(b=>b.id===myId)){toast('Already buzzed!');return;}
   const wi=s.wordIdx||0;
   bz.push({id:myId,name:myName,ts:Date.now(),wordIdx:wi});
-  await update(roomRef,{buzzers:bz});
+  await roomRef.update({buzzers:bz});
 };
 
 // ── RENDER HOST ──
@@ -1201,7 +1196,7 @@ window.showWinnerScreen=function(){
   const s=S();if(!s)return;const players=Object.values(s.players||{});if(!players.length){toast('No players yet');return;}
   players.sort((a,b)=>(b.score||0)-(a.score||0));const w=players[0];
   document.getElementById('winner-name').textContent=w.name;document.getElementById('winner-score').textContent=`${w.score||0} points`;
-  document.getElementById('winner-screen').classList.add('open');update(roomRef,{status:'done'});
+  document.getElementById('winner-screen').classList.add('open');roomRef.update({status:'done'});
 };
 
 // ── KEYBOARD ──
@@ -1210,7 +1205,7 @@ document.addEventListener('keydown',e=>{if(e.code==='Space'&&myRole==='player'){
 // ── BOOT ──
 async function autoConnect(){
   showLoading('Connecting to Firebase…');
-  try{firebaseApp=initializeApp(FIREBASE_CONFIG,'geochallenge');db=getDatabase(firebaseApp);hideLoading();showScreen('landing');}
+  try{firebaseApp=firebase.initializeApp(FIREBASE_CONFIG);db=firebase.database();hideLoading();showScreen('landing');}
   catch(e){hideLoading();alert('Firebase connection failed: '+e.message);}
 }
 autoConnect();
