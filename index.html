@@ -796,7 +796,11 @@ window.showScreen=function(id){document.querySelectorAll('.screen').forEach(s=>s
 window.showHostSetup=function(){
   hostGate('Create a Room','Enter the host PIN to create and manage games', function(){
     document.getElementById('player-setup').style.display='none';
-    document.getElementById('host-setup').style.display='block';const codes=['GEO2024','ATLAS','WORLD','MAPS','GLOBE'];document.getElementById('room-code-input').value=codes[Math.floor(Math.random()*codes.length)];};
+    document.getElementById('host-setup').style.display='block';
+    const codes=['GEO2024','ATLAS','WORLD','MAPS','GLOBE'];
+    document.getElementById('room-code-input').value=codes[Math.floor(Math.random()*codes.length)];
+  });
+};
 window.showPlayerSetup=function(){document.getElementById('host-setup').style.display='none';document.getElementById('player-setup').style.display='block';};
 window.switchTab=function(id,btn){document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.host-tab').forEach(b=>b.classList.remove('active'));document.getElementById(id).classList.add('active');btn.classList.add('active');};
 window.toggleLibManager=function(){
