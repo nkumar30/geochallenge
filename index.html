@@ -12,8 +12,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--ocean);color:var(--light)
 .globe-bg{position:fixed;top:-100px;right:-100px;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(77,166,214,0.12),rgba(10,35,66,0.05));border:1px solid rgba(77,166,214,0.1);pointer-events:none;z-index:0;}
 .screen{display:none;min-height:100vh;position:relative;z-index:1;}
 .screen.active{display:flex;flex-direction:column;}
-
-/* LANDING */
 #landing{align-items:center;justify-content:center;text-align:center;padding:2rem;}
 .logo-globe{width:80px;height:80px;border-radius:50%;margin:0 auto 1.5rem;background:linear-gradient(135deg,var(--wave),var(--sky));display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 0 40px rgba(77,166,214,0.4);animation:pulse 3s ease-in-out infinite;}
 @keyframes pulse{0%,100%{box-shadow:0 0 40px rgba(77,166,214,0.4)}50%{box-shadow:0 0 60px rgba(77,166,214,0.7)}}
@@ -31,8 +29,6 @@ h1.title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4rem);f
 .inline-form{margin-top:1.5rem;width:100%;max-width:400px;}
 .form-card{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:1.5rem;}
 .form-card h4{font-size:.95rem;color:var(--sky);margin-bottom:1rem;}
-
-/* BUTTONS */
 .btn{padding:.7rem 1.6rem;border-radius:8px;border:none;cursor:pointer;font-size:.92rem;font-weight:600;font-family:'DM Sans',sans-serif;transition:all .2s;}
 .btn-primary{background:var(--wave);color:#fff;}.btn-primary:hover{background:var(--sky);transform:scale(1.02);}
 .btn-danger{background:var(--coral);color:#fff;}.btn-danger:hover{background:#c94a2a;}
@@ -43,8 +39,6 @@ h1.title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4rem);f
 .btn:disabled{opacity:.38;cursor:not-allowed;transform:none!important;}
 .btn-link{background:none;border:none;color:var(--sky);cursor:pointer;font-size:.85rem;font-family:'DM Sans',sans-serif;padding:0;}
 .btn-link:hover{text-decoration:underline;}
-
-/* FORMS */
 .form-group{margin-bottom:.8rem;}
 .form-group label{font-size:.78rem;color:rgba(255,255,255,0.55);display:block;margin-bottom:.3rem;}
 .form-group input,.form-group textarea,.form-group select{width:100%;padding:.62rem .88rem;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#fff;font-size:.92rem;font-family:'DM Sans',sans-serif;outline:none;resize:vertical;}
@@ -52,37 +46,27 @@ h1.title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4rem);f
 .form-group select option{background:#1a3a5c;color:#fff;}
 .form-group textarea{min-height:70px;}
 .form-row{display:flex;gap:.6rem;flex-wrap:wrap;}
-
-/* TOPBAR */
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.4rem;background:rgba(10,35,66,0.8);border-bottom:1px solid rgba(255,255,255,0.1);backdrop-filter:blur(12px);position:sticky;top:0;z-index:100;}
 .topbar-brand{font-family:'Playfair Display',serif;font-size:1.15rem;display:flex;align-items:center;gap:.5rem;}
 .topbar-info{font-size:.8rem;color:rgba(255,255,255,0.55);}
 .topbar-actions{display:flex;gap:.5rem;align-items:center;}
 .conn-dot{width:8px;height:8px;border-radius:50%;}
 .conn-online{background:#7dd8a5;}.conn-offline{background:var(--coral);}
-
-/* HOST LAYOUT */
 #host{flex-direction:column;}
 .host-layout{display:grid;grid-template-columns:1fr 320px;gap:0;flex:1;min-height:0;}
 .host-main{padding:1.4rem;overflow-y:auto;}
 .host-sidebar{background:rgba(0,0,0,0.28);border-left:1px solid rgba(255,255,255,0.08);padding:1.2rem;overflow-y:auto;display:flex;flex-direction:column;gap:1.2rem;}
-
-/* ACTIVE SET BAR */
 .active-set-bar{display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;background:rgba(232,160,32,0.1);border:1px solid rgba(232,160,32,0.25);border-radius:10px;margin-bottom:1.2rem;flex-wrap:wrap;}
 .active-set-bar .set-label{font-size:.72rem;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.45);}
 .active-set-name{font-weight:600;color:var(--gold);flex:1;}
 .active-set-bar select{padding:.35rem .7rem;border-radius:7px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);color:#fff;font-family:'DM Sans',sans-serif;font-size:.85rem;outline:none;cursor:pointer;}
 .active-set-bar select option{background:#1a3a5c;}
-
-/* HOST TABS */
 .host-tabs{display:flex;gap:0;margin-bottom:1.2rem;background:rgba(255,255,255,0.05);border-radius:10px;padding:4px;}
 .host-tab{flex:1;padding:.5rem .3rem;border:none;background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;border-radius:7px;font-size:.8rem;font-family:'DM Sans',sans-serif;font-weight:500;transition:all .2s;}
 .host-tab.active{background:var(--wave);color:#fff;}
 .host-tab:hover:not(.active){background:rgba(255,255,255,0.08);color:#fff;}
 .tab-panel{display:none;}
 .tab-panel.active{display:block;}
-
-/* QUESTION STAGE */
 .question-stage{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:16px;padding:1.6rem;margin-bottom:1.2rem;min-height:185px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;}
 .question-stage::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--sky),var(--wave));}
 .q-label{font-size:.72rem;text-transform:uppercase;letter-spacing:2px;color:var(--sky);margin-bottom:.7rem;}
@@ -90,8 +74,6 @@ h1.title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4rem);f
 .q-answer{margin-top:1rem;padding:.7rem 1rem;border-radius:8px;background:rgba(46,139,87,0.2);border:1px solid rgba(46,139,87,0.4);color:#7dd8a5;font-weight:600;display:none;}
 .q-answer.visible{display:block;}
 .stage-controls{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1rem;}
-
-/* SEARCH & FILTERS */
 .search-row{display:flex;gap:.5rem;margin-bottom:.75rem;}
 .search-input{flex:1;padding:.55rem .9rem;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#fff;font-size:.88rem;font-family:'DM Sans',sans-serif;outline:none;}
 .search-input:focus{border-color:var(--sky);}
@@ -100,8 +82,6 @@ h1.title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4rem);f
 .filter-btn{padding:.28rem .75rem;border-radius:20px;border:1px solid rgba(255,255,255,0.18);background:transparent;color:rgba(255,255,255,0.55);cursor:pointer;font-size:.77rem;font-family:'DM Sans',sans-serif;transition:all .2s;}
 .filter-btn:hover{background:rgba(255,255,255,0.1);color:#fff;}
 .filter-btn.active{color:#fff;border-color:transparent;}
-
-/* QUESTION ITEMS */
 .q-bank-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;}
 .q-bank-header h3{font-family:'Playfair Display',serif;font-size:1.1rem;}
 .q-item{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:.85rem 1rem;margin-bottom:.5rem;cursor:pointer;transition:all .2s;position:relative;}
@@ -116,16 +96,12 @@ h1.title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4rem);f
 .q-item:hover .q-item-actions{display:flex;}
 .q-action-btn{width:22px;height:22px;border-radius:50%;border:none;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;transition:background .2s;}
 .q-del-btn{background:rgba(224,92,58,0.2);color:var(--coral);}.q-del-btn:hover{background:rgba(224,92,58,0.5);}
-
-/* BADGES */
 .cat-badge{display:inline-flex;align-items:center;padding:.14rem .48rem;border-radius:12px;font-size:.67rem;font-weight:600;}
 .badge{display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .58rem;border-radius:20px;font-size:.72rem;font-weight:600;}
 .badge-live{background:rgba(224,92,58,0.2);color:#f08060;border:1px solid rgba(224,92,58,0.3);}
 .badge-wait{background:rgba(255,255,255,0.09);color:rgba(255,255,255,0.45);}
 .badge-dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
 .badge-dot-pulse{animation:dotpulse 1.2s ease-in-out infinite;}
-
-/* QUESTION SETS TAB */
 .sets-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.85rem;margin-bottom:1.25rem;}
 .set-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:1.1rem;position:relative;transition:all .2s;cursor:pointer;}
 .set-card:hover{background:rgba(255,255,255,0.09);border-color:rgba(77,166,214,0.4);transform:translateY(-2px);}
@@ -140,12 +116,8 @@ h1.title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4rem);f
 .new-set-card{background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.2);border-radius:14px;padding:1.1rem;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;min-height:110px;gap:.4rem;}
 .new-set-card:hover{background:rgba(255,255,255,0.07);border-color:var(--sky);}
 .new-set-card span{font-size:.88rem;color:rgba(255,255,255,0.45);}
-
-/* ADD Q PANEL */
 .add-q-panel{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:1.1rem;margin-bottom:1rem;}
 .add-q-panel h4{font-size:.87rem;color:var(--sky);margin-bottom:.8rem;}
-
-/* IMPORT PANEL */
 .import-panel{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:1.25rem;}
 .import-panel h4{font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:.4rem;}
 .import-panel p{font-size:.83rem;color:rgba(255,255,255,0.55);margin-bottom:1rem;line-height:1.5;}
@@ -163,13 +135,9 @@ h1.title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4rem);f
 .ai-dots span{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--sky);animation:bounce .8s ease-in-out infinite;}
 .ai-dots span:nth-child(2){animation-delay:.15s;}.ai-dots span:nth-child(3){animation-delay:.3s;}
 @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-
-/* CAT MANAGER */
 .cat-chip{display:flex;align-items:center;gap:.3rem;padding:.28rem .6rem;border-radius:20px;font-size:.77rem;font-weight:600;}
 .cat-chip-del{background:none;border:none;cursor:pointer;font-size:12px;color:inherit;opacity:.6;padding:0;line-height:1;}
 .cat-chip-del:hover{opacity:1;}
-
-/* SIDEBAR */
 .panel{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:1.1rem;}
 .panel h3{font-size:.75rem;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.45);margin-bottom:.85rem;}
 .no-data{color:rgba(255,255,255,0.35);font-size:.87rem;font-style:italic;}
@@ -187,8 +155,6 @@ h1.title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4rem);f
 .player-pts{font-weight:700;font-size:1rem;}
 .pts-pos{color:#7dd8a5;}.pts-zero{color:rgba(255,255,255,0.35);}.pts-neg{color:#f08060;}
 .room-display{font-family:'Playfair Display',serif;font-size:1.9rem;letter-spacing:5px;color:var(--gold);}
-
-/* PLAYER */
 #player{flex-direction:column;}
 .player-content{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1.5rem;gap:1.75rem;}
 .q-display{width:100%;max-width:600px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:16px;padding:1.7rem;text-align:center;min-height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6rem;}
@@ -206,8 +172,6 @@ h1.title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4rem);f
 .mini-section h4{font-size:.72rem;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.38);margin-bottom:.65rem;text-align:center;}
 .mini-row{display:flex;align-items:center;gap:.65rem;padding:.42rem .5rem;border-bottom:1px solid rgba(255,255,255,0.06);}
 .mini-row:last-child{border-bottom:none;}
-
-/* MODALS */
 .modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(10,35,66,0.88);backdrop-filter:blur(8px);align-items:center;justify-content:center;}
 .modal-overlay.open{display:flex;}
 .modal{background:var(--sea);border:1px solid rgba(255,255,255,0.15);border-radius:16px;padding:1.9rem;max-width:500px;width:92%;box-shadow:var(--shadow);animation:modalin .22s ease;max-height:90vh;overflow-y:auto;}
@@ -221,15 +185,12 @@ h1.title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4rem);f
 .judge-fb{margin-top:.7rem;padding:.68rem 1rem;border-radius:8px;font-size:.87rem;display:none;}
 .judge-ok{background:rgba(46,139,87,0.2);border:1px solid rgba(46,139,87,0.3);color:#7dd8a5;}
 .judge-bad{background:rgba(224,92,58,0.2);border:1px solid rgba(224,92,58,0.3);color:#f08060;}
-
-/* WORD REVEAL — HOST */
 .word-progress{margin-top:.85rem;}
 .word-progress-bar{height:6px;border-radius:3px;background:rgba(255,255,255,0.1);overflow:hidden;margin-bottom:.4rem;}
 .word-progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--sky),var(--wave));transition:width .3s;}
 .word-progress-meta{display:flex;justify-content:space-between;font-size:.72rem;color:rgba(255,255,255,0.45);}
 .host-read-controls{display:flex;gap:.5rem;align-items:center;margin-top:.6rem;flex-wrap:wrap;}
 .word-highlight{background:rgba(77,166,214,0.25);border-radius:3px;padding:0 2px;}
-/* WORD REVEAL — PLAYER */
 .player-words{font-size:1.3rem;line-height:1.9;text-align:center;word-spacing:.1em;}
 .player-word{display:inline;opacity:0;animation:wordpop .25s ease forwards;}
 @keyframes wordpop{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
@@ -238,22 +199,33 @@ h1.title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4rem);f
 .buzz-snapshot-words{font-size:1.1rem;line-height:1.6;color:#fff;}
 .buzz-snapshot-score{font-size:.85rem;color:var(--gold);margin-top:.4rem;font-weight:600;}
 .points-badge{display:inline-block;padding:.2rem .65rem;border-radius:20px;font-size:.78rem;font-weight:700;background:rgba(232,160,32,0.2);color:var(--gold);border:1px solid rgba(232,160,32,0.35);}
-
-/* WINNER */
 #winner-screen{display:none;position:fixed;inset:0;z-index:500;background:var(--ocean);align-items:center;justify-content:center;flex-direction:column;text-align:center;gap:1.5rem;padding:2rem;background-image:radial-gradient(ellipse at 50% 50%,rgba(232,160,32,0.15),transparent 70%);}
 #winner-screen.open{display:flex;}
 .trophy{font-size:5rem;animation:float 2s ease-in-out infinite;}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
 .winner-name{font-family:'Playfair Display',serif;font-size:clamp(2rem,6vw,3.5rem);}
 .winner-score{font-size:1.2rem;color:var(--gold);}
-
-/* TOAST & LOADING */
 #toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--sea);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:.7rem 1.4rem;font-size:.87rem;z-index:300;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;}
 #toast.show{opacity:1;}
 #loading-overlay{display:none;position:fixed;inset:0;z-index:400;background:rgba(10,35,66,0.85);backdrop-filter:blur(6px);align-items:center;justify-content:center;flex-direction:column;gap:1rem;}
 #loading-overlay.show{display:flex;}
 .spinner{width:38px;height:38px;border:3px solid rgba(255,255,255,0.15);border-top-color:var(--sky);border-radius:50%;animation:spin .8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── TRACKER BRIDGE UI ── */
+.tracker-bridge{background:rgba(46,139,87,0.12);border:1px solid rgba(46,139,87,0.28);border-radius:10px;padding:.85rem 1.1rem;margin-bottom:1.2rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;}
+.tracker-bridge-status{font-size:.82rem;color:#7dd8a5;display:flex;align-items:center;gap:.5rem;}
+.tracker-bridge-status.disconnected{color:rgba(255,255,255,0.45);}
+.tracker-bridge-dot{width:7px;height:7px;border-radius:50%;background:#7dd8a5;flex-shrink:0;}
+.tracker-bridge-dot.off{background:rgba(255,255,255,0.3);}
+.tracker-cfg-row{display:flex;gap:.4rem;flex-wrap:wrap;align-items:center;}
+.tracker-cfg-in{padding:.3rem .65rem;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#fff;font-size:.78rem;font-family:'DM Sans',sans-serif;outline:none;width:140px;}
+.tracker-cfg-in:focus{border-color:var(--green);}
+.tracker-cfg-btn{padding:.3rem .75rem;border-radius:6px;border:1px solid rgba(46,139,87,0.4);background:rgba(46,139,87,0.2);color:#7dd8a5;font-size:.78rem;font-family:'DM Sans',sans-serif;cursor:pointer;}
+.tracker-cfg-btn:hover{background:rgba(46,139,87,0.4);}
+.judge-log-pill{display:inline-flex;align-items:center;gap:.4rem;font-size:.75rem;padding:.22rem .65rem;border-radius:20px;font-weight:600;margin-left:.4rem;}
+.pill-sent{background:rgba(46,139,87,0.22);color:#7dd8a5;border:1px solid rgba(46,139,87,0.35);}
+.pill-fail{background:rgba(224,92,58,0.22);color:#f08060;border:1px solid rgba(224,92,58,0.35);}
 
 @media(max-width:800px){.host-layout{grid-template-columns:1fr;}.host-sidebar{border-left:none;border-top:1px solid rgba(255,255,255,0.08);}.sets-grid{grid-template-columns:1fr 1fr;}}
 @media(max-width:480px){.role-cards{flex-direction:column;}.buzzer-btn{width:130px;height:130px;font-size:1.2rem;}.sets-grid{grid-template-columns:1fr;}}
@@ -262,7 +234,6 @@ h1.title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4rem);f
 <body>
 <div class="globe-bg"></div>
 
-<!-- LANDING -->
 <div id="landing" class="screen active">
   <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:2rem;text-align:center;">
     <div class="logo-globe">🌍</div>
@@ -298,7 +269,6 @@ h1.title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4rem);f
   </div>
 </div>
 
-<!-- HOST SCREEN -->
 <div id="host" class="screen">
   <div class="topbar">
     <div class="topbar-brand">🌍 GeoChallenge <span id="host-room-label" style="font-size:.8rem;color:var(--sky);margin-left:.4rem;"></span></div>
@@ -309,11 +279,27 @@ h1.title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4rem);f
       <button class="btn btn-ghost btn-sm" onclick="goHome()">← Exit</button>
     </div>
   </div>
-
   <div class="host-layout">
     <div class="host-main">
 
-      <!-- Active set bar -->
+      <!-- ── TRACKER BRIDGE PANEL ── -->
+      <div class="tracker-bridge" id="tracker-bridge">
+        <div>
+          <div class="tracker-bridge-status" id="tbridge-status">
+            <div class="tracker-bridge-dot off" id="tbridge-dot"></div>
+            <span id="tbridge-label">Tracker not connected — results won't sync to GeoDE Tracker</span>
+          </div>
+          <div class="tracker-cfg-row" style="margin-top:.5rem;" id="tbridge-cfg">
+            <input class="tracker-cfg-in" id="tc-key" placeholder="Tracker apiKey"/>
+            <input class="tracker-cfg-in" id="tc-pid" placeholder="Tracker projectId"/>
+            <input class="tracker-cfg-in" id="tc-aid" placeholder="Tracker appId"/>
+            <button class="tracker-cfg-btn" onclick="connectTracker()">Connect tracker</button>
+            <button class="tracker-cfg-btn" style="opacity:.6" onclick="disconnectTracker()">Disconnect</button>
+          </div>
+        </div>
+        <div style="font-size:.72rem;color:rgba(255,255,255,0.35);max-width:180px;line-height:1.4;">Every ✓/✗ judgment auto-syncs to today's session in the tracker.</div>
+      </div>
+
       <div class="active-set-bar">
         <span class="set-label">Active Set</span>
         <span class="active-set-name" id="active-set-name">All Questions</span>
@@ -322,7 +308,6 @@ h1.title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4rem);f
         </select>
       </div>
 
-<!-- Current question stage -->
       <div class="question-stage">
         <div>
           <div class="q-label">Current Question</div>
@@ -357,7 +342,6 @@ h1.title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4rem);f
         </div>
       </div>
 
-      <!-- Tabs -->
       <div class="host-tabs">
         <button class="host-tab active" onclick="switchTab('tab-bank',this)">📚 Bank</button>
         <button class="host-tab" onclick="switchTab('tab-sets',this)">📦 Sets</button>
@@ -365,7 +349,6 @@ h1.title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4rem);f
         <button class="host-tab" onclick="switchTab('tab-cats',this)">🏷 Categories</button>
       </div>
 
-      <!-- TAB: Question Bank -->
       <div id="tab-bank" class="tab-panel active">
         <div class="search-row">
           <input class="search-input" id="q-search" placeholder="🔍 Search questions…" oninput="renderQuestionBank()">
@@ -384,19 +367,15 @@ h1.title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4rem);f
             <button class="btn btn-ghost btn-sm" onclick="toggleAddForm()">Cancel</button>
           </div>
         </div>
-        <div class="q-bank-header">
-          <h3>Questions <span id="q-count" style="font-size:.77rem;color:rgba(255,255,255,0.38);"></span></h3>
-        </div>
+        <div class="q-bank-header"><h3>Questions <span id="q-count" style="font-size:.77rem;color:rgba(255,255,255,0.38);"></span></h3></div>
         <div id="q-list"></div>
       </div>
 
-      <!-- TAB: Question Sets -->
       <div id="tab-sets" class="tab-panel">
         <p style="font-size:.85rem;color:rgba(255,255,255,0.5);margin-bottom:1.2rem;">Create named sets to organize your questions into rounds or themes. Select a set above to load it into the game bank.</p>
         <div class="sets-grid" id="sets-grid"></div>
       </div>
 
-      <!-- TAB: Smart Import -->
       <div id="tab-import" class="tab-panel">
         <div class="import-panel">
           <h4>✨ Smart Import</h4>
@@ -405,14 +384,7 @@ h1.title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4rem);f
             <div class="form-group" style="margin:0"><label>Default category</label><select id="import-cat-sel"><option value="">— None —</option></select></div>
             <div class="form-group" style="margin:0"><label>Add to set</label><select id="import-set-sel"><option value="">— None —</option></select></div>
           </div>
-          <textarea class="import-textarea" id="import-text" placeholder="Paste questions in any format:
-
-1. What is the capital of Japan? Answer: Tokyo
-2. Which country has the longest coastline? Answer: Canada
-
-Or: Q: What river runs through Egypt? | A: The Nile | C: Rivers
-
-AI will figure it out!"></textarea>
+          <textarea class="import-textarea" id="import-text" placeholder="Paste questions in any format…"></textarea>
           <div style="display:flex;gap:.6rem;margin-top:.85rem;flex-wrap:wrap;">
             <button class="btn btn-green" onclick="smartParse()" id="btn-smart-parse">✨ AI Parse</button>
             <button class="btn btn-primary btn-sm" onclick="bulkPaste()">📋 Bulk Paste</button>
@@ -430,7 +402,6 @@ AI will figure it out!"></textarea>
         </div>
       </div>
 
-      <!-- TAB: Categories -->
       <div id="tab-cats" class="tab-panel">
         <div class="import-panel">
           <h4>🏷 Categories</h4>
@@ -445,7 +416,6 @@ AI will figure it out!"></textarea>
       </div>
     </div>
 
-    <!-- SIDEBAR -->
     <div class="host-sidebar">
       <div class="panel"><h3>Buzz Order</h3><div id="buzz-list"><p class="no-data">Waiting for buzzers…</p></div></div>
       <div class="panel"><h3>Scoreboard</h3><div id="scoreboard-list"><p class="no-data">No players yet</p></div></div>
@@ -458,7 +428,6 @@ AI will figure it out!"></textarea>
   </div>
 </div>
 
-<!-- PLAYER SCREEN -->
 <div id="player" class="screen">
   <div class="topbar">
     <div class="topbar-brand">🌍 GeoChallenge</div>
@@ -469,12 +438,10 @@ AI will figure it out!"></textarea>
     </div>
   </div>
   <div class="player-content">
-    <!-- Word-by-word question display -->
     <div class="q-display" id="player-q-display">
       <div id="player-q-cat" class="q-display-cat" style="display:none"></div>
       <div id="player-q-text" class="q-display-waiting">Waiting for host to start a question…</div>
     </div>
-    <!-- Buzz snapshot: shown after player buzzes -->
     <div class="buzz-snapshot" id="buzz-snapshot" style="display:none">
       <div class="buzz-snapshot-label">⚡ You buzzed at</div>
       <div class="buzz-snapshot-words" id="buzz-snapshot-words"></div>
@@ -489,7 +456,6 @@ AI will figure it out!"></textarea>
   </div>
 </div>
 
-<!-- CREATE/EDIT SET MODAL -->
 <div class="modal-overlay" id="set-modal">
   <div class="modal">
     <h2 id="set-modal-title">New Question Set</h2>
@@ -503,7 +469,6 @@ AI will figure it out!"></textarea>
   </div>
 </div>
 
-<!-- ADD TO SET MODAL -->
 <div class="modal-overlay" id="addtoset-modal">
   <div class="modal">
     <h2>Add to Set</h2>
@@ -516,7 +481,6 @@ AI will figure it out!"></textarea>
   </div>
 </div>
 
-<!-- JUDGE MODAL -->
 <div class="modal-overlay" id="judge-modal">
   <div class="modal">
     <h2 id="judge-title">Judge answer</h2>
@@ -535,7 +499,6 @@ AI will figure it out!"></textarea>
   </div>
 </div>
 
-<!-- WINNER -->
 <div id="winner-screen">
   <div style="font-size:2rem">⭐ 🌟 ⭐</div>
   <div class="trophy">🏆</div>
@@ -551,47 +514,100 @@ AI will figure it out!"></textarea>
 <div id="loading-overlay"><div class="spinner"></div><p id="loading-msg" style="color:rgba(255,255,255,0.6);font-size:.9rem;">Connecting…</p></div>
 <div id="toast"></div>
 
-
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script>
+const FIREBASE_CONFIG={apiKey:"AIzaSyAocCjypE6suHOfHyKjxWDay5FUNhPV2w8",authDomain:"geo-challenge-cc73b.firebaseapp.com",databaseURL:"https://geo-challenge-cc73b-default-rtdb.firebaseio.com",projectId:"geo-challenge-cc73b",storageBucket:"geo-challenge-cc73b.appspot.com",messagingSenderId:"445772138713",appId:"1:445772138713:web:00fefd6a38fb9ab3d2d6c8"};
 
-const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyAocCjypE6suHOfHyKjxWDay5FUNhPV2w8",
-  authDomain: "geo-challenge-cc73b.firebaseapp.com",
-  databaseURL: "https://geo-challenge-cc73b-default-rtdb.firebaseio.com",
-  projectId: "geo-challenge-cc73b",
-  storageBucket: "geo-challenge-cc73b.appspot.com",
-  messagingSenderId: "445772138713",
-  appId: "1:445772138713:web:00fefd6a38fb9ab3d2d6c8"
-};
+// ── TRACKER BRIDGE ──────────────────────────────────────────────────────────
+let trackerApp=null,trackerDb=null;
+const TC_KEY='gc_tracker_cfg';
+
+function tcCfgGet(){try{return JSON.parse(localStorage.getItem(TC_KEY)||'{}')}catch{return{}}}
+function tcCfgSet(c){localStorage.setItem(TC_KEY,JSON.stringify(c))}
+
+function connectTracker(){
+  const k=document.getElementById('tc-key').value.trim();
+  const p=document.getElementById('tc-pid').value.trim();
+  const a=document.getElementById('tc-aid').value.trim();
+  if(!k||!p||!a){toast('Fill in all three tracker fields');return;}
+  const cfg={apiKey:k,projectId:p,appId:a,authDomain:p+'.firebaseapp.com',storageBucket:p+'.appspot.com',messagingSenderId:'000000000000'};
+  tcCfgSet(cfg);
+  _initTrackerApp(cfg);
+}
+function _initTrackerApp(cfg){
+  try{
+    if(trackerApp){try{trackerApp.delete();}catch(_){}}
+    trackerApp=firebase.initializeApp(cfg,'tracker_bridge');
+    trackerDb=firebase.firestore(trackerApp);
+    setTrackerStatus(true);
+    toast('✅ Tracker connected! Results will sync automatically.');
+    document.getElementById('tbridge-cfg').style.display='none';
+  }catch(e){setTrackerStatus(false);toast('Tracker connect failed: '+e.message);}
+}
+function disconnectTracker(){
+  if(trackerApp){try{trackerApp.delete();}catch(_){}}
+  trackerApp=null;trackerDb=null;
+  tcCfgSet({});
+  setTrackerStatus(false);
+  document.getElementById('tbridge-cfg').style.display='flex';
+  toast('Tracker disconnected');
+}
+function setTrackerStatus(on){
+  document.getElementById('tbridge-dot').className='tracker-bridge-dot'+(on?'':' off');
+  document.getElementById('tbridge-label').textContent=on?'✓ Syncing results to GeoDE Tracker in real time':'Tracker not connected — results won\'t sync to GeoDE Tracker';
+  document.getElementById('tbridge-status').className='tracker-bridge-status'+(on?'':' disconnected');
+}
+
+// Compute tracker day number from start date Apr 20 2026
+function trackerDayNum(){
+  const start=new Date('2026-04-20');
+  const diff=Math.floor((new Date()-start)/(864e5));
+  return Math.max(1,Math.min(31,diff+1));
+}
+
+// ── CORE BRIDGE WRITE ──
+async function pushResultToTracker(questionText,answer,category,isCorrect){
+  if(!trackerDb)return false;
+  try{
+    const dayNum=trackerDayNum();
+    const docRef=trackerDb.collection('geobee').doc('tracker');
+    const snap=await docRef.get();
+    const data=snap.exists?snap.data():{};
+    const dayKey='d'+dayNum;
+    const dayData=data[dayKey]||{k:false,b:false,s:false,score:null,notes:'',co:{},mode:'qa',right:0,wrong:0,questions:[],prompt:''};
+    // Append question to Q&A log
+    const questions=[...(dayData.questions||[]),{
+      q:questionText,
+      result:isCorrect?'right':'wrong',
+      topic:category||'',
+      source:'geochallenge',
+      ts:Date.now()
+    }];
+    // Update tally
+    const right=(dayData.right||0)+(isCorrect?1:0);
+    const wrong=(dayData.wrong||0)+(isCorrect?0:1);
+    // Force mode to qa so results show up
+    await docRef.set({[dayKey]:{...dayData,questions,right,wrong,mode:'qa'}},{merge:true});
+    return true;
+  }catch(e){console.warn('Tracker push failed:',e);return false;}
+}
 
 // ── GLOBALS ──
-let db=null, firebaseApp=null;
-let myRole=null, myName='', myRoom='', myId='u_'+Math.random().toString(36).slice(2,9);
-let currentBuzzer=null, roomRef=null, unsubscribes=[];
-let activeCatFilter='all', activeSetFilter='__all__';
-let parsedPreview=[], editingSetId=null, addToSetQid=null;
-let readTimer=null, wordSpeed=1500;
-
+let db=null,firebaseApp=null;
+let myRole=null,myName='',myRoom='',myId='u_'+Math.random().toString(36).slice(2,9);
+let currentBuzzer=null,roomRef=null,unsubscribes=[];
+let activeCatFilter='all',activeSetFilter='__all__';
+let parsedPreview=[],editingSetId=null,addToSetQid=null;
+let readTimer=null,wordSpeed=1500;
 const PLAYER_COLORS=['#4da6d6','#e8a020','#e05c3a','#2e8b57','#9b59b6','#e91e8c','#1abc9c','#f39c12'];
 const CAT_COLORS=['#4da6d6','#e8a020','#e05c3a','#2e8b57','#9b59b6','#1abc9c','#f39c12','#e91e8c','#c0ca33','#ff7043'];
 const SET_ICONS=['📦','🌊','🏔','🌍','🏙','✈️','🗺','🌏','🌐','📖','🎯','🔥','⭐','🌿','🏛'];
-
-const SAMPLE_QUESTIONS=[
-  {q:'What is the longest river in the world?',a:'The Nile (or Amazon)',cat:'Rivers',sets:[]},
-  {q:'Which country has the largest land area?',a:'Russia',cat:'Countries',sets:[]},
-  {q:'What is the capital of Australia?',a:'Canberra',cat:'Capitals',sets:[]},
-  {q:'On which continent is the Sahara Desert located?',a:'Africa',cat:'Geography',sets:[]},
-  {q:'What is the highest mountain in the world?',a:'Mount Everest',cat:'Mountains',sets:[]},
-  {q:'Which ocean is the largest?',a:'Pacific Ocean',cat:'Oceans & Seas',sets:['set_oceans']},
-  {q:'What country has the most natural lakes?',a:'Canada',cat:'Countries',sets:[]},
-  {q:'What is the capital of Brazil?',a:'Brasília',cat:'Capitals',sets:[]},
-];
+const SAMPLE_QUESTIONS=[{q:'What is the longest river in the world?',a:'The Nile (or Amazon)',cat:'Rivers',sets:[]},{q:'Which country has the largest land area?',a:'Russia',cat:'Countries',sets:[]},{q:'What is the capital of Australia?',a:'Canberra',cat:'Capitals',sets:[]},{q:'On which continent is the Sahara Desert located?',a:'Africa',cat:'Geography',sets:[]},{q:'What is the highest mountain in the world?',a:'Mount Everest',cat:'Mountains',sets:[]},{q:'Which ocean is the largest?',a:'Pacific Ocean',cat:'Oceans & Seas',sets:['set_oceans']},{q:'What country has the most natural lakes?',a:'Canada',cat:'Countries',sets:[]},{q:'What is the capital of Brazil?',a:'Brasília',cat:'Capitals',sets:[]}];
 const SAMPLE_CATS=['Capitals','Countries','Rivers','Mountains','Oceans & Seas','Geography','Asia','Africa','Europe','Americas','Airports'];
 const SAMPLE_SETS=[{id:'set_oceans',name:'Oceans & Seas Round',desc:'Questions about world oceans and seas',icon:'🌊',createdAt:Date.now()}];
 
-// ── UTILS ──
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function showLoading(m){document.getElementById('loading-msg').textContent=m||'Loading…';document.getElementById('loading-overlay').classList.add('show');}
 function hideLoading(){document.getElementById('loading-overlay').classList.remove('show');}
@@ -606,120 +622,51 @@ function getBankQs(state){const all=state.questions||[];return(!state.activeSet|
 let _state=null;
 function S(){return _state;}
 
-// ── NAVIGATION ──
 window.showScreen=function(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');};
 window.showHostSetup=function(){document.getElementById('player-setup').style.display='none';document.getElementById('host-setup').style.display='block';const codes=['GEO2024','ATLAS','WORLD','MAPS','GLOBE'];document.getElementById('room-code-input').value=codes[Math.floor(Math.random()*codes.length)];};
 window.showPlayerSetup=function(){document.getElementById('host-setup').style.display='none';document.getElementById('player-setup').style.display='block';};
 window.switchTab=function(id,btn){document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.host-tab').forEach(b=>b.classList.remove('active'));document.getElementById(id).classList.add('active');btn.classList.add('active');};
-window.goHome=async function(){
-  stopReadTimer();
-  if(myRole==='player'&&db&&myRoom){try{await db.ref(`rooms/${myRoom}/players/${myId}`).remove();}catch(_){}}
-  unsubscribes.forEach(u=>u());unsubscribes=[];
-  myRole=null;myRoom='';myName='';roomRef=null;currentBuzzer=null;_state=null;
-  showScreen('landing');
-};
+window.goHome=async function(){stopReadTimer();if(myRole==='player'&&db&&myRoom){try{await db.ref(`rooms/${myRoom}/players/${myId}`).remove();}catch(_){}}unsubscribes.forEach(u=>u());unsubscribes=[];myRole=null;myRoom='';myName='';roomRef=null;currentBuzzer=null;_state=null;showScreen('landing');};
 
-// ── WORD REVEAL ENGINE ──
 function stopReadTimer(){if(readTimer){clearInterval(readTimer);readTimer=null;}}
-
 function startReadTimer(){
-  stopReadTimer();
-  const s=S();if(!s||s.currentQ<0||!roomRef)return;
-  const bankQs=getBankQs(s);
-  const q=bankQs[s.currentQ];if(!q)return;
-  const words=q.q.split(' ');
-  if(s.paused)return;
-  readTimer=setInterval(async()=>{
-    const cur=S();if(!cur)return;
-    const wi=(cur.wordIdx||0)+1;
-    if(wi>=words.length){stopReadTimer();await roomRef.update({wordIdx:wi,paused:true});return;}
-    await roomRef.update({wordIdx:wi});
-  },wordSpeed);
+  stopReadTimer();const s=S();if(!s||s.currentQ<0||!roomRef)return;
+  const bankQs=getBankQs(s);const q=bankQs[s.currentQ];if(!q)return;
+  const words=q.q.split(' ');if(s.paused)return;
+  readTimer=setInterval(async()=>{const cur=S();if(!cur)return;const wi=(cur.wordIdx||0)+1;if(wi>=words.length){stopReadTimer();await roomRef.update({wordIdx:wi,paused:true});return;}await roomRef.update({wordIdx:wi});},wordSpeed);
 }
-
-window.toggleReadTimer=async function(){
-  const s=S();if(!s)return;
-  const nowPaused=!s.paused;
-  await roomRef.update({paused:nowPaused});
-  if(nowPaused){stopReadTimer();}else{startReadTimer();}
-};
-
-window.stepWord=async function(dir){
-  stopReadTimer();
-  const s=S();if(!s)return;
-  const bankQs=getBankQs(s);
-  const q=bankQs[s.currentQ];if(!q)return;
-  const words=q.q.split(' ');
-  const wi=Math.max(0,Math.min(words.length-1,(s.wordIdx||0)+dir));
-  await roomRef.update({wordIdx:wi,paused:true});
-};
-
-window.updateWordSpeed=function(){
-  wordSpeed=parseInt(document.getElementById('word-speed-sel').value)||1500;
-  const s=S();if(s&&!s.paused){stopReadTimer();startReadTimer();}
-};
+window.toggleReadTimer=async function(){const s=S();if(!s)return;const nowPaused=!s.paused;await roomRef.update({paused:nowPaused});if(nowPaused){stopReadTimer();}else{startReadTimer();}};
+window.stepWord=async function(dir){stopReadTimer();const s=S();if(!s)return;const bankQs=getBankQs(s);const q=bankQs[s.currentQ];if(!q)return;const words=q.q.split(' ');const wi=Math.max(0,Math.min(words.length-1,(s.wordIdx||0)+dir));await roomRef.update({wordIdx:wi,paused:true});};
+window.updateWordSpeed=function(){wordSpeed=parseInt(document.getElementById('word-speed-sel').value)||1500;const s=S();if(s&&!s.paused){stopReadTimer();startReadTimer();}};
 
 function updateHostWordProgress(state){
-  const bankQs=getBankQs(state);
-  const q=state.currentQ>=0?bankQs[state.currentQ]:null;
+  const bankQs=getBankQs(state);const q=state.currentQ>=0?bankQs[state.currentQ]:null;
   const prog=document.getElementById('word-progress');
   if(!q||state.status!=='question'){if(prog)prog.style.display='none';return;}
   if(prog)prog.style.display='block';
-  const words=q.q.split(' ');
-  const wi=Math.min(state.wordIdx||0,words.length);
+  const words=q.q.split(' ');const wi=Math.min(state.wordIdx||0,words.length);
   const pct=words.length>1?(wi/words.length)*100:100;
   document.getElementById('word-progress-fill').style.width=pct+'%';
   document.getElementById('word-progress-label').textContent='Word '+wi+' of '+words.length;
   const pts=calcPoints(Math.min(wi,words.length-1),words.length);
   document.getElementById('word-points-label').textContent=pts+' pts if buzzed now';
-  // Highlighted stage text
-  document.getElementById('stage-text').innerHTML=words.map((w,i)=>{
-    if(i<wi)return'<span>'+esc(w)+'</span> ';
-    if(i===wi)return'<span class="word-highlight">'+esc(w)+'</span> ';
-    return'<span style="opacity:.28">'+esc(w)+'</span> ';
-  }).join('');
-  // Sync pause button
-  const ppBtn=document.getElementById('btn-play-pause');
-  if(ppBtn)ppBtn.textContent=state.paused?'▶ Resume':'⏸ Pause';
-  // Sync timer state
+  document.getElementById('stage-text').innerHTML=words.map((w,i)=>{if(i<wi)return'<span>'+esc(w)+'</span> ';if(i===wi)return'<span class="word-highlight">'+esc(w)+'</span> ';return'<span style="opacity:.28">'+esc(w)+'</span> ';}).join('');
+  const ppBtn=document.getElementById('btn-play-pause');if(ppBtn)ppBtn.textContent=state.paused?'▶ Resume':'⏸ Pause';
   if(!state.paused&&!readTimer)startReadTimer();
   if(state.paused&&readTimer)stopReadTimer();
 }
 
-// ── CREATE ROOM ──
 window.createRoom=async function(){
-  const name=document.getElementById('host-name-input').value.trim();
-  const code=document.getElementById('room-code-input').value.trim().toUpperCase();
+  const name=document.getElementById('host-name-input').value.trim();const code=document.getElementById('room-code-input').value.trim().toUpperCase();
   if(!name){toast('Enter your name');return;}if(!code||code.length<2){toast('Enter a room code');return;}
-  showLoading('Creating room…');
-  myRole='host';myName=name;myRoom=code;roomRef=db.ref(`rooms/${code}`);
-  const init={hostName:name,currentQ:-1,answerVisible:false,buzzers:[],status:'waiting',activeSet:'__all__',
-    wordIdx:0,paused:false,
-    questions:SAMPLE_QUESTIONS.map((q,i)=>({...q,id:'q'+i,used:false,sets:q.sets||[]})),
-    players:{},categories:SAMPLE_CATS,sets:SAMPLE_SETS,createdAt:Date.now()};
-  try{
-    await roomRef.set(init);
-    hideLoading();
-    document.getElementById('host-room-label').textContent=code;
-    document.getElementById('room-code-display').textContent=code;
-    showScreen('host');
-    subscribeHost();
-    toast(`Room "${code}" created!`);
-  }catch(e){hideLoading();toast('Error: '+e.message);}
+  showLoading('Creating room…');myRole='host';myName=name;myRoom=code;roomRef=db.ref(`rooms/${code}`);
+  const init={hostName:name,currentQ:-1,answerVisible:false,buzzers:[],status:'waiting',activeSet:'__all__',wordIdx:0,paused:false,questions:SAMPLE_QUESTIONS.map((q,i)=>({...q,id:'q'+i,used:false,sets:q.sets||[]})),players:{},categories:SAMPLE_CATS,sets:SAMPLE_SETS,createdAt:Date.now()};
+  try{await roomRef.set(init);hideLoading();document.getElementById('host-room-label').textContent=code;document.getElementById('room-code-display').textContent=code;showScreen('host');subscribeHost();toast(`Room "${code}" created!`);}
+  catch(e){hideLoading();toast('Error: '+e.message);}
 };
+function subscribeHost(){const unsub=roomRef.on('value',snap=>{if(!snap.exists())return;renderHostUI(snap.val());setConnDot('host',true);},()=>setConnDot('host',false));unsubscribes.push(()=>roomRef.off());}
 
-function subscribeHost(){
-  const unsub=roomRef.on('value', snap =>{if(!snap.exists())return;renderHostUI(snap.val());setConnDot('host',true);},()=>setConnDot('host',false));
-  unsubscribes.push(()=>roomRef.off());
-}
-
-// ── GAME CONTROLS ──
-window.selectQuestion=async function(idx){
-  stopReadTimer();
-  await roomRef.update({currentQ:idx,answerVisible:false,buzzers:[],status:'question',wordIdx:0,paused:false});
-  toast('Question started!');
-  startReadTimer();
-};
+window.selectQuestion=async function(idx){stopReadTimer();await roomRef.update({currentQ:idx,answerVisible:false,buzzers:[],status:'question',wordIdx:0,paused:false});toast('Question started!');startReadTimer();};
 window.revealAnswer=async function(){stopReadTimer();await roomRef.update({answerVisible:true,paused:true});};
 window.clearBuzzers=async function(){await roomRef.update({buzzers:[]});currentBuzzer=null;};
 window.nextQuestion=async function(){stopReadTimer();await roomRef.update({currentQ:-1,answerVisible:false,buzzers:[],status:'waiting',wordIdx:0,paused:false});currentBuzzer=null;};
@@ -728,201 +675,47 @@ window.awardCorrect=function(){const s=S();if(!s)return;const bz=normBuzzers(s.b
 window.awardWrong=async function(){
   const s=S();if(!s)return;const bz=normBuzzers(s.buzzers);if(!bz.length){toast('No one buzzed in');return;}
   const b=bz[0];const score=(s.players?.[b.id]?.score||0)-5;
+  const bankQs=getBankQs(s);const q=bankQs[s.currentQ];
   await roomRef.update({[`players/${b.id}/score`]:score,buzzers:bz.filter(x=>x.id!==b.id)});
   currentBuzzer=null;toast('Wrong! −5');
+  // ── BRIDGE: push wrong result ──
+  if(q)pushResultToTracker(q.q,q.a,q.cat||'',false).then(ok=>{if(ok)toast('Wrong! −5 · ✓ Synced to tracker');});
 };
-
-// ── ACTIVE SET ──
 window.changeActiveSet=async function(val){
-  activeSetFilter=val;activeCatFilter='all';
-  const s=S();if(!s)return;
+  activeSetFilter=val;activeCatFilter='all';const s=S();if(!s)return;
   const setName=val==='__all__'?'All Questions':(s.sets||[]).find(x=>x.id===val)?.name||'Unknown';
   document.getElementById('active-set-name').textContent=setName;
   await roomRef.update({currentQ:-1,answerVisible:false,buzzers:[],status:'waiting',activeSet:val,wordIdx:0,paused:false});
   renderQuestionBank();toast(`Loaded: ${setName}`);
 };
-
-// ── QUESTION SETS CRUD ──
-window.openNewSetModal=function(){
-  editingSetId=null;
-  document.getElementById('set-modal-title').textContent='New Question Set';
-  document.getElementById('set-name-input').value='';
-  document.getElementById('set-desc-input').value='';
-  document.getElementById('set-icon-input').value=SET_ICONS[Math.floor(Math.random()*SET_ICONS.length)];
-  document.getElementById('set-modal').classList.add('open');
-  setTimeout(()=>document.getElementById('set-name-input').focus(),100);
-};
-window.openEditSetModal=function(setId){
-  const s=S();if(!s)return;const st=(s.sets||[]).find(x=>x.id===setId);if(!st)return;
-  editingSetId=setId;
-  document.getElementById('set-modal-title').textContent='Edit Set';
-  document.getElementById('set-name-input').value=st.name;
-  document.getElementById('set-desc-input').value=st.desc||'';
-  document.getElementById('set-icon-input').value=st.icon||'📦';
-  document.getElementById('set-modal').classList.add('open');
-};
-window.saveSet=async function(){
-  const name=document.getElementById('set-name-input').value.trim();if(!name){toast('Enter a name');return;}
-  const s=S();if(!s)return;
-  const sets=[...(s.sets||[])];
-  const icon=document.getElementById('set-icon-input').value||'📦';
-  const desc=document.getElementById('set-desc-input').value.trim();
-  if(editingSetId){const idx=sets.findIndex(x=>x.id===editingSetId);if(idx>=0)sets[idx]={...sets[idx],name,desc,icon};}
-  else{sets.push({id:'set_'+Date.now(),name,desc,icon,createdAt:Date.now()});}
-  await roomRef.update({sets});closeModal('set-modal');toast(editingSetId?'Set updated!':'Set created!');
-};
-window.deleteSet=async function(setId){
-  const s=S();if(!s)return;
-  const sets=(s.sets||[]).filter(x=>x.id!==setId);
-  const questions=(s.questions||[]).map(q=>({...q,sets:(q.sets||[]).filter(sid=>sid!==setId)}));
-  const updates={sets,questions};
-  if(s.activeSet===setId){updates.activeSet='__all__';}
-  await roomRef.update(updates);
-  if(activeSetFilter===setId){activeSetFilter='__all__';document.getElementById('active-set-name').textContent='All Questions';}
-  toast('Set deleted');
-};
-window.openAddToSet=function(qid){
-  const s=S();if(!s)return;addToSetQid=qid;
-  const q=(s.questions||[]).find(x=>x.id===qid);if(!q)return;
-  document.getElementById('addtoset-q-preview').textContent=q.q;
-  const sel=document.getElementById('addtoset-sel');
-  sel.innerHTML='<option value="">— Choose a set —</option>'+(s.sets||[]).map(st=>`<option value="${esc(st.id)}">${esc(st.icon)} ${esc(st.name)}</option>`).join('');
-  document.getElementById('addtoset-modal').classList.add('open');
-};
-window.confirmAddToSet=async function(){
-  const setId=document.getElementById('addtoset-sel').value;if(!setId){toast('Choose a set');return;}
-  const s=S();if(!s)return;
-  const questions=(s.questions||[]).map(q=>{
-    if(q.id!==addToSetQid)return q;
-    const sets=[...(q.sets||[])];if(!sets.includes(setId))sets.push(setId);return{...q,sets};
-  });
-  await roomRef.update({questions});closeModal('addtoset-modal');
-  toast('Added to set!');
-};
-
-// ── ADD QUESTION ──
+window.openNewSetModal=function(){editingSetId=null;document.getElementById('set-modal-title').textContent='New Question Set';document.getElementById('set-name-input').value='';document.getElementById('set-desc-input').value='';document.getElementById('set-icon-input').value=SET_ICONS[Math.floor(Math.random()*SET_ICONS.length)];document.getElementById('set-modal').classList.add('open');setTimeout(()=>document.getElementById('set-name-input').focus(),100);};
+window.openEditSetModal=function(setId){const s=S();if(!s)return;const st=(s.sets||[]).find(x=>x.id===setId);if(!st)return;editingSetId=setId;document.getElementById('set-modal-title').textContent='Edit Set';document.getElementById('set-name-input').value=st.name;document.getElementById('set-desc-input').value=st.desc||'';document.getElementById('set-icon-input').value=st.icon||'📦';document.getElementById('set-modal').classList.add('open');};
+window.saveSet=async function(){const name=document.getElementById('set-name-input').value.trim();if(!name){toast('Enter a name');return;}const s=S();if(!s)return;const sets=[...(s.sets||[])];const icon=document.getElementById('set-icon-input').value||'📦';const desc=document.getElementById('set-desc-input').value.trim();if(editingSetId){const idx=sets.findIndex(x=>x.id===editingSetId);if(idx>=0)sets[idx]={...sets[idx],name,desc,icon};}else{sets.push({id:'set_'+Date.now(),name,desc,icon,createdAt:Date.now()});}await roomRef.update({sets});closeModal('set-modal');toast(editingSetId?'Set updated!':'Set created!');};
+window.deleteSet=async function(setId){const s=S();if(!s)return;const sets=(s.sets||[]).filter(x=>x.id!==setId);const questions=(s.questions||[]).map(q=>({...q,sets:(q.sets||[]).filter(sid=>sid!==setId)}));const updates={sets,questions};if(s.activeSet===setId){updates.activeSet='__all__';}await roomRef.update(updates);if(activeSetFilter===setId){activeSetFilter='__all__';document.getElementById('active-set-name').textContent='All Questions';}toast('Set deleted');};
+window.openAddToSet=function(qid){const s=S();if(!s)return;addToSetQid=qid;const q=(s.questions||[]).find(x=>x.id===qid);if(!q)return;document.getElementById('addtoset-q-preview').textContent=q.q;const sel=document.getElementById('addtoset-sel');sel.innerHTML='<option value="">— Choose a set —</option>'+(s.sets||[]).map(st=>`<option value="${esc(st.id)}">${esc(st.icon)} ${esc(st.name)}</option>`).join('');document.getElementById('addtoset-modal').classList.add('open');};
+window.confirmAddToSet=async function(){const setId=document.getElementById('addtoset-sel').value;if(!setId){toast('Choose a set');return;}const s=S();if(!s)return;const questions=(s.questions||[]).map(q=>{if(q.id!==addToSetQid)return q;const sets=[...(q.sets||[])];if(!sets.includes(setId))sets.push(setId);return{...q,sets};});await roomRef.update({questions});closeModal('addtoset-modal');toast('Added to set!');};
 window.toggleAddForm=function(){const p=document.getElementById('add-q-panel');p.style.display=p.style.display==='none'?'block':'none';if(p.style.display==='block'){populateSelects();document.getElementById('new-q-text').focus();}};
-window.addQuestion=async function(){
-  const q=document.getElementById('new-q-text').value.trim();
-  const a=document.getElementById('new-q-ans').value.trim();
-  const cat=document.getElementById('new-q-cat').value;
-  const setId=document.getElementById('new-q-set').value;
-  if(!q||!a){toast('Enter both question and answer');return;}
-  const s=S();if(!s)return;
-  await roomRef.update({questions:[...(s.questions||[]),{id:'q_'+Date.now(),q,a,cat:cat||'',sets:setId?[setId]:[],used:false}]});
-  document.getElementById('new-q-text').value='';document.getElementById('new-q-ans').value='';
-  toast('Question added!');
-};
-window.deleteQuestion=async function(qid){
-  const s=S();if(!s)return;
-  const questions=(s.questions||[]).filter(q=>q.id!==qid);
-  const updates={questions};
-  if(s.currentQ>=questions.length){updates.currentQ=-1;updates.answerVisible=false;updates.buzzers=[];updates.status='waiting';}
-  await roomRef.update(updates);
-};
+window.addQuestion=async function(){const q=document.getElementById('new-q-text').value.trim();const a=document.getElementById('new-q-ans').value.trim();const cat=document.getElementById('new-q-cat').value;const setId=document.getElementById('new-q-set').value;if(!q||!a){toast('Enter both question and answer');return;}const s=S();if(!s)return;await roomRef.update({questions:[...(s.questions||[]),{id:'q_'+Date.now(),q,a,cat:cat||'',sets:setId?[setId]:[],used:false}]});document.getElementById('new-q-text').value='';document.getElementById('new-q-ans').value='';toast('Question added!');};
+window.deleteQuestion=async function(qid){const s=S();if(!s)return;const questions=(s.questions||[]).filter(q=>q.id!==qid);const updates={questions};if(s.currentQ>=questions.length){updates.currentQ=-1;updates.answerVisible=false;updates.buzzers=[];updates.status='waiting';}await roomRef.update(updates);};
+window.addCategory=async function(){const val=document.getElementById('new-cat-input').value.trim();if(!val){toast('Enter a name');return;}const s=S();if(!s)return;const cats=[...(s.categories||[])];if(cats.includes(val)){toast('Already exists');return;}cats.push(val);await roomRef.update({categories:cats});document.getElementById('new-cat-input').value='';toast(`"${val}" added!`);};
+window.deleteCategory=async function(cat){const s=S();if(!s)return;await roomRef.update({categories:(s.categories||[]).filter(c=>c!==cat),questions:(s.questions||[]).map(q=>q.cat===cat?{...q,cat:''}:q)});toast(`"${cat}" removed`);};
 
-// ── CATEGORIES ──
-window.addCategory=async function(){
-  const val=document.getElementById('new-cat-input').value.trim();if(!val){toast('Enter a name');return;}
-  const s=S();if(!s)return;const cats=[...(s.categories||[])];
-  if(cats.includes(val)){toast('Already exists');return;}
-  cats.push(val);await roomRef.update({categories:cats});
-  document.getElementById('new-cat-input').value='';toast(`"${val}" added!`);
-};
-window.deleteCategory=async function(cat){
-  const s=S();if(!s)return;
-  await roomRef.update({categories:(s.categories||[]).filter(c=>c!==cat),questions:(s.questions||[]).map(q=>q.cat===cat?{...q,cat:''}:q)});
-  toast(`"${cat}" removed`);
-};
+function populateSelects(){const s=S();const cats=s?.categories||[];const sets=s?.sets||[];['new-q-cat','import-cat-sel'].forEach(id=>{const el=document.getElementById(id);if(!el)return;const cur=el.value;el.innerHTML='<option value="">— No category —</option>'+cats.map(c=>`<option value="${esc(c)}"${c===cur?' selected':''}>${esc(c)}</option>`).join('');});['new-q-set','import-set-sel','addtoset-sel'].forEach(id=>{const el=document.getElementById(id);if(!el)return;const cur=el.value;el.innerHTML='<option value="">— No set —</option>'+sets.map(st=>`<option value="${esc(st.id)}"${st.id===cur?' selected':''}>${esc(st.icon)} ${esc(st.name)}</option>`).join('');});}
 
-function populateSelects(){
-  const s=S();const cats=s?.categories||[];const sets=s?.sets||[];
-  ['new-q-cat','import-cat-sel'].forEach(id=>{const el=document.getElementById(id);if(!el)return;const cur=el.value;el.innerHTML='<option value="">— No category —</option>'+cats.map(c=>`<option value="${esc(c)}"${c===cur?' selected':''}>${esc(c)}</option>`).join('');});
-  ['new-q-set','import-set-sel','addtoset-sel'].forEach(id=>{const el=document.getElementById(id);if(!el)return;const cur=el.value;el.innerHTML='<option value="">— No set —</option>'+sets.map(st=>`<option value="${esc(st.id)}"${st.id===cur?' selected':''}>${esc(st.icon)} ${esc(st.name)}</option>`).join('');});
-}
-
-// ── SMART IMPORT & BULK PASTE ──
-window.smartParse=async function(){
-  const text=document.getElementById('import-text').value.trim();if(!text){toast('Paste some text first');return;}
-  const defCat=document.getElementById('import-cat-sel').value;
-  const defSet=document.getElementById('import-set-sel').value;
-  const statusEl=document.getElementById('parse-status');
-  statusEl.innerHTML='<div class="ai-thinking">✨ AI parsing… <div class="ai-dots"><span></span><span></span><span></span></div></div>';
-  document.getElementById('import-preview').style.display='none';
-  document.getElementById('btn-smart-parse').disabled=true;
-  const cats=(S()?.categories||[]);
-  try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,messages:[{role:'user',
-        content:'Extract ALL question-answer pairs from this text. Available categories: '+(cats.length?cats.join(', '):'none')+'. Suggest the best matching category or leave blank. Return ONLY a valid JSON array, example: [{"q":"...","a":"...","cat":"..."}]. Text to parse: '+text}]})});
-    const data=await res.json();
-    const raw=data.content?.find(c=>c.type==='text')?.text||'[]';
-    let parsed=[];
-    try{parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());}catch(e){toast('AI parse error');statusEl.innerHTML='';document.getElementById('btn-smart-parse').disabled=false;return;}
-    if(!parsed.length){statusEl.innerHTML='<p style="color:rgba(255,255,255,0.5);font-size:.87rem;margin-top:.5rem;">No questions found.</p>';document.getElementById('btn-smart-parse').disabled=false;return;}
-    parsedPreview=parsed.map((p,i)=>({...p,id:'imp_'+Date.now()+'_'+i,used:false,cat:p.cat||(defCat||''),sets:defSet?[defSet]:[]}));
-    statusEl.innerHTML='';renderPreview(cats);document.getElementById('import-preview').style.display='block';
-  }catch(e){statusEl.innerHTML=`<p style="color:#f08060;font-size:.87rem;margin-top:.5rem;">Error: ${e.message}</p>`;}
-  document.getElementById('btn-smart-parse').disabled=false;
-};
-
-window.bulkPaste=async function(){
-  const text=document.getElementById('import-text').value;
-  const defSet=document.getElementById('import-set-sel').value;
-  const lines=text.split('\n').map(l=>l.trim()).filter(Boolean);
-  const s=S();if(!s)return;
-  const questions=[...(s.questions||[])];let added=0;
-  lines.forEach(line=>{
-    const m=line.match(/Q:\s*(.+?)\s*\|\s*A:\s*(.+?)(?:\s*\|\s*C:\s*(.+))?$/i);
-    if(m){questions.push({id:'q_'+Date.now()+'_'+added,q:m[1].trim(),a:m[2].trim(),cat:(m[3]||'').trim(),sets:defSet?[defSet]:[],used:false});added++;}
-  });
-  if(!added){toast('No valid lines. Use: Q: … | A: … | C: category');return;}
-  await roomRef.update({questions});
-  document.getElementById('import-text').value='';document.getElementById('parse-status').innerHTML='';
-  toast(`✅ ${added} question${added!==1?'s':''} added!`);
-  switchTab('tab-bank',document.querySelector('.host-tab'));
-};
-
-function renderPreview(cats){
-  document.getElementById('preview-count').textContent=`Found ${parsedPreview.length} question${parsedPreview.length!==1?'s':''}`;
-  document.getElementById('preview-list').innerHTML=parsedPreview.map((p,i)=>`
-    <div class="preview-item">
-      <div class="pi-q">${esc(p.q)}</div><div class="pi-a">${esc(p.a)}</div>
-      <select class="preview-cat-sel" onchange="updatePC(${i},this.value)">
-        <option value="">No cat</option>${(cats||[]).map(c=>`<option value="${esc(c)}"${c===p.cat?' selected':''}>${esc(c)}</option>`).join('')}
-      </select>
-      <button class="preview-remove" onclick="removePI(${i})">×</button>
-    </div>`).join('');
-}
+window.smartParse=async function(){const text=document.getElementById('import-text').value.trim();if(!text){toast('Paste some text first');return;}const defCat=document.getElementById('import-cat-sel').value;const defSet=document.getElementById('import-set-sel').value;const statusEl=document.getElementById('parse-status');statusEl.innerHTML='<div class="ai-thinking">✨ AI parsing… <div class="ai-dots"><span></span><span></span><span></span></div></div>';document.getElementById('import-preview').style.display='none';document.getElementById('btn-smart-parse').disabled=true;const cats=(S()?.categories||[]);try{const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,messages:[{role:'user',content:'Extract ALL question-answer pairs from this text. Available categories: '+(cats.length?cats.join(', '):'none')+'. Suggest the best matching category or leave blank. Return ONLY a valid JSON array, example: [{"q":"...","a":"...","cat":"..."}]. Text to parse: '+text}]})});const data=await res.json();const raw=data.content?.find(c=>c.type==='text')?.text||'[]';let parsed=[];try{parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());}catch(e){toast('AI parse error');statusEl.innerHTML='';document.getElementById('btn-smart-parse').disabled=false;return;}if(!parsed.length){statusEl.innerHTML='<p style="color:rgba(255,255,255,0.5);font-size:.87rem;margin-top:.5rem;">No questions found.</p>';document.getElementById('btn-smart-parse').disabled=false;return;}parsedPreview=parsed.map((p,i)=>({...p,id:'imp_'+Date.now()+'_'+i,used:false,cat:p.cat||(defCat||''),sets:defSet?[defSet]:[]}));statusEl.innerHTML='';renderPreview(cats);document.getElementById('import-preview').style.display='block';}catch(e){statusEl.innerHTML=`<p style="color:#f08060;font-size:.87rem;margin-top:.5rem;">Error: ${e.message}</p>`;}document.getElementById('btn-smart-parse').disabled=false;};
+window.bulkPaste=async function(){const text=document.getElementById('import-text').value;const defSet=document.getElementById('import-set-sel').value;const lines=text.split('\n').map(l=>l.trim()).filter(Boolean);const s=S();if(!s)return;const questions=[...(s.questions||[])];let added=0;lines.forEach(line=>{const m=line.match(/Q:\s*(.+?)\s*\|\s*A:\s*(.+?)(?:\s*\|\s*C:\s*(.+))?$/i);if(m){questions.push({id:'q_'+Date.now()+'_'+added,q:m[1].trim(),a:m[2].trim(),cat:(m[3]||'').trim(),sets:defSet?[defSet]:[],used:false});added++;}});if(!added){toast('No valid lines. Use: Q: … | A: … | C: category');return;}await roomRef.update({questions});document.getElementById('import-text').value='';document.getElementById('parse-status').innerHTML='';toast(`✅ ${added} question${added!==1?'s':''} added!`);switchTab('tab-bank',document.querySelector('.host-tab'));};
+function renderPreview(cats){document.getElementById('preview-count').textContent=`Found ${parsedPreview.length} question${parsedPreview.length!==1?'s':''}`;document.getElementById('preview-list').innerHTML=parsedPreview.map((p,i)=>`<div class="preview-item"><div class="pi-q">${esc(p.q)}</div><div class="pi-a">${esc(p.a)}</div><select class="preview-cat-sel" onchange="updatePC(${i},this.value)"><option value="">No cat</option>${(cats||[]).map(c=>`<option value="${esc(c)}"${c===p.cat?' selected':''}>${esc(c)}</option>`).join('')}</select><button class="preview-remove" onclick="removePI(${i})">×</button></div>`).join('');}
 window.updatePC=function(i,v){if(parsedPreview[i])parsedPreview[i].cat=v;};
 window.removePI=function(i){parsedPreview.splice(i,1);renderPreview(S()?.categories||[]);document.getElementById('preview-count').textContent=`Found ${parsedPreview.length} question${parsedPreview.length!==1?'s':''}`;if(!parsedPreview.length)document.getElementById('import-preview').style.display='none';};
-window.confirmImport=async function(){
-  if(!parsedPreview.length)return;const s=S();if(!s)return;
-  const questions=[...(s.questions||[]),...parsedPreview];
-  await roomRef.update({questions});
-  document.getElementById('import-preview').style.display='none';document.getElementById('import-text').value='';document.getElementById('parse-status').innerHTML='';
-  const added=parsedPreview.length;parsedPreview=[];
-  toast(`✅ ${added} questions added!`);
-  switchTab('tab-bank',document.querySelector('.host-tab'));
-};
+window.confirmImport=async function(){if(!parsedPreview.length)return;const s=S();if(!s)return;const questions=[...(s.questions||[]),...parsedPreview];await roomRef.update({questions});document.getElementById('import-preview').style.display='none';document.getElementById('import-text').value='';document.getElementById('parse-status').innerHTML='';const added=parsedPreview.length;parsedPreview=[];toast(`✅ ${added} questions added!`);switchTab('tab-bank',document.querySelector('.host-tab'));};
 
-// ── JUDGE ──
 function openJudgeModal(buzzer,state){
-  const bankQs=getBankQs(state);
-  const q=bankQs[state.currentQ];if(!q)return;
-  const words=q.q.split(' ');
-  const buzzWord=buzzer.wordIdx!=null?buzzer.wordIdx:(state.wordIdx||0);
-  const pts=calcPoints(Math.min(buzzWord,words.length-1),words.length);
+  const bankQs=getBankQs(state);const q=bankQs[state.currentQ];if(!q)return;
+  const words=q.q.split(' ');const buzzWord=buzzer.wordIdx!=null?buzzer.wordIdx:(state.wordIdx||0);const pts=calcPoints(Math.min(buzzWord,words.length-1),words.length);
   document.getElementById('judge-title').textContent=`⚡ ${esc(buzzer.name)} — buzzed at word ${buzzWord}/${words.length}`;
-  document.getElementById('judge-q').textContent=q.q;
-  document.getElementById('judge-ans').textContent=q.a;
-  document.getElementById('judge-input').value='';
-  document.getElementById('judge-fb').style.display='none';
-  const correctBtn=document.querySelector('#judge-modal .btn-gold');
-  if(correctBtn)correctBtn.textContent=`✓ Correct +${pts} pts`;
-  currentBuzzer=buzzer;
-  document.getElementById('judge-modal').classList.add('open');
-  setTimeout(()=>document.getElementById('judge-input').focus(),100);
+  document.getElementById('judge-q').textContent=q.q;document.getElementById('judge-ans').textContent=q.a;document.getElementById('judge-input').value='';document.getElementById('judge-fb').style.display='none';
+  const correctBtn=document.querySelector('#judge-modal .btn-gold');if(correctBtn)correctBtn.textContent=`✓ Correct +${pts} pts`;
+  currentBuzzer=buzzer;document.getElementById('judge-modal').classList.add('open');setTimeout(()=>document.getElementById('judge-input').focus(),100);
 }
 window.hostClickBuzzer=function(b){openJudgeModal(b,_state);};
 
@@ -931,9 +724,7 @@ window.aiJudge=async function(){
   const s=S();if(!s)return;const bankQs=getBankQs(s);const q=bankQs[s.currentQ];
   const fb=document.getElementById('judge-fb');fb.textContent='🤔 Checking…';fb.className='judge-fb';fb.style.display='block';
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:80,messages:[{role:'user',
-        content:`Geography bee. Q: "${q.q}". Official A: "${q.a}". Player said: "${given}". Correct (allow spelling variations/alternate names)? Reply ONLY JSON: {"correct":true/false,"feedback":"brief"}`}]})});
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:80,messages:[{role:'user',content:`Geography bee. Q: "${q.q}". Official A: "${q.a}". Player said: "${given}". Correct (allow spelling variations/alternate names)? Reply ONLY JSON: {"correct":true/false,"feedback":"brief"}`}]})});
     const data=await res.json();
     const p=JSON.parse((data.content?.find(c=>c.type==='text')?.text||'{}').replace(/```json|```/g,'').trim());
     if(p.correct){fb.className='judge-fb judge-ok';fb.textContent='✓ Correct! '+(p.feedback||'');setTimeout(()=>{judgeManual(true);closeModal('judge-modal');},1100);}
@@ -941,272 +732,98 @@ window.aiJudge=async function(){
   }catch(e){fb.className='judge-fb judge-bad';fb.textContent='AI check failed — judge manually.';}
 };
 
+// ── JUDGE MANUAL — with tracker bridge ──────────────────────────────────────
 window.judgeManual=async function(isCorrect){
   if(!currentBuzzer||!roomRef)return;const s=S();if(!s)return;
   const pid=currentBuzzer.id;
-  let pts=isCorrect?10:-5;
-  if(isCorrect){
-    const bankQs=getBankQs(s);const q=bankQs[s.currentQ];
-    const totalWords=q?q.q.split(' ').length:1;
-    const buzzWord=currentBuzzer.wordIdx!=null?currentBuzzer.wordIdx:(s.wordIdx||0);
-    pts=calcPoints(Math.min(buzzWord,totalWords-1),totalWords);
-  }
+  const bankQs=getBankQs(s);const q=bankQs[s.currentQ];
+  const totalWords=q?q.q.split(' ').length:1;
+  const buzzWord=currentBuzzer.wordIdx!=null?currentBuzzer.wordIdx:(s.wordIdx||0);
+  const pts=isCorrect?calcPoints(Math.min(buzzWord,totalWords-1),totalWords):-5;
   const score=(s.players?.[pid]?.score||0)+(isCorrect?pts:-5);
   const newBz=normBuzzers(s.buzzers).filter(b=>b.id!==pid);
   const updates={[`players/${pid}/score`]:score,buzzers:newBz};
   if(isCorrect){const qs=[...(s.questions||[])];if(qs[s.currentQ])qs[s.currentQ].used=true;updates.questions=qs;updates.status='waiting';stopReadTimer();}
   await roomRef.update(updates);currentBuzzer=null;closeModal('judge-modal');
   toast(isCorrect?`✓ +${pts} pts!`:'✗ −5');
+  // ── BRIDGE: push result to tracker ──
+  if(q){
+    pushResultToTracker(q.q,q.a,q.cat||'',isCorrect).then(ok=>{
+      if(ok)toast(isCorrect?`✓ +${pts} pts · synced to tracker 📊`:'✗ −5 · synced to tracker 📊');
+    });
+  }
 };
 
-// ── PLAYER ──
 window.joinRoom=async function(){
-  const name=document.getElementById('player-name-input').value.trim();
-  const code=document.getElementById('join-code-input').value.trim().toUpperCase();
+  const name=document.getElementById('player-name-input').value.trim();const code=document.getElementById('join-code-input').value.trim().toUpperCase();
   if(!name){toast('Enter your name');return;}if(!code){toast('Enter a room code');return;}
   showLoading('Joining…');
-  try{
-    const snap=await db.ref(`rooms/${code}`).once("value");
-    if(!snap.exists()){hideLoading();toast('Room not found!');return;}
-    myRole='player';myName=name;myRoom=code;roomRef=db.ref(`rooms/${code}`);
-    const state=snap.val();const color=PLAYER_COLORS[Object.keys(state.players||{}).length%PLAYER_COLORS.length];
-    await db.ref(`rooms/${code}/players/${myId}`).update({name,score:0,color});
-    hideLoading();document.getElementById('player-room-info').textContent=`Room: ${code} · Host: ${state.hostName}`;
-    showScreen('player');subscribePlayer();
-  }catch(e){hideLoading();toast('Error: '+e.message);}
+  try{const snap=await db.ref(`rooms/${code}`).once("value");if(!snap.exists()){hideLoading();toast('Room not found!');return;}myRole='player';myName=name;myRoom=code;roomRef=db.ref(`rooms/${code}`);const state=snap.val();const color=PLAYER_COLORS[Object.keys(state.players||{}).length%PLAYER_COLORS.length];await db.ref(`rooms/${code}/players/${myId}`).update({name,score:0,color});hideLoading();document.getElementById('player-room-info').textContent=`Room: ${code} · Host: ${state.hostName}`;showScreen('player');subscribePlayer();}
+  catch(e){hideLoading();toast('Error: '+e.message);}
 };
+function subscribePlayer(){const unsub=roomRef.on('value',snap=>{if(!snap.exists())return;renderPlayerUI(snap.val());setConnDot('player',true);},()=>setConnDot('player',false));unsubscribes.push(()=>roomRef.off());}
+window.buzzIn=async function(){if(!roomRef)return;const s=S();if(!s||s.status!=='question')return;const bz=normBuzzers(s.buzzers);if(bz.find(b=>b.id===myId)){toast('Already buzzed!');return;}const wi=s.wordIdx||0;bz.push({id:myId,name:myName,ts:Date.now(),wordIdx:wi});await roomRef.update({buzzers:bz});};
 
-function subscribePlayer(){
-  const unsub=roomRef.on('value', snap =>{if(!snap.exists())return;renderPlayerUI(snap.val());setConnDot('player',true);},()=>setConnDot('player',false));
-  unsubscribes.push(()=>roomRef.off());
-}
-
-window.buzzIn=async function(){
-  if(!roomRef)return;const s=S();if(!s||s.status!=='question')return;
-  const bz=normBuzzers(s.buzzers);if(bz.find(b=>b.id===myId)){toast('Already buzzed!');return;}
-  const wi=s.wordIdx||0;
-  bz.push({id:myId,name:myName,ts:Date.now(),wordIdx:wi});
-  await roomRef.update({buzzers:bz});
-};
-
-// ── RENDER HOST ──
 function renderHostUI(state){
-  _state=state;
-  const cats=state.categories||[];const sets=state.sets||[];const allQs=state.questions||[];
-
-  if(state.activeSet&&state.activeSet!==activeSetFilter){
-    activeSetFilter=state.activeSet;
-    const setName=activeSetFilter==='__all__'?'All Questions':sets.find(x=>x.id===activeSetFilter)?.name||'Unknown';
-    document.getElementById('active-set-name').textContent=setName;
-  }
-
-  const bankQs=getBankQs(state);
-  const q=state.currentQ>=0?bankQs[state.currentQ]:null;
-  const bz=normBuzzers(state.buzzers);
-
-  // Stage text (word progress will override if active)
-  if(!q||state.status!=='question'){
-    document.getElementById('stage-text').textContent=q?q.q:'No question selected — pick one from the bank →';
-  }
-  const ansDiv=document.getElementById('stage-answer');
-  ansDiv.textContent=q?`Answer: ${q.a}`:'';
-  ansDiv.className='q-answer'+(state.answerVisible&&q?' visible':'');
-  const meta=document.getElementById('stage-meta');
-  meta.innerHTML=q?(catBadge(q.cat,cats)+(q.sets?.length?`<span style="font-size:.7rem;color:rgba(255,255,255,0.4);">📦 ${esc(sets.find(s=>s.id===q.sets[0])?.name||'')}</span>`:'')):'';
-
+  _state=state;const cats=state.categories||[];const sets=state.sets||[];const allQs=state.questions||[];
+  if(state.activeSet&&state.activeSet!==activeSetFilter){activeSetFilter=state.activeSet;const setName=activeSetFilter==='__all__'?'All Questions':sets.find(x=>x.id===activeSetFilter)?.name||'Unknown';document.getElementById('active-set-name').textContent=setName;}
+  const bankQs=getBankQs(state);const q=state.currentQ>=0?bankQs[state.currentQ]:null;const bz=normBuzzers(state.buzzers);
+  if(!q||state.status!=='question'){document.getElementById('stage-text').textContent=q?q.q:'No question selected — pick one from the bank →';}
+  const ansDiv=document.getElementById('stage-answer');ansDiv.textContent=q?`Answer: ${q.a}`:'';ansDiv.className='q-answer'+(state.answerVisible&&q?' visible':'');
+  const meta=document.getElementById('stage-meta');meta.innerHTML=q?(catBadge(q.cat,cats)+(q.sets?.length?`<span style="font-size:.7rem;color:rgba(255,255,255,0.4);">📦 ${esc(sets.find(s=>s.id===q.sets[0])?.name||'')}</span>`:'')):'';
   const hasBz=bz.length>0;
-  document.getElementById('btn-reveal').disabled=!q;
-  document.getElementById('btn-correct').disabled=!hasBz;
-  document.getElementById('btn-wrong').disabled=!hasBz;
-  document.getElementById('btn-clear').disabled=!hasBz;
-  document.getElementById('btn-next').disabled=!q;
-  const sb=document.getElementById('host-status-badge');
-  if(state.status==='question'){sb.className='badge badge-live';sb.innerHTML='<span class="badge-dot badge-dot-pulse"></span> LIVE';}
-  else{sb.className='badge badge-wait';sb.innerHTML='<span class="badge-dot"></span> Waiting';}
-
+  document.getElementById('btn-reveal').disabled=!q;document.getElementById('btn-correct').disabled=!hasBz;document.getElementById('btn-wrong').disabled=!hasBz;document.getElementById('btn-clear').disabled=!hasBz;document.getElementById('btn-next').disabled=!q;
+  const sb=document.getElementById('host-status-badge');if(state.status==='question'){sb.className='badge badge-live';sb.innerHTML='<span class="badge-dot badge-dot-pulse"></span> LIVE';}else{sb.className='badge badge-wait';sb.innerHTML='<span class="badge-dot"></span> Waiting';}
   updateHostWordProgress(state);
-
-  // Active set select
-  const asel=document.getElementById('active-set-select');
-  asel.innerHTML='<option value="__all__">All Questions ('+allQs.length+')</option>'+sets.map(st=>`<option value="${esc(st.id)}">${esc(st.icon)} ${esc(st.name)} (${allQs.filter(q=>(q.sets||[]).includes(st.id)).length})</option>`).join('');
-  asel.value=activeSetFilter||'__all__';
-
-  renderQuestionBank();
-  renderSetsTab(sets,allQs);
-  renderCatTab(cats,allQs);
-  renderBuzzersSidebar(bz,state);
-  renderScoreboardSidebar(state);
-  populateSelects();
-  const pc=Object.keys(state.players||{}).length;
-  document.getElementById('player-count').textContent=`${pc} player${pc!==1?'s':''} connected`;
+  const asel=document.getElementById('active-set-select');asel.innerHTML='<option value="__all__">All Questions ('+allQs.length+')</option>'+sets.map(st=>`<option value="${esc(st.id)}">${esc(st.icon)} ${esc(st.name)} (${allQs.filter(q=>(q.sets||[]).includes(st.id)).length})</option>`).join('');asel.value=activeSetFilter||'__all__';
+  renderQuestionBank();renderSetsTab(sets,allQs);renderCatTab(cats,allQs);renderBuzzersSidebar(bz,state);renderScoreboardSidebar(state);populateSelects();
+  const pc=Object.keys(state.players||{}).length;document.getElementById('player-count').textContent=`${pc} player${pc!==1?'s':''} connected`;
 }
 
 window.renderQuestionBank=function(){
-  const state=_state;if(!state)return;
-  const cats=state.categories||[];const sets=state.sets||[];const allQs=state.questions||[];
-  const search=(document.getElementById('q-search')?.value||'').toLowerCase();
-  const bankQs=getBankQs(state);
-  let qs=[...bankQs];
-  if(activeCatFilter!=='all')qs=qs.filter(q=>(q.cat||'Uncategorized')===activeCatFilter);
-  if(search)qs=qs.filter(q=>q.q.toLowerCase().includes(search)||q.a.toLowerCase().includes(search));
+  const state=_state;if(!state)return;const cats=state.categories||[];const sets=state.sets||[];const allQs=state.questions||[];
+  const search=(document.getElementById('q-search')?.value||'').toLowerCase();const bankQs=getBankQs(state);
+  let qs=[...bankQs];if(activeCatFilter!=='all')qs=qs.filter(q=>(q.cat||'Uncategorized')===activeCatFilter);if(search)qs=qs.filter(q=>q.q.toLowerCase().includes(search)||q.a.toLowerCase().includes(search));
   document.getElementById('q-count').textContent=`(${qs.length} shown${allQs.length!==qs.length?' of '+allQs.length:''})`;
   const counts={};bankQs.forEach(q=>{const c=q.cat||'Uncategorized';counts[c]=(counts[c]||0)+1;});
-  const bar=document.getElementById('cat-filter-bar');
-  bar.innerHTML=`<button class="filter-btn ${activeCatFilter==='all'?'active':''}" style="${activeCatFilter==='all'?'background:var(--wave);border-color:var(--wave);':''}" onclick="setCatFilter('all')">All (${bankQs.length})</button>`
-    +cats.filter(c=>counts[c]).map(c=>{const color=catColor(c,cats);const active=activeCatFilter===c;return`<button class="filter-btn ${active?'active':''}" style="${active?`background:${color}33;border-color:${color};color:#fff`:''}" onclick="setCatFilter('${esc(c)}')">${esc(c)} (${counts[c]||0})</button>`;}).join('');
-  const list=document.getElementById('q-list');
-  if(!qs.length){list.innerHTML=`<p style="color:rgba(255,255,255,0.38);font-size:.87rem;">${search||activeCatFilter!=='all'?'No matching questions.':'No questions yet!'}</p>`;return;}
-  list.innerHTML=qs.map(q=>{
-    const bankIdx=bankQs.findIndex(x=>x.id===q.id);
-    const isActive=state.currentQ===bankIdx;
-    const qSets=(q.sets||[]).map(sid=>sets.find(s=>s.id===sid)).filter(Boolean);
-    return`<div class="q-item ${isActive?'active-q':''} ${q.used?'used-q':''}" onclick="selectQuestion(${bankIdx})">
-      <div class="q-item-actions">
-        <button class="q-action-btn" title="Add to set" onclick="event.stopPropagation();openAddToSet('${q.id}')" style="background:rgba(77,166,214,0.2);color:var(--sky);">+</button>
-        <button class="q-action-btn q-del-btn" onclick="event.stopPropagation();deleteQuestion('${q.id}')">×</button>
-      </div>
-      <div class="q-item-top">${catBadge(q.cat,cats)}${qSets.map(st=>`<span style="font-size:.67rem;color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.08);padding:.12rem .4rem;border-radius:10px;">${esc(st.icon)} ${esc(st.name)}</span>`).join('')}<span class="q-item-num">Q${bankIdx+1}${q.used?' · used':''}</span></div>
-      <div class="q-item-text">${esc(q.q)}</div>
-      <div class="q-item-ans">→ ${esc(q.a)}</div>
-    </div>`;
-  }).join('');
+  const bar=document.getElementById('cat-filter-bar');bar.innerHTML=`<button class="filter-btn ${activeCatFilter==='all'?'active':''}" style="${activeCatFilter==='all'?'background:var(--wave);border-color:var(--wave);':''}" onclick="setCatFilter('all')">All (${bankQs.length})</button>`+cats.filter(c=>counts[c]).map(c=>{const color=catColor(c,cats);const active=activeCatFilter===c;return`<button class="filter-btn ${active?'active':''}" style="${active?`background:${color}33;border-color:${color};color:#fff`:''}" onclick="setCatFilter('${esc(c)}')">${esc(c)} (${counts[c]||0})</button>`;}).join('');
+  const list=document.getElementById('q-list');if(!qs.length){list.innerHTML=`<p style="color:rgba(255,255,255,0.38);font-size:.87rem;">${search||activeCatFilter!=='all'?'No matching questions.':'No questions yet!'}</p>`;return;}
+  list.innerHTML=qs.map(q=>{const bankIdx=bankQs.findIndex(x=>x.id===q.id);const isActive=state.currentQ===bankIdx;const qSets=(q.sets||[]).map(sid=>sets.find(s=>s.id===sid)).filter(Boolean);return`<div class="q-item ${isActive?'active-q':''} ${q.used?'used-q':''}" onclick="selectQuestion(${bankIdx})"><div class="q-item-actions"><button class="q-action-btn" title="Add to set" onclick="event.stopPropagation();openAddToSet('${q.id}')" style="background:rgba(77,166,214,0.2);color:var(--sky);">+</button><button class="q-action-btn q-del-btn" onclick="event.stopPropagation();deleteQuestion('${q.id}')">×</button></div><div class="q-item-top">${catBadge(q.cat,cats)}${qSets.map(st=>`<span style="font-size:.67rem;color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.08);padding:.12rem .4rem;border-radius:10px;">${esc(st.icon)} ${esc(st.name)}</span>`).join('')}<span class="q-item-num">Q${bankIdx+1}${q.used?' · used':''}</span></div><div class="q-item-text">${esc(q.q)}</div><div class="q-item-ans">→ ${esc(q.a)}</div></div>`;}).join('');
 };
 window.setCatFilter=function(cat){activeCatFilter=cat;renderQuestionBank();};
-
-function renderSetsTab(sets,allQs){
-  const grid=document.getElementById('sets-grid');
-  grid.innerHTML=sets.map(st=>{
-    const count=allQs.filter(q=>(q.sets||[]).includes(st.id)).length;
-    const isActive=activeSetFilter===st.id;
-    return`<div class="set-card ${isActive?'active-set':''}" onclick="loadSet('${st.id}')">
-      <div class="set-card-actions">
-        <button class="q-action-btn" onclick="event.stopPropagation();openEditSetModal('${st.id}')" style="background:rgba(77,166,214,0.2);color:var(--sky);font-size:11px;">✏</button>
-        <button class="q-action-btn q-del-btn" onclick="event.stopPropagation();deleteSet('${st.id}')">×</button>
-      </div>
-      <div class="set-card-icon">${esc(st.icon||'📦')}</div>
-      <div class="set-card-name">${esc(st.name)}</div>
-      <div class="set-card-meta">${count} question${count!==1?'s':''} · ${st.desc?esc(st.desc):'No description'}</div>
-      ${isActive?'<div class="set-active-badge">▶ Active</div>':''}
-    </div>`;
-  }).join('')+`<div class="new-set-card" onclick="openNewSetModal()"><div style="font-size:1.8rem;">+</div><span>New Question Set</span></div>`;
-}
+function renderSetsTab(sets,allQs){const grid=document.getElementById('sets-grid');grid.innerHTML=sets.map(st=>{const count=allQs.filter(q=>(q.sets||[]).includes(st.id)).length;const isActive=activeSetFilter===st.id;return`<div class="set-card ${isActive?'active-set':''}" onclick="loadSet('${st.id}')"><div class="set-card-actions"><button class="q-action-btn" onclick="event.stopPropagation();openEditSetModal('${st.id}')" style="background:rgba(77,166,214,0.2);color:var(--sky);font-size:11px;">✏</button><button class="q-action-btn q-del-btn" onclick="event.stopPropagation();deleteSet('${st.id}')">×</button></div><div class="set-card-icon">${esc(st.icon||'📦')}</div><div class="set-card-name">${esc(st.name)}</div><div class="set-card-meta">${count} question${count!==1?'s':''} · ${st.desc?esc(st.desc):'No description'}</div>${isActive?'<div class="set-active-badge">▶ Active</div>':''}</div>`;}).join('')+`<div class="new-set-card" onclick="openNewSetModal()"><div style="font-size:1.8rem;">+</div><span>New Question Set</span></div>`;}
 window.loadSet=function(setId){document.getElementById('active-set-select').value=setId;changeActiveSet(setId);switchTab('tab-bank',document.querySelector('.host-tab'));};
+function renderCatTab(cats,questions){const counts={};questions.forEach(q=>{if(q.cat)counts[q.cat]=(counts[q.cat]||0)+1;});document.getElementById('cat-chip-list').innerHTML=cats.length?cats.map((c,i)=>{const color=CAT_COLORS[i%CAT_COLORS.length];return`<div class="cat-chip" style="background:${color}22;color:${color};border:1px solid ${color}44">${esc(c)} <span style="opacity:.5">(${counts[c]||0})</span><button class="cat-chip-del" onclick="deleteCategory('${esc(c)}')">×</button></div>`;}).join(''):'<p class="no-data">No categories yet</p>';document.getElementById('cat-stats').innerHTML=cats.filter(c=>counts[c]).map((c,i)=>{const color=CAT_COLORS[i%CAT_COLORS.length];const n=counts[c]||0;const pct=questions.length?Math.round(n/questions.length*100):0;return`<div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem;font-size:.82rem;"><span style="width:90px;color:${color};font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(c)}</span><div style="flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,0.1);"><div style="width:${pct}%;height:100%;background:${color};border-radius:3px;"></div></div><span style="width:28px;text-align:right;color:rgba(255,255,255,0.45);">${n}</span></div>`;}).join('');}
+function renderBuzzersSidebar(bz,state){const bl=document.getElementById('buzz-list');const bankQs=getBankQs(state);const q=state.currentQ>=0?bankQs[state.currentQ]:null;const totalWords=q?q.q.split(' ').length:1;bl.innerHTML=bz.length?bz.map((b,i)=>{const color=state.players?.[b.id]?.color||'var(--sky)';const wi=b.wordIdx!=null?b.wordIdx:(state.wordIdx||0);const pts=calcPoints(Math.min(wi,totalWords-1),totalWords);return`<div class="buzzed-player" onclick='hostClickBuzzer(${JSON.stringify(b)})'><div class="buzzed-num">${i+1}</div><div class="player-avatar" style="width:27px;height:27px;font-size:.67rem;background:${color}22;color:${color}">${b.name.slice(0,2).toUpperCase()}</div><div class="buzzed-name" style="flex:1">${esc(b.name)}</div><div style="font-size:.7rem;color:var(--gold);text-align:right;line-height:1.4;">w${wi}<br>+${pts}pt</div>${i===0?'<div class="buzzed-first" style="margin-left:.3rem;">⚡</div>':''}</div>`;}).join(''):'<p class="no-data">Waiting for buzzers…</p>';}
+function renderScoreboardSidebar(state){const players=Object.entries(state.players||{}).map(([id,p])=>({id,...p})).sort((a,b)=>(b.score||0)-(a.score||0));const sl=document.getElementById('scoreboard-list');sl.innerHTML=players.length?players.map((p,i)=>`<div class="player-row"><div class="player-rank">${i+1}</div><div class="player-avatar" style="background:${p.color}22;color:${p.color}">${p.name.slice(0,2).toUpperCase()}</div><div class="player-name">${esc(p.name)}</div><div class="player-pts ${(p.score||0)>0?'pts-pos':(p.score||0)<0?'pts-neg':'pts-zero'}">${p.score||0}</div></div>`).join(''):'<p class="no-data">No players yet</p>';}
 
-function renderCatTab(cats,questions){
-  const counts={};questions.forEach(q=>{if(q.cat)counts[q.cat]=(counts[q.cat]||0)+1;});
-  document.getElementById('cat-chip-list').innerHTML=cats.length?cats.map((c,i)=>{const color=CAT_COLORS[i%CAT_COLORS.length];return`<div class="cat-chip" style="background:${color}22;color:${color};border:1px solid ${color}44">${esc(c)} <span style="opacity:.5">(${counts[c]||0})</span><button class="cat-chip-del" onclick="deleteCategory('${esc(c)}')">×</button></div>`;}).join(''):'<p class="no-data">No categories yet</p>';
-  document.getElementById('cat-stats').innerHTML=cats.filter(c=>counts[c]).map((c,i)=>{const color=CAT_COLORS[i%CAT_COLORS.length];const n=counts[c]||0;const pct=questions.length?Math.round(n/questions.length*100):0;return`<div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem;font-size:.82rem;"><span style="width:90px;color:${color};font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(c)}</span><div style="flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,0.1);"><div style="width:${pct}%;height:100%;background:${color};border-radius:3px;"></div></div><span style="width:28px;text-align:right;color:rgba(255,255,255,0.45);">${n}</span></div>`;}).join('');
-}
-
-function renderBuzzersSidebar(bz,state){
-  const bl=document.getElementById('buzz-list');
-  const bankQs=getBankQs(state);
-  const q=state.currentQ>=0?bankQs[state.currentQ]:null;
-  const totalWords=q?q.q.split(' ').length:1;
-  bl.innerHTML=bz.length?bz.map((b,i)=>{
-    const color=state.players?.[b.id]?.color||'var(--sky)';
-    const wi=b.wordIdx!=null?b.wordIdx:(state.wordIdx||0);
-    const pts=calcPoints(Math.min(wi,totalWords-1),totalWords);
-    return`<div class="buzzed-player" onclick='hostClickBuzzer(${JSON.stringify(b)})'>
-      <div class="buzzed-num">${i+1}</div>
-      <div class="player-avatar" style="width:27px;height:27px;font-size:.67rem;background:${color}22;color:${color}">${b.name.slice(0,2).toUpperCase()}</div>
-      <div class="buzzed-name" style="flex:1">${esc(b.name)}</div>
-      <div style="font-size:.7rem;color:var(--gold);text-align:right;line-height:1.4;">w${wi}<br>+${pts}pt</div>
-      ${i===0?'<div class="buzzed-first" style="margin-left:.3rem;">⚡</div>':''}
-    </div>`;
-  }).join(''):'<p class="no-data">Waiting for buzzers…</p>';
-}
-
-function renderScoreboardSidebar(state){
-  const players=Object.entries(state.players||{}).map(([id,p])=>({id,...p})).sort((a,b)=>(b.score||0)-(a.score||0));
-  const sl=document.getElementById('scoreboard-list');
-  sl.innerHTML=players.length?players.map((p,i)=>`<div class="player-row"><div class="player-rank">${i+1}</div><div class="player-avatar" style="background:${p.color}22;color:${p.color}">${p.name.slice(0,2).toUpperCase()}</div><div class="player-name">${esc(p.name)}</div><div class="player-pts ${(p.score||0)>0?'pts-pos':(p.score||0)<0?'pts-neg':'pts-zero'}">${p.score||0}</div></div>`).join(''):'<p class="no-data">No players yet</p>';
-}
-
-// ── RENDER PLAYER ──
 function renderPlayerUI(state){
-  _state=state;
-  const cats=state.categories||[];
-  const bankQs=getBankQs(state);
-  const q=state.currentQ>=0?bankQs[state.currentQ]:null;
-  const bz=normBuzzers(state.buzzers);
-  const wi=state.wordIdx||0;
-  const myBuzz=bz.find(b=>b.id===myId);
-
-  const qt=document.getElementById('player-q-text');
-  const qcat=document.getElementById('player-q-cat');
-  const qDisplay=document.getElementById('player-q-display');
-  const buzzSnapshot=document.getElementById('buzz-snapshot');
-
-  if(q&&state.status==='question'){
-    if(q.cat){qcat.style.display='block';qcat.style.color=catColor(q.cat,cats);qcat.textContent=q.cat;}
-    else{qcat.style.display='none';}
-    const words=q.q.split(' ');
-    const revealedCount=Math.min(wi,words.length);
-    if(myBuzz){
-      // Freeze: show snapshot of words at buzz moment
-      qDisplay.style.display='none';
-      buzzSnapshot.style.display='block';
-      const snapCount=myBuzz.wordIdx!=null?Math.min(myBuzz.wordIdx,words.length):revealedCount;
-      const snapWords=words.slice(0,snapCount).join(' ');
-      document.getElementById('buzz-snapshot-words').textContent=snapWords||'(buzzed before any words!)';
-      const buzzPts=calcPoints(Math.min(myBuzz.wordIdx||wi,words.length-1),words.length);
-      document.getElementById('buzz-snapshot-score').textContent=`Word ${myBuzz.wordIdx||wi} of ${words.length} · ${buzzPts} pts if correct`;
-    } else {
-      buzzSnapshot.style.display='none';
-      qDisplay.style.display='flex';
-      if(revealedCount===0){
-        qt.className='q-display-waiting';qt.innerHTML='Get ready…';
-      } else {
-        qt.className='player-words';
-        qt.innerHTML=words.slice(0,revealedCount).map((w,i)=>
-          `<span class="player-word" style="animation-delay:${Math.max(0,(i-(revealedCount-3))*0.04)}s">${esc(w)} </span>`
-        ).join('');
-      }
-    }
-  } else {
-    buzzSnapshot.style.display='none';
-    qDisplay.style.display='flex';
-    qt.className='q-display-waiting';
-    qt.textContent='Waiting for host to start a question…';
-    qcat.style.display='none';
-  }
-
-  const btn=document.getElementById('player-buzzer');
-  const bst=document.getElementById('buzz-status');
-  const myPos=bz.findIndex(b=>b.id===myId);
-  if(!q||state.status!=='question'){btn.disabled=true;btn.className='buzzer-btn';bst.textContent='Waiting for question…';}
-  else if(myBuzz){btn.disabled=true;btn.className='buzzer-btn buzzed-in';bst.textContent=myPos===0?'⚡ You buzzed first!':`You're #${myPos+1} in line`;}
-  else if(wi===0){btn.disabled=true;btn.className='buzzer-btn';bst.textContent='Get ready…';}
-  else{btn.disabled=false;btn.className='buzzer-btn';bst.textContent='Press BUZZ or Spacebar!';}
-
-  const bqs=document.getElementById('player-buzz-section');
-  const bql=document.getElementById('player-buzz-list');
-  if(bz.length){
-    bqs.style.display='block';
-    bql.innerHTML=bz.map((b,i)=>{const color=state.players?.[b.id]?.color||'var(--sky)';return`<div class="mini-row"><span style="color:rgba(255,255,255,0.38);font-size:.77rem;width:20px;">${i+1}</span><div class="player-avatar" style="width:26px;height:26px;font-size:.62rem;background:${color}22;color:${color}">${b.name.slice(0,2).toUpperCase()}</div><span style="font-size:.87rem;${b.id===myId?'color:var(--gold);font-weight:600;':''}">${esc(b.name)}</span>${i===0?'<span style="margin-left:auto;font-size:.72rem;color:var(--gold);">⚡</span>':''}</div>`;}).join('');
-  }else{bqs.style.display='none';}
-
-  const players=Object.entries(state.players||{}).map(([id,p])=>({id,...p})).sort((a,b)=>(b.score||0)-(a.score||0));
-  document.getElementById('player-scoreboard').innerHTML=players.map((p,i)=>`<div class="mini-row" style="${p.id===myId?'background:rgba(255,255,255,0.06);border-radius:6px;':''}"><span style="color:rgba(255,255,255,0.38);font-size:.77rem;width:20px;">${i+1}</span><div class="player-avatar" style="width:26px;height:26px;font-size:.62rem;background:${p.color}22;color:${p.color}">${p.name.slice(0,2).toUpperCase()}</div><span style="font-size:.87rem;flex:1;${p.id===myId?'font-weight:600;':''}">${esc(p.name)}</span><span style="font-weight:700;font-size:.87rem;color:${(p.score||0)>0?'#7dd8a5':(p.score||0)<0?'#f08060':'rgba(255,255,255,0.38)'}">${p.score||0}</span></div>`).join('');
+  _state=state;const cats=state.categories||[];const bankQs=getBankQs(state);const q=state.currentQ>=0?bankQs[state.currentQ]:null;const bz=normBuzzers(state.buzzers);const wi=state.wordIdx||0;const myBuzz=bz.find(b=>b.id===myId);
+  const qt=document.getElementById('player-q-text');const qcat=document.getElementById('player-q-cat');const qDisplay=document.getElementById('player-q-display');const buzzSnapshot=document.getElementById('buzz-snapshot');
+  if(q&&state.status==='question'){if(q.cat){qcat.style.display='block';qcat.style.color=catColor(q.cat,cats);qcat.textContent=q.cat;}else{qcat.style.display='none';}const words=q.q.split(' ');const revealedCount=Math.min(wi,words.length);if(myBuzz){qDisplay.style.display='none';buzzSnapshot.style.display='block';const snapCount=myBuzz.wordIdx!=null?Math.min(myBuzz.wordIdx,words.length):revealedCount;const snapWords=words.slice(0,snapCount).join(' ');document.getElementById('buzz-snapshot-words').textContent=snapWords||'(buzzed before any words!)';const buzzPts=calcPoints(Math.min(myBuzz.wordIdx||wi,words.length-1),words.length);document.getElementById('buzz-snapshot-score').textContent=`Word ${myBuzz.wordIdx||wi} of ${words.length} · ${buzzPts} pts if correct`;}else{buzzSnapshot.style.display='none';qDisplay.style.display='flex';if(revealedCount===0){qt.className='q-display-waiting';qt.innerHTML='Get ready…';}else{qt.className='player-words';qt.innerHTML=words.slice(0,revealedCount).map((w,i)=>`<span class="player-word" style="animation-delay:${Math.max(0,(i-(revealedCount-3))*0.04)}s">${esc(w)} </span>`).join('');}}}else{buzzSnapshot.style.display='none';qDisplay.style.display='flex';qt.className='q-display-waiting';qt.textContent='Waiting for host to start a question…';qcat.style.display='none';}
+  const btn=document.getElementById('player-buzzer');const bst=document.getElementById('buzz-status');const myPos=bz.findIndex(b=>b.id===myId);if(!q||state.status!=='question'){btn.disabled=true;btn.className='buzzer-btn';bst.textContent='Waiting for question…';}else if(myBuzz){btn.disabled=true;btn.className='buzzer-btn buzzed-in';bst.textContent=myPos===0?'⚡ You buzzed first!':`You're #${myPos+1} in line`;}else if(wi===0){btn.disabled=true;btn.className='buzzer-btn';bst.textContent='Get ready…';}else{btn.disabled=false;btn.className='buzzer-btn';bst.textContent='Press BUZZ or Spacebar!';}
+  const bqs=document.getElementById('player-buzz-section');const bql=document.getElementById('player-buzz-list');if(bz.length){bqs.style.display='block';bql.innerHTML=bz.map((b,i)=>{const color=state.players?.[b.id]?.color||'var(--sky)';return`<div class="mini-row"><span style="color:rgba(255,255,255,0.38);font-size:.77rem;width:20px;">${i+1}</span><div class="player-avatar" style="width:26px;height:26px;font-size:.62rem;background:${color}22;color:${color}">${b.name.slice(0,2).toUpperCase()}</div><span style="font-size:.87rem;${b.id===myId?'color:var(--gold);font-weight:600;':''}">${esc(b.name)}</span>${i===0?'<span style="margin-left:auto;font-size:.72rem;color:var(--gold);">⚡</span>':''}</div>`;}).join('');}else{bqs.style.display='none';}
+  const players=Object.entries(state.players||{}).map(([id,p])=>({id,...p})).sort((a,b)=>(b.score||0)-(a.score||0));document.getElementById('player-scoreboard').innerHTML=players.map((p,i)=>`<div class="mini-row" style="${p.id===myId?'background:rgba(255,255,255,0.06);border-radius:6px;':''}"><span style="color:rgba(255,255,255,0.38);font-size:.77rem;width:20px;">${i+1}</span><div class="player-avatar" style="width:26px;height:26px;font-size:.62rem;background:${p.color}22;color:${p.color}">${p.name.slice(0,2).toUpperCase()}</div><span style="font-size:.87rem;flex:1;${p.id===myId?'font-weight:600;':''}">${esc(p.name)}</span><span style="font-weight:700;font-size:.87rem;color:${(p.score||0)>0?'#7dd8a5':(p.score||0)<0?'#f08060':'rgba(255,255,255,0.38)'}">${p.score||0}</span></div>`).join('');
 }
 
-// ── WINNER ──
-window.showWinnerScreen=function(){
-  const s=S();if(!s)return;const players=Object.values(s.players||{});if(!players.length){toast('No players yet');return;}
-  players.sort((a,b)=>(b.score||0)-(a.score||0));const w=players[0];
-  document.getElementById('winner-name').textContent=w.name;document.getElementById('winner-score').textContent=`${w.score||0} points`;
-  document.getElementById('winner-screen').classList.add('open');roomRef.update({status:'done'});
-};
-
-// ── KEYBOARD ──
+window.showWinnerScreen=function(){const s=S();if(!s)return;const players=Object.values(s.players||{});if(!players.length){toast('No players yet');return;}players.sort((a,b)=>(b.score||0)-(a.score||0));const w=players[0];document.getElementById('winner-name').textContent=w.name;document.getElementById('winner-score').textContent=`${w.score||0} points`;document.getElementById('winner-screen').classList.add('open');roomRef.update({status:'done'});};
 document.addEventListener('keydown',e=>{if(e.code==='Space'&&myRole==='player'){e.preventDefault();const btn=document.getElementById('player-buzzer');if(!btn.disabled)window.buzzIn();}});
 
-// ── BOOT ──
 async function autoConnect(){
   showLoading('Connecting to Firebase…');
-  try{firebaseApp=firebase.initializeApp(FIREBASE_CONFIG);db=firebase.database();hideLoading();showScreen('landing');}
-  catch(e){hideLoading();alert('Firebase connection failed: '+e.message);}
+  try{
+    firebaseApp=firebase.initializeApp(FIREBASE_CONFIG);
+    db=firebase.database();
+    hideLoading();showScreen('landing');
+    // Auto-reconnect tracker if previously configured
+    const savedTc=tcCfgGet();
+    if(savedTc.apiKey&&savedTc.projectId&&savedTc.appId){
+      document.getElementById('tc-key').value=savedTc.apiKey;
+      document.getElementById('tc-pid').value=savedTc.projectId;
+      document.getElementById('tc-aid').value=savedTc.appId;
+      _initTrackerApp(savedTc);
+    }
+  }catch(e){hideLoading();alert('Firebase connection failed: '+e.message);}
 }
 autoConnect();
 </script>
