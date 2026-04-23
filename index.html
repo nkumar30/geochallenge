@@ -229,6 +229,17 @@ h1.title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4rem);f
 
 @media(max-width:800px){.host-layout{grid-template-columns:1fr;}.host-sidebar{border-left:none;border-top:1px solid rgba(255,255,255,0.08);}.sets-grid{grid-template-columns:1fr 1fr;}}
 @media(max-width:480px){.role-cards{flex-direction:column;}.buzzer-btn{width:130px;height:130px;font-size:1.2rem;}.sets-grid{grid-template-columns:1fr;}}
+
+/* ── PIN GATE ── */
+.pin-overlay{display:none;position:fixed;inset:0;z-index:500;background:rgba(10,35,66,0.92);backdrop-filter:blur(10px);align-items:center;justify-content:center;}
+.pin-overlay.open{display:flex;}
+.pin-box{background:var(--sea);border:1px solid rgba(255,255,255,0.15);border-radius:18px;padding:2rem;max-width:340px;width:92%;text-align:center;animation:modalin .2s ease;}
+.pin-box h3{font-family:'Playfair Display',serif;font-size:1.4rem;margin-bottom:.4rem;}
+.pin-box p{font-size:.87rem;color:rgba(255,255,255,0.5);margin-bottom:1.3rem;}
+.pin-input{width:100%;padding:.8rem;border-radius:10px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);color:#fff;font-size:1.3rem;letter-spacing:.3em;text-align:center;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:.5rem;}
+.pin-input:focus{border-color:var(--sky);}
+.pin-error{font-size:.82rem;color:#f08060;min-height:1.1em;margin-bottom:.75rem;}
+.pin-actions{display:flex;gap:.6rem;justify-content:center;}
 </style>
 </head>
 <body>
@@ -241,8 +252,17 @@ h1.title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4rem);f
     <p class="tagline">Real-time Geography Bee — play from any device</p>
     <div class="fb-indicator"><span class="dot-green"></span> Firebase connected · Live sync</div>
     <div class="role-cards">
-      <div class="role-card" onclick="showHostSetup()"><div class="role-icon">🎓</div><h2>Host</h2><p>Manage question sets & run the game</p></div>
+      <div class="role-card" onclick="showHostSetup()"><div class="role-icon">🎓</div><h2>Host <span style="font-size:.65rem;background:rgba(255,255,255,0.1);border-radius:20px;padding:.1rem .5rem;vertical-align:middle;font-family:DM Sans,sans-serif;font-weight:400;">PIN required</span></h2><p>Manage question sets & run the game</p></div>
       <div class="role-card" onclick="showPlayerSetup()"><div class="role-icon">🙋</div><h2>Player</h2><p>Join a room, buzz in, and answer!</p></div>
+      <div class="role-card" onclick="toggleLibManager()" style="margin-top:1rem;min-width:100%;max-width:480px;padding:1rem 1.5rem;display:flex;align-items:center;gap:1rem;text-align:left;opacity:.75;">
+        <div class="role-icon" style="font-size:1.8rem;">🔐</div>
+        <div><h2 style="font-size:1.1rem;margin-bottom:.2rem;">Question Library <span style="font-size:.7rem;background:rgba(255,255,255,0.1);border-radius:20px;padding:.1rem .5rem;vertical-align:middle;font-family:DM Sans,sans-serif;font-weight:400;">Host only</span></h2><p style="font-size:.85rem;">Build & manage your question bank — persists across all games</p></div>
+      </div>
+    </div>
+    <div id="lib-manager" class="inline-form" style="display:none;max-width:700px;width:100%">
+      <div class="form-card" style="text-align:left;background:rgba(255,255,255,0.06);">
+        <div id="lib-tab-content"><p style="color:rgba(255,255,255,0.45);font-size:.87rem;">Connecting to library…</p></div>
+      </div>
     </div>
     <div id="host-setup" class="inline-form" style="display:none">
       <div class="form-card">
@@ -618,14 +638,178 @@ function setConnDot(role,online){const el=document.getElementById(role==='host'?
 function catColor(cat,cats){if(!cat||!cats)return'rgba(255,255,255,0.25)';const i=cats.indexOf(cat);return i>=0?CAT_COLORS[i%CAT_COLORS.length]:'rgba(255,255,255,0.25)';}
 function catBadge(cat,cats){if(!cat)return'';const c=catColor(cat,cats);return`<span class="cat-badge" style="background:${c}22;color:${c};border:1px solid ${c}44">${esc(cat)}</span>`;}
 function calcPoints(wordIdx,totalWords){if(totalWords<=1)return 30;const pct=wordIdx/(totalWords-1);return Math.round(30-pct*20);}
-function getBankQs(state){const all=state.questions||[];return(!state.activeSet||state.activeSet==='__all__')?all:all.filter(q=>(q.sets||[]).includes(state.activeSet));}
+function getBankQs(state){const all=(_libState&&_libState.questions)||state.questions||[];return(!state.activeSet||state.activeSet==='__all__')?all:all.filter(q=>(q.sets||[]).includes(state.activeSet));}
 let _state=null;
+let _libState=null, libRef=null, libUnsub=null;
 function S(){return _state;}
+function LS(){return _libState||{questions:[],sets:[],categories:[]};}
+
+// ── LIBRARY helpers ──────────────────────────────────────────────────────────
+function subscribeLibrary(){
+  if(!db)return;
+  libRef=db.ref('library');
+  if(libUnsub)libRef.off();
+  libUnsub=libRef.on('value',snap=>{
+    if(snap.exists()){
+      _libState=snap.val();
+      if(!_libState.questions)_libState.questions=[];
+      if(!_libState.sets)_libState.sets=[];
+      if(!_libState.categories)_libState.categories=SAMPLE_CATS;
+    } else {
+      // First time — seed with sample data
+      _libState={questions:SAMPLE_QUESTIONS.map((q,i)=>({...q,id:'q'+i,used:false,sets:q.sets||[]})),sets:SAMPLE_SETS,categories:SAMPLE_CATS};
+      libRef.set(_libState);
+    }
+    renderLibraryUI();
+    if(_state)renderHostUI(_state);
+  });
+}
+
+async function libUpdate(updates){Object.assign(_libState,updates);await libRef.update(updates);}
+
+function renderLibraryUI(){
+  // Re-render question bank and set selects if host screen is active
+  if(myRole==='host'&&_state)renderHostUI(_state);
+  renderLibraryTab();
+}
+
+function renderLibraryTab(){
+  const el=document.getElementById('lib-tab-content');if(!el)return;
+  const lib=LS();const cats=lib.categories||[];const sets=lib.sets||[];const qs=lib.questions||[];
+  const counts={};qs.forEach(q=>{const c=q.cat||'Uncategorized';counts[c]=(counts[c]||0)+1;});
+  el.innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem;">
+      <div>
+        <h3 style="font-family:'Playfair Display',serif;font-size:1.2rem;margin-bottom:.2rem;">Question Library</h3>
+        <p style="font-size:.82rem;color:rgba(255,255,255,0.45);">${qs.length} questions · ${sets.length} sets · persists across all games</p>
+      </div>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+        <button class="btn btn-primary btn-sm" onclick="showLibAddQ()">+ Add question</button>
+        <button class="btn btn-ghost btn-sm" onclick="showLibImport()">✨ Import from text</button>
+      </div>
+    </div>
+    <div id="lib-add-q-form" style="display:none;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:1rem;margin-bottom:1rem;">
+      <h4 style="font-size:.87rem;color:var(--sky);margin-bottom:.8rem;">New Question</h4>
+      <div class="form-group"><label>Question</label><textarea id="lib-q-text" placeholder="What river flows through Budapest?"></textarea></div>
+      <div class="form-group"><label>Answer</label><input id="lib-q-ans" placeholder="Danube"></div>
+      <div class="form-group"><label>Category</label><select id="lib-q-cat"><option value="">— No category —</option>${cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('')}</select></div>
+      <div class="form-group"><label>Add to set (optional)</label><select id="lib-q-set"><option value="">— No set —</option>${sets.map(s=>`<option value="${esc(s.id)}">${esc(s.icon||'📦')} ${esc(s.name)}</option>`).join('')}</select></div>
+      <div class="form-row"><button class="btn btn-primary btn-sm" onclick="libAddQ()">Add</button><button class="btn btn-ghost btn-sm" onclick="document.getElementById('lib-add-q-form').style.display='none'">Cancel</button></div>
+    </div>
+    <div id="lib-import-form" style="display:none;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:1rem;margin-bottom:1rem;">
+      <h4 style="font-size:.87rem;color:var(--sky);margin-bottom:.6rem;">✨ Import questions</h4>
+      <p style="font-size:.8rem;color:rgba(255,255,255,0.5);margin-bottom:.75rem;">Paste any text — AI extracts Q&A pairs. Or use bulk format: <code style="color:var(--sky)">Q: … | A: … | C: category</code></p>
+      <textarea style="width:100%;min-height:140px;padding:.75rem;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.07);color:#fff;font-size:.88rem;font-family:'DM Sans',sans-serif;outline:none;resize:vertical;" id="lib-import-text" placeholder="Paste questions here…"></textarea>
+      <div style="display:flex;gap:.5rem;margin-top:.75rem;flex-wrap:wrap;">
+        <button class="btn btn-green btn-sm" onclick="libSmartImport()">✨ AI Parse</button>
+        <button class="btn btn-primary btn-sm" onclick="libBulkImport()">📋 Bulk</button>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('lib-import-form').style.display='none'">Cancel</button>
+      </div>
+      <div id="lib-import-status" style="margin-top:.5rem;"></div>
+    </div>
+    <div style="margin-bottom:1rem;">
+      <h4 style="font-size:.8rem;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.4);margin-bottom:.6rem;">Sets (${sets.length})</h4>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.5rem;">
+        ${sets.map(st=>`<div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:.4rem .75rem;font-size:.8rem;display:flex;align-items:center;gap:.5rem;">${esc(st.icon||'📦')} ${esc(st.name)} <span style="color:rgba(255,255,255,0.35);">(${qs.filter(q=>(q.sets||[]).includes(st.id)).length})</span> <button style="background:none;border:none;color:rgba(224,92,58,0.7);cursor:pointer;font-size:12px;" onclick="libDeleteSet('${st.id}')">×</button></div>`).join('')}
+        <button class="btn btn-ghost btn-sm" onclick="libNewSet()" style="font-size:.78rem;">+ New set</button>
+      </div>
+    </div>
+    <div>
+      <h4 style="font-size:.8rem;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.4);margin-bottom:.6rem;">All questions (${qs.length})</h4>
+      ${qs.length===0?'<p style="color:rgba(255,255,255,0.35);font-size:.87rem;font-style:italic;">No questions yet — add some above or import from text.</p>':
+        qs.map((q,i)=>`<div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:.7rem .9rem;margin-bottom:.4rem;display:flex;align-items:flex-start;gap:.75rem;">
+          <div style="flex:1;"><div style="font-size:.87rem;margin-bottom:.2rem;">${esc(q.q)}</div><div style="font-size:.75rem;color:#7dd8a5;">→ ${esc(q.a)}</div>${q.cat?`<span style="font-size:.67rem;background:rgba(77,166,214,0.2);color:var(--sky);padding:.1rem .4rem;border-radius:10px;margin-top:.2rem;display:inline-block;">${esc(q.cat)}</span>`:''}</div>
+          <button style="background:none;border:none;color:rgba(224,92,58,0.5);cursor:pointer;font-size:14px;flex-shrink:0;" onclick="libDeleteQ(${i})">×</button>
+        </div>`).join('')
+      }
+    </div>`;
+}
+
+window.showLibAddQ=function(){document.getElementById('lib-add-q-form').style.display='block';document.getElementById('lib-import-form').style.display='none';}
+window.showLibImport=function(){document.getElementById('lib-import-form').style.display='block';document.getElementById('lib-add-q-form').style.display='none';}
+
+window.libAddQ=async function(){
+  const q=document.getElementById('lib-q-text').value.trim();
+  const a=document.getElementById('lib-q-ans').value.trim();
+  const cat=document.getElementById('lib-q-cat').value;
+  const setId=document.getElementById('lib-q-set').value;
+  if(!q||!a){toast('Enter both question and answer');return;}
+  const lib=LS();
+  const qs=[...(lib.questions||[]),{id:'q_'+Date.now(),q,a,cat:cat||'',sets:setId?[setId]:[],used:false}];
+  await libUpdate({questions:qs});
+  document.getElementById('lib-q-text').value='';document.getElementById('lib-q-ans').value='';
+  toast('Question added to library!');
+};
+
+window.libDeleteQ=async function(idx){
+  const lib=LS();const qs=[...(lib.questions||[])];qs.splice(idx,1);await libUpdate({questions:qs});toast('Deleted');
+};
+
+window.libNewSet=async function(){
+  const name=prompt('Set name:');if(!name)return;
+  const lib=LS();const sets=[...(lib.sets||[])];
+  sets.push({id:'set_'+Date.now(),name,desc:'',icon:'📦',createdAt:Date.now()});
+  await libUpdate({sets});toast(`"${name}" created!`);
+};
+
+window.libDeleteSet=async function(setId){
+  const lib=LS();
+  const sets=(lib.sets||[]).filter(s=>s.id!==setId);
+  const qs=(lib.questions||[]).map(q=>({...q,sets:(q.sets||[]).filter(sid=>sid!==setId)}));
+  await libUpdate({sets,questions:qs});toast('Set deleted');
+};
+
+window.libSmartImport=async function(){
+  const text=document.getElementById('lib-import-text').value.trim();if(!text){toast('Paste some text first');return;}
+  const status=document.getElementById('lib-import-status');
+  status.innerHTML='<div class="ai-thinking">✨ Parsing… <div class="ai-dots"><span></span><span></span><span></span></div></div>';
+  const cats=(LS().categories||[]);
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,messages:[{role:'user',content:'Extract ALL question-answer pairs from this text. Available categories: '+(cats.length?cats.join(', '):'none')+'. Return ONLY a valid JSON array: [{"q":"...","a":"...","cat":"..."}]. Text: '+text}]})});
+    const data=await res.json();
+    const raw=data.content?.find(c=>c.type==='text')?.text||'[]';
+    let parsed=[];
+    try{parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());}catch(e){status.innerHTML='<p style="color:#f08060;font-size:.82rem;">Parse error</p>';return;}
+    if(!parsed.length){status.innerHTML='<p style="color:rgba(255,255,255,0.5);font-size:.82rem;">No questions found</p>';return;}
+    const lib=LS();
+    const newQs=parsed.map((p,i)=>({id:'q_'+Date.now()+'_'+i,q:p.q,a:p.a,cat:p.cat||'',sets:[],used:false}));
+    await libUpdate({questions:[...(lib.questions||[]),...newQs]});
+    document.getElementById('lib-import-text').value='';
+    status.innerHTML=`<p style="color:#7dd8a5;font-size:.82rem;">✓ Added ${newQs.length} questions to library!</p>`;
+    setTimeout(()=>{status.innerHTML='';document.getElementById('lib-import-form').style.display='none';},2000);
+  }catch(e){status.innerHTML=`<p style="color:#f08060;font-size:.82rem;">Error: ${e.message}</p>`;}
+};
+
+window.libBulkImport=async function(){
+  const text=document.getElementById('lib-import-text').value;
+  const lines=text.split('\n').map(l=>l.trim()).filter(Boolean);
+  const lib=LS();const qs=[...(lib.questions||[])];let added=0;
+  lines.forEach(line=>{const m=line.match(/Q:\s*(.+?)\s*\|\s*A:\s*(.+?)(?:\s*\|\s*C:\s*(.+))?$/i);if(m){qs.push({id:'q_'+Date.now()+'_'+added,q:m[1].trim(),a:m[2].trim(),cat:(m[3]||'').trim(),sets:[],used:false});added++;}});
+  if(!added){toast('No valid lines');return;}
+  await libUpdate({questions:qs});
+  document.getElementById('lib-import-text').value='';
+  document.getElementById('lib-import-form').style.display='none';
+  toast(`✅ ${added} questions added!`);
+};
 
 window.showScreen=function(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');};
-window.showHostSetup=function(){document.getElementById('player-setup').style.display='none';document.getElementById('host-setup').style.display='block';const codes=['GEO2024','ATLAS','WORLD','MAPS','GLOBE'];document.getElementById('room-code-input').value=codes[Math.floor(Math.random()*codes.length)];};
+window.showHostSetup=function(){
+  hostGate('Create a Room','Enter the host PIN to create and manage games', function(){
+    document.getElementById('player-setup').style.display='none';
+    document.getElementById('host-setup').style.display='block';const codes=['GEO2024','ATLAS','WORLD','MAPS','GLOBE'];document.getElementById('room-code-input').value=codes[Math.floor(Math.random()*codes.length)];};
 window.showPlayerSetup=function(){document.getElementById('host-setup').style.display='none';document.getElementById('player-setup').style.display='block';};
 window.switchTab=function(id,btn){document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.host-tab').forEach(b=>b.classList.remove('active'));document.getElementById(id).classList.add('active');btn.classList.add('active');};
+window.toggleLibManager=function(){
+  const el=document.getElementById('lib-manager');
+  const isHidden=el.style.display==='none';
+  if(!isHidden){el.style.display='none';return;}
+  hostGate('Question Library','Enter the host PIN to access the question bank',function(){
+    document.getElementById('host-setup').style.display='none';
+    document.getElementById('player-setup').style.display='none';
+    el.style.display='block';
+    renderLibraryTab();
+  });
+}
 window.goHome=async function(){stopReadTimer();if(myRole==='player'&&db&&myRoom){try{await db.ref(`rooms/${myRoom}/players/${myId}`).remove();}catch(_){}}unsubscribes.forEach(u=>u());unsubscribes=[];myRole=null;myRoom='';myName='';roomRef=null;currentBuzzer=null;_state=null;showScreen('landing');};
 
 function stopReadTimer(){if(readTimer){clearInterval(readTimer);readTimer=null;}}
@@ -660,17 +844,37 @@ window.createRoom=async function(){
   const name=document.getElementById('host-name-input').value.trim();const code=document.getElementById('room-code-input').value.trim().toUpperCase();
   if(!name){toast('Enter your name');return;}if(!code||code.length<2){toast('Enter a room code');return;}
   showLoading('Creating room…');myRole='host';myName=name;myRoom=code;roomRef=db.ref(`rooms/${code}`);
-  const init={hostName:name,currentQ:-1,answerVisible:false,buzzers:[],status:'waiting',activeSet:'__all__',wordIdx:0,paused:false,questions:SAMPLE_QUESTIONS.map((q,i)=>({...q,id:'q'+i,used:false,sets:q.sets||[]})),players:{},categories:SAMPLE_CATS,sets:SAMPLE_SETS,createdAt:Date.now()};
-  try{await roomRef.set(init);hideLoading();document.getElementById('host-room-label').textContent=code;document.getElementById('room-code-display').textContent=code;showScreen('host');subscribeHost();toast(`Room "${code}" created!`);}
+  const init={hostName:name,currentQ:-1,answerVisible:false,buzzers:[],status:'waiting',activeSet:'__all__',wordIdx:0,paused:false,players:{},createdAt:Date.now()};
+  try{await roomRef.set(init);hideLoading();document.getElementById('host-room-label').textContent=code;document.getElementById('room-code-display').textContent=code;showScreen('host');subscribeHost();subscribeLibrary();toast(`Room "${code}" created!`);}
   catch(e){hideLoading();toast('Error: '+e.message);}
 };
 function subscribeHost(){const unsub=roomRef.on('value',snap=>{if(!snap.exists())return;renderHostUI(snap.val());setConnDot('host',true);},()=>setConnDot('host',false));unsubscribes.push(()=>roomRef.off());}
 
-window.selectQuestion=async function(idx){stopReadTimer();await roomRef.update({currentQ:idx,answerVisible:false,buzzers:[],status:'question',wordIdx:0,paused:false});toast('Question started!');startReadTimer();};
-window.revealAnswer=async function(){stopReadTimer();await roomRef.update({answerVisible:true,paused:true});};
+window.selectQuestion=async function(idx){
+  stopReadTimer();
+  const lib=LS();const bankQs=getBankQs(S()||{});const q=bankQs[idx];
+  // Push safe version (no answer) to room so players can't read it
+  const safeQ=q?{id:q.id,q:q.q,cat:q.cat||'',sets:q.sets||[]}:null;
+  await roomRef.update({currentQ:idx,answerVisible:false,buzzers:[],status:'question',wordIdx:0,paused:false,currentQSafe:safeQ});
+  toast('Question started!');startReadTimer();
+};
+window.revealAnswer=async function(){
+  stopReadTimer();
+  // Answer shown to host from local library — never broadcast to room
+  const s=S();const lib=LS();
+  if(s&&s.currentQ>=0){
+    const bankQs=getBankQs(s);const q=bankQs[s.currentQ];
+    if(q){
+      const ansDiv=document.getElementById('stage-answer');
+      ansDiv.textContent='Answer: '+q.a;
+      ansDiv.classList.add('visible');
+    }
+  }
+  await roomRef.update({answerVisible:true,paused:true});
+};
 window.clearBuzzers=async function(){await roomRef.update({buzzers:[]});currentBuzzer=null;};
 window.nextQuestion=async function(){stopReadTimer();await roomRef.update({currentQ:-1,answerVisible:false,buzzers:[],status:'waiting',wordIdx:0,paused:false});currentBuzzer=null;};
-window.resetUsed=async function(){const s=S();if(!s)return;const qs=(s.questions||[]).map(q=>({...q,used:false}));await roomRef.update({questions:qs});toast('Reset!');};
+window.resetUsed=async function(){const lib=LS();const qs=(lib.questions||[]).map(q=>({...q,used:false}));await libUpdate({questions:qs});toast('Reset!');};
 window.awardCorrect=function(){const s=S();if(!s)return;const bz=normBuzzers(s.buzzers);if(!bz.length){toast('No one buzzed in');return;}openJudgeModal(bz[0],s);};
 window.awardWrong=async function(){
   const s=S();if(!s)return;const bz=normBuzzers(s.buzzers);if(!bz.length){toast('No one buzzed in');return;}
@@ -690,30 +894,32 @@ window.changeActiveSet=async function(val){
 };
 window.openNewSetModal=function(){editingSetId=null;document.getElementById('set-modal-title').textContent='New Question Set';document.getElementById('set-name-input').value='';document.getElementById('set-desc-input').value='';document.getElementById('set-icon-input').value=SET_ICONS[Math.floor(Math.random()*SET_ICONS.length)];document.getElementById('set-modal').classList.add('open');setTimeout(()=>document.getElementById('set-name-input').focus(),100);};
 window.openEditSetModal=function(setId){const s=S();if(!s)return;const st=(s.sets||[]).find(x=>x.id===setId);if(!st)return;editingSetId=setId;document.getElementById('set-modal-title').textContent='Edit Set';document.getElementById('set-name-input').value=st.name;document.getElementById('set-desc-input').value=st.desc||'';document.getElementById('set-icon-input').value=st.icon||'📦';document.getElementById('set-modal').classList.add('open');};
-window.saveSet=async function(){const name=document.getElementById('set-name-input').value.trim();if(!name){toast('Enter a name');return;}const s=S();if(!s)return;const sets=[...(s.sets||[])];const icon=document.getElementById('set-icon-input').value||'📦';const desc=document.getElementById('set-desc-input').value.trim();if(editingSetId){const idx=sets.findIndex(x=>x.id===editingSetId);if(idx>=0)sets[idx]={...sets[idx],name,desc,icon};}else{sets.push({id:'set_'+Date.now(),name,desc,icon,createdAt:Date.now()});}await roomRef.update({sets});closeModal('set-modal');toast(editingSetId?'Set updated!':'Set created!');};
-window.deleteSet=async function(setId){const s=S();if(!s)return;const sets=(s.sets||[]).filter(x=>x.id!==setId);const questions=(s.questions||[]).map(q=>({...q,sets:(q.sets||[]).filter(sid=>sid!==setId)}));const updates={sets,questions};if(s.activeSet===setId){updates.activeSet='__all__';}await roomRef.update(updates);if(activeSetFilter===setId){activeSetFilter='__all__';document.getElementById('active-set-name').textContent='All Questions';}toast('Set deleted');};
+window.saveSet=async function(){const name=document.getElementById('set-name-input').value.trim();if(!name){toast('Enter a name');return;}const lib=LS();const sets=[...(lib.sets||[])];const icon=document.getElementById('set-icon-input').value||'📦';const desc=document.getElementById('set-desc-input').value.trim();if(editingSetId){const idx=sets.findIndex(x=>x.id===editingSetId);if(idx>=0)sets[idx]={...sets[idx],name,desc,icon};}else{sets.push({id:'set_'+Date.now(),name,desc,icon,createdAt:Date.now()});}await libUpdate({sets});closeModal('set-modal');toast(editingSetId?'Set updated!':'Set created!');};
+window.deleteSet=async function(setId){const lib=LS();const sets=(lib.sets||[]).filter(x=>x.id!==setId);const questions=(lib.questions||[]).map(q=>({...q,sets:(q.sets||[]).filter(sid=>sid!==setId)}));await libUpdate({sets,questions});const s=S();if(s&&s.activeSet===setId){await roomRef.update({activeSet:'__all__'});}if(activeSetFilter===setId){activeSetFilter='__all__';document.getElementById('active-set-name').textContent='All Questions';}toast('Set deleted');};
 window.openAddToSet=function(qid){const s=S();if(!s)return;addToSetQid=qid;const q=(s.questions||[]).find(x=>x.id===qid);if(!q)return;document.getElementById('addtoset-q-preview').textContent=q.q;const sel=document.getElementById('addtoset-sel');sel.innerHTML='<option value="">— Choose a set —</option>'+(s.sets||[]).map(st=>`<option value="${esc(st.id)}">${esc(st.icon)} ${esc(st.name)}</option>`).join('');document.getElementById('addtoset-modal').classList.add('open');};
-window.confirmAddToSet=async function(){const setId=document.getElementById('addtoset-sel').value;if(!setId){toast('Choose a set');return;}const s=S();if(!s)return;const questions=(s.questions||[]).map(q=>{if(q.id!==addToSetQid)return q;const sets=[...(q.sets||[])];if(!sets.includes(setId))sets.push(setId);return{...q,sets};});await roomRef.update({questions});closeModal('addtoset-modal');toast('Added to set!');};
+window.confirmAddToSet=async function(){const setId=document.getElementById('addtoset-sel').value;if(!setId){toast('Choose a set');return;}const lib=LS();const questions=(lib.questions||[]).map(q=>{if(q.id!==addToSetQid)return q;const sets=[...(q.sets||[])];if(!sets.includes(setId))sets.push(setId);return{...q,sets};});await libUpdate({questions});closeModal('addtoset-modal');toast('Added to set!');};
 window.toggleAddForm=function(){const p=document.getElementById('add-q-panel');p.style.display=p.style.display==='none'?'block':'none';if(p.style.display==='block'){populateSelects();document.getElementById('new-q-text').focus();}};
-window.addQuestion=async function(){const q=document.getElementById('new-q-text').value.trim();const a=document.getElementById('new-q-ans').value.trim();const cat=document.getElementById('new-q-cat').value;const setId=document.getElementById('new-q-set').value;if(!q||!a){toast('Enter both question and answer');return;}const s=S();if(!s)return;await roomRef.update({questions:[...(s.questions||[]),{id:'q_'+Date.now(),q,a,cat:cat||'',sets:setId?[setId]:[],used:false}]});document.getElementById('new-q-text').value='';document.getElementById('new-q-ans').value='';toast('Question added!');};
-window.deleteQuestion=async function(qid){const s=S();if(!s)return;const questions=(s.questions||[]).filter(q=>q.id!==qid);const updates={questions};if(s.currentQ>=questions.length){updates.currentQ=-1;updates.answerVisible=false;updates.buzzers=[];updates.status='waiting';}await roomRef.update(updates);};
-window.addCategory=async function(){const val=document.getElementById('new-cat-input').value.trim();if(!val){toast('Enter a name');return;}const s=S();if(!s)return;const cats=[...(s.categories||[])];if(cats.includes(val)){toast('Already exists');return;}cats.push(val);await roomRef.update({categories:cats});document.getElementById('new-cat-input').value='';toast(`"${val}" added!`);};
-window.deleteCategory=async function(cat){const s=S();if(!s)return;await roomRef.update({categories:(s.categories||[]).filter(c=>c!==cat),questions:(s.questions||[]).map(q=>q.cat===cat?{...q,cat:''}:q)});toast(`"${cat}" removed`);};
+window.addQuestion=async function(){const q=document.getElementById('new-q-text').value.trim();const a=document.getElementById('new-q-ans').value.trim();const cat=document.getElementById('new-q-cat').value;const setId=document.getElementById('new-q-set').value;if(!q||!a){toast('Enter both question and answer');return;}const lib=LS();const qs=[...(lib.questions||[]),{id:'q_'+Date.now(),q,a,cat:cat||'',sets:setId?[setId]:[],used:false}];await libUpdate({questions:qs});document.getElementById('new-q-text').value='';document.getElementById('new-q-ans').value='';toast('Question added!');};
+window.deleteQuestion=async function(qid){const lib=LS();const questions=(lib.questions||[]).filter(q=>q.id!==qid);await libUpdate({questions});const s=S();if(s&&s.currentQ>=questions.length){await roomRef.update({currentQ:-1,answerVisible:false,buzzers:[],status:'waiting'});}};
+window.addCategory=async function(){const val=document.getElementById('new-cat-input').value.trim();if(!val){toast('Enter a name');return;}const lib=LS();const cats=[...(lib.categories||[])];if(cats.includes(val)){toast('Already exists');return;}cats.push(val);await libUpdate({categories:cats});document.getElementById('new-cat-input').value='';toast(`"${val}" added!`);};
+window.deleteCategory=async function(cat){const lib=LS();await libUpdate({categories:(lib.categories||[]).filter(c=>c!==cat),questions:(lib.questions||[]).map(q=>q.cat===cat?{...q,cat:''}:q)});toast(`"${cat}" removed`);};
 
-function populateSelects(){const s=S();const cats=s?.categories||[];const sets=s?.sets||[];['new-q-cat','import-cat-sel'].forEach(id=>{const el=document.getElementById(id);if(!el)return;const cur=el.value;el.innerHTML='<option value="">— No category —</option>'+cats.map(c=>`<option value="${esc(c)}"${c===cur?' selected':''}>${esc(c)}</option>`).join('');});['new-q-set','import-set-sel','addtoset-sel'].forEach(id=>{const el=document.getElementById(id);if(!el)return;const cur=el.value;el.innerHTML='<option value="">— No set —</option>'+sets.map(st=>`<option value="${esc(st.id)}"${st.id===cur?' selected':''}>${esc(st.icon)} ${esc(st.name)}</option>`).join('');});}
+function populateSelects(){const lib=LS();const cats=lib.categories||[];const sets=lib.sets||[];['new-q-cat','import-cat-sel'].forEach(id=>{const el=document.getElementById(id);if(!el)return;const cur=el.value;el.innerHTML='<option value="">— No category —</option>'+cats.map(c=>`<option value="${esc(c)}"${c===cur?' selected':''}>${esc(c)}</option>`).join('');});['new-q-set','import-set-sel','addtoset-sel'].forEach(id=>{const el=document.getElementById(id);if(!el)return;const cur=el.value;el.innerHTML='<option value="">— No set —</option>'+sets.map(st=>`<option value="${esc(st.id)}"${st.id===cur?' selected':''}>${esc(st.icon)} ${esc(st.name)}</option>`).join('');});}
 
 window.smartParse=async function(){const text=document.getElementById('import-text').value.trim();if(!text){toast('Paste some text first');return;}const defCat=document.getElementById('import-cat-sel').value;const defSet=document.getElementById('import-set-sel').value;const statusEl=document.getElementById('parse-status');statusEl.innerHTML='<div class="ai-thinking">✨ AI parsing… <div class="ai-dots"><span></span><span></span><span></span></div></div>';document.getElementById('import-preview').style.display='none';document.getElementById('btn-smart-parse').disabled=true;const cats=(S()?.categories||[]);try{const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,messages:[{role:'user',content:'Extract ALL question-answer pairs from this text. Available categories: '+(cats.length?cats.join(', '):'none')+'. Suggest the best matching category or leave blank. Return ONLY a valid JSON array, example: [{"q":"...","a":"...","cat":"..."}]. Text to parse: '+text}]})});const data=await res.json();const raw=data.content?.find(c=>c.type==='text')?.text||'[]';let parsed=[];try{parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());}catch(e){toast('AI parse error');statusEl.innerHTML='';document.getElementById('btn-smart-parse').disabled=false;return;}if(!parsed.length){statusEl.innerHTML='<p style="color:rgba(255,255,255,0.5);font-size:.87rem;margin-top:.5rem;">No questions found.</p>';document.getElementById('btn-smart-parse').disabled=false;return;}parsedPreview=parsed.map((p,i)=>({...p,id:'imp_'+Date.now()+'_'+i,used:false,cat:p.cat||(defCat||''),sets:defSet?[defSet]:[]}));statusEl.innerHTML='';renderPreview(cats);document.getElementById('import-preview').style.display='block';}catch(e){statusEl.innerHTML=`<p style="color:#f08060;font-size:.87rem;margin-top:.5rem;">Error: ${e.message}</p>`;}document.getElementById('btn-smart-parse').disabled=false;};
 window.bulkPaste=async function(){const text=document.getElementById('import-text').value;const defSet=document.getElementById('import-set-sel').value;const lines=text.split('\n').map(l=>l.trim()).filter(Boolean);const s=S();if(!s)return;const questions=[...(s.questions||[])];let added=0;lines.forEach(line=>{const m=line.match(/Q:\s*(.+?)\s*\|\s*A:\s*(.+?)(?:\s*\|\s*C:\s*(.+))?$/i);if(m){questions.push({id:'q_'+Date.now()+'_'+added,q:m[1].trim(),a:m[2].trim(),cat:(m[3]||'').trim(),sets:defSet?[defSet]:[],used:false});added++;}});if(!added){toast('No valid lines. Use: Q: … | A: … | C: category');return;}await roomRef.update({questions});document.getElementById('import-text').value='';document.getElementById('parse-status').innerHTML='';toast(`✅ ${added} question${added!==1?'s':''} added!`);switchTab('tab-bank',document.querySelector('.host-tab'));};
 function renderPreview(cats){document.getElementById('preview-count').textContent=`Found ${parsedPreview.length} question${parsedPreview.length!==1?'s':''}`;document.getElementById('preview-list').innerHTML=parsedPreview.map((p,i)=>`<div class="preview-item"><div class="pi-q">${esc(p.q)}</div><div class="pi-a">${esc(p.a)}</div><select class="preview-cat-sel" onchange="updatePC(${i},this.value)"><option value="">No cat</option>${(cats||[]).map(c=>`<option value="${esc(c)}"${c===p.cat?' selected':''}>${esc(c)}</option>`).join('')}</select><button class="preview-remove" onclick="removePI(${i})">×</button></div>`).join('');}
 window.updatePC=function(i,v){if(parsedPreview[i])parsedPreview[i].cat=v;};
 window.removePI=function(i){parsedPreview.splice(i,1);renderPreview(S()?.categories||[]);document.getElementById('preview-count').textContent=`Found ${parsedPreview.length} question${parsedPreview.length!==1?'s':''}`;if(!parsedPreview.length)document.getElementById('import-preview').style.display='none';};
-window.confirmImport=async function(){if(!parsedPreview.length)return;const s=S();if(!s)return;const questions=[...(s.questions||[]),...parsedPreview];await roomRef.update({questions});document.getElementById('import-preview').style.display='none';document.getElementById('import-text').value='';document.getElementById('parse-status').innerHTML='';const added=parsedPreview.length;parsedPreview=[];toast(`✅ ${added} questions added!`);switchTab('tab-bank',document.querySelector('.host-tab'));};
+window.confirmImport=async function(){if(!parsedPreview.length)return;const lib=LS();const questions=[...(lib.questions||[]),...parsedPreview];await libUpdate({questions});document.getElementById('import-preview').style.display='none';document.getElementById('import-text').value='';document.getElementById('parse-status').innerHTML='';const added=parsedPreview.length;parsedPreview=[];toast(`✅ ${added} questions added!`);switchTab('tab-bank',document.querySelector('.host-tab'));};
 
 function openJudgeModal(buzzer,state){
   const bankQs=getBankQs(state);const q=bankQs[state.currentQ];if(!q)return;
+  // Get full question with answer from library
+  const lib=LS();const fullQ=(lib.questions||[]).find(lq=>lq.id===q.id)||q;
   const words=q.q.split(' ');const buzzWord=buzzer.wordIdx!=null?buzzer.wordIdx:(state.wordIdx||0);const pts=calcPoints(Math.min(buzzWord,words.length-1),words.length);
   document.getElementById('judge-title').textContent=`⚡ ${esc(buzzer.name)} — buzzed at word ${buzzWord}/${words.length}`;
-  document.getElementById('judge-q').textContent=q.q;document.getElementById('judge-ans').textContent=q.a;document.getElementById('judge-input').value='';document.getElementById('judge-fb').style.display='none';
+  document.getElementById('judge-q').textContent=q.q;document.getElementById('judge-ans').textContent=fullQ.a||q.a||'(answer in library)';document.getElementById('judge-input').value='';document.getElementById('judge-fb').style.display='none';
   const correctBtn=document.querySelector('#judge-modal .btn-gold');if(correctBtn)correctBtn.textContent=`✓ Correct +${pts} pts`;
   currentBuzzer=buzzer;document.getElementById('judge-modal').classList.add('open');setTimeout(()=>document.getElementById('judge-input').focus(),100);
 }
@@ -724,7 +930,8 @@ window.aiJudge=async function(){
   const s=S();if(!s)return;const bankQs=getBankQs(s);const q=bankQs[s.currentQ];
   const fb=document.getElementById('judge-fb');fb.textContent='🤔 Checking…';fb.className='judge-fb';fb.style.display='block';
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:80,messages:[{role:'user',content:`Geography bee. Q: "${q.q}". Official A: "${q.a}". Player said: "${given}". Correct (allow spelling variations/alternate names)? Reply ONLY JSON: {"correct":true/false,"feedback":"brief"}`}]})});
+    const lib2=LS();const fullQJ=(lib2.questions||[]).find(lq=>lq.id===q.id)||q;
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:80,messages:[{role:'user',content:`Geography bee. Q: "${q.q}". Official A: "${fullQJ.a||q.a}". Player said: "${given}". Correct (allow spelling variations/alternate names)? Reply ONLY JSON: {"correct":true/false,"feedback":"brief"}`}]})});
     const data=await res.json();
     const p=JSON.parse((data.content?.find(c=>c.type==='text')?.text||'{}').replace(/```json|```/g,'').trim());
     if(p.correct){fb.className='judge-fb judge-ok';fb.textContent='✓ Correct! '+(p.feedback||'');setTimeout(()=>{judgeManual(true);closeModal('judge-modal');},1100);}
@@ -743,12 +950,18 @@ window.judgeManual=async function(isCorrect){
   const score=(s.players?.[pid]?.score||0)+(isCorrect?pts:-5);
   const newBz=normBuzzers(s.buzzers).filter(b=>b.id!==pid);
   const updates={[`players/${pid}/score`]:score,buzzers:newBz};
-  if(isCorrect){const qs=[...(s.questions||[])];if(qs[s.currentQ])qs[s.currentQ].used=true;updates.questions=qs;updates.status='waiting';stopReadTimer();}
+  if(isCorrect){
+    // Mark used in library
+    const lib=LS();const bankQs=getBankQs(s);const activeQ=bankQs[s.currentQ];
+    if(activeQ){const qs=(lib.questions||[]).map(q=>q.id===activeQ.id?{...q,used:true}:q);libUpdate({questions:qs});}
+    updates.status='waiting';stopReadTimer();
+  }
   await roomRef.update(updates);currentBuzzer=null;closeModal('judge-modal');
   toast(isCorrect?`✓ +${pts} pts!`:'✗ −5');
   // ── BRIDGE: push result to tracker ──
   if(q){
-    pushResultToTracker(q.q,q.a,q.cat||'',isCorrect).then(ok=>{
+    const lib3=LS();const fullQT=(lib3.questions||[]).find(lq=>lq.id===q.id)||q;
+    pushResultToTracker(q.q,fullQT.a||q.a||'',q.cat||'',isCorrect).then(ok=>{
       if(ok)toast(isCorrect?`✓ +${pts} pts · synced to tracker 📊`:'✗ −5 · synced to tracker 📊');
     });
   }
@@ -758,18 +971,26 @@ window.joinRoom=async function(){
   const name=document.getElementById('player-name-input').value.trim();const code=document.getElementById('join-code-input').value.trim().toUpperCase();
   if(!name){toast('Enter your name');return;}if(!code){toast('Enter a room code');return;}
   showLoading('Joining…');
-  try{const snap=await db.ref(`rooms/${code}`).once("value");if(!snap.exists()){hideLoading();toast('Room not found!');return;}myRole='player';myName=name;myRoom=code;roomRef=db.ref(`rooms/${code}`);const state=snap.val();const color=PLAYER_COLORS[Object.keys(state.players||{}).length%PLAYER_COLORS.length];await db.ref(`rooms/${code}/players/${myId}`).update({name,score:0,color});hideLoading();document.getElementById('player-room-info').textContent=`Room: ${code} · Host: ${state.hostName}`;showScreen('player');subscribePlayer();}
+  try{const snap=await db.ref(`rooms/${code}`).once("value");if(!snap.exists()){hideLoading();toast('Room not found!');return;}myRole='player';myName=name;myRoom=code;roomRef=db.ref(`rooms/${code}`);const state=snap.val();const color=PLAYER_COLORS[Object.keys(state.players||{}).length%PLAYER_COLORS.length];await db.ref(`rooms/${code}/players/${myId}`).update({name,score:0,color});hideLoading();document.getElementById('player-room-info').textContent=`Room: ${code} · Host: ${state.hostName}`;showScreen('player');subscribePlayer();subscribeLibrary();}
   catch(e){hideLoading();toast('Error: '+e.message);}
 };
 function subscribePlayer(){const unsub=roomRef.on('value',snap=>{if(!snap.exists())return;renderPlayerUI(snap.val());setConnDot('player',true);},()=>setConnDot('player',false));unsubscribes.push(()=>roomRef.off());}
 window.buzzIn=async function(){if(!roomRef)return;const s=S();if(!s||s.status!=='question')return;const bz=normBuzzers(s.buzzers);if(bz.find(b=>b.id===myId)){toast('Already buzzed!');return;}const wi=s.wordIdx||0;bz.push({id:myId,name:myName,ts:Date.now(),wordIdx:wi});await roomRef.update({buzzers:bz});};
 
 function renderHostUI(state){
-  _state=state;const cats=state.categories||[];const sets=state.sets||[];const allQs=state.questions||[];
+  _state=state;
+  const lib=LS();
+  const cats=lib.categories||state.categories||[];
+  const sets=lib.sets||state.sets||[];
+  const allQs=lib.questions||state.questions||[];
   if(state.activeSet&&state.activeSet!==activeSetFilter){activeSetFilter=state.activeSet;const setName=activeSetFilter==='__all__'?'All Questions':sets.find(x=>x.id===activeSetFilter)?.name||'Unknown';document.getElementById('active-set-name').textContent=setName;}
   const bankQs=getBankQs(state);const q=state.currentQ>=0?bankQs[state.currentQ]:null;const bz=normBuzzers(state.buzzers);
   if(!q||state.status!=='question'){document.getElementById('stage-text').textContent=q?q.q:'No question selected — pick one from the bank →';}
-  const ansDiv=document.getElementById('stage-answer');ansDiv.textContent=q?`Answer: ${q.a}`:'';ansDiv.className='q-answer'+(state.answerVisible&&q?' visible':'');
+  const ansDiv=document.getElementById('stage-answer');
+  // Answer comes from local library (host only) not from broadcast state
+  const fullQ=q?(lib.questions||[]).find(lq=>lq.id===q.id)||q:null;
+  ansDiv.textContent=fullQ?`Answer: ${fullQ.a}`:'';
+  ansDiv.className='q-answer'+(state.answerVisible&&fullQ?' visible':'');
   const meta=document.getElementById('stage-meta');meta.innerHTML=q?(catBadge(q.cat,cats)+(q.sets?.length?`<span style="font-size:.7rem;color:rgba(255,255,255,0.4);">📦 ${esc(sets.find(s=>s.id===q.sets[0])?.name||'')}</span>`:'')):'';
   const hasBz=bz.length>0;
   document.getElementById('btn-reveal').disabled=!q;document.getElementById('btn-correct').disabled=!hasBz;document.getElementById('btn-wrong').disabled=!hasBz;document.getElementById('btn-clear').disabled=!hasBz;document.getElementById('btn-next').disabled=!q;
@@ -809,6 +1030,49 @@ function renderPlayerUI(state){
 window.showWinnerScreen=function(){const s=S();if(!s)return;const players=Object.values(s.players||{});if(!players.length){toast('No players yet');return;}players.sort((a,b)=>(b.score||0)-(a.score||0));const w=players[0];document.getElementById('winner-name').textContent=w.name;document.getElementById('winner-score').textContent=`${w.score||0} points`;document.getElementById('winner-screen').classList.add('open');roomRef.update({status:'done'});};
 document.addEventListener('keydown',e=>{if(e.code==='Space'&&myRole==='player'){e.preventDefault();const btn=document.getElementById('player-buzzer');if(!btn.disabled)window.buzzIn();}});
 
+
+// ── PIN GATE ─────────────────────────────────────────────────────────────────
+const HOST_PIN = 'keshav2026';
+let _pinCallback = null;
+
+function requirePin(title, subtitle, onSuccess) {
+  _pinCallback = onSuccess;
+  document.getElementById('pin-title').textContent = title || 'Host Access';
+  document.getElementById('pin-subtitle').textContent = subtitle || 'Enter the host PIN to continue';
+  document.getElementById('pin-input').value = '';
+  document.getElementById('pin-error').textContent = '';
+  document.getElementById('pin-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('pin-input').focus(), 120);
+}
+
+function checkPin() {
+  const val = document.getElementById('pin-input').value.trim();
+  if (val === HOST_PIN) {
+    document.getElementById('pin-overlay').classList.remove('open');
+    sessionStorage.setItem('host_auth', '1');
+    if (_pinCallback) { _pinCallback(); _pinCallback = null; }
+  } else {
+    document.getElementById('pin-error').textContent = 'Incorrect PIN — try again';
+    document.getElementById('pin-input').value = '';
+    document.getElementById('pin-input').focus();
+  }
+}
+
+function closePinModal() {
+  document.getElementById('pin-overlay').classList.remove('open');
+  _pinCallback = null;
+}
+
+function isHostAuthed() {
+  return sessionStorage.getItem('host_auth') === '1';
+}
+
+// Gate any host action
+function hostGate(title, subtitle, fn) {
+  if (isHostAuthed()) { fn(); return; }
+  requirePin(title, subtitle, fn);
+}
+
 async function autoConnect(){
   showLoading('Connecting to Firebase…');
   try{
@@ -823,9 +1087,28 @@ async function autoConnect(){
       document.getElementById('tc-aid').value=savedTc.appId;
       _initTrackerApp(savedTc);
     }
+  // Subscribe to persistent library
+    subscribeLibrary();
   }catch(e){hideLoading();alert('Firebase connection failed: '+e.message);}
 }
 autoConnect();
 </script>
+
+<!-- PIN GATE MODAL -->
+<div class="pin-overlay" id="pin-overlay">
+  <div class="pin-box">
+    <div style="font-size:2rem;margin-bottom:.75rem;">🔐</div>
+    <h3 id="pin-title">Host Access</h3>
+    <p id="pin-subtitle">Enter the host PIN to continue</p>
+    <input class="pin-input" id="pin-input" type="password" placeholder="••••••••" maxlength="20"
+      onkeydown="if(event.key==='Enter')checkPin()">
+    <div class="pin-error" id="pin-error"></div>
+    <div class="pin-actions">
+      <button class="btn btn-ghost btn-sm" onclick="closePinModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="checkPin()">Enter</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
