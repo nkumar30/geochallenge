@@ -230,6 +230,37 @@ h1.title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4rem);f
 @media(max-width:800px){.host-layout{grid-template-columns:1fr;}.host-sidebar{border-left:none;border-top:1px solid rgba(255,255,255,0.08);}.sets-grid{grid-template-columns:1fr 1fr;}}
 @media(max-width:480px){.role-cards{flex-direction:column;}.buzzer-btn{width:130px;height:130px;font-size:1.2rem;}.sets-grid{grid-template-columns:1fr;}}
 
+/* ── QUIZ SCREEN ── */
+#quiz{align-items:center;}
+.quiz-wrap{flex:1;display:flex;flex-direction:column;align-items:center;padding:1.5rem 1.5rem 2.5rem;max-width:620px;margin:0 auto;width:100%;gap:1.1rem;}
+.quiz-meta{display:flex;align-items:center;justify-content:space-between;width:100%;}
+.quiz-q-label{font-size:.8rem;color:rgba(255,255,255,0.45);letter-spacing:.06em;text-transform:uppercase;}
+.quiz-score-pill{font-size:.82rem;font-weight:600;color:var(--gold);background:rgba(232,160,32,0.12);border:1px solid rgba(232,160,32,0.25);border-radius:20px;padding:.25rem .75rem;}
+.quiz-prog-track{width:100%;height:5px;background:rgba(255,255,255,0.1);border-radius:99px;overflow:hidden;}
+.quiz-prog-fill{height:100%;background:linear-gradient(90deg,var(--wave),var(--sky));border-radius:99px;transition:width .35s ease;}
+.quiz-card{width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:16px;padding:1.6rem 1.4rem;}
+.quiz-q-text{font-family:'Playfair Display',serif;font-size:clamp(1.05rem,3vw,1.3rem);line-height:1.55;color:#fff;}
+.quiz-choices{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:.75rem;}
+.choice-btn{display:flex;align-items:center;gap:.7rem;padding:.85rem .95rem;border-radius:12px;border:1px solid rgba(255,255,255,0.14);background:rgba(255,255,255,0.06);color:var(--light);cursor:pointer;font-size:.9rem;font-family:'DM Sans',sans-serif;font-weight:500;text-align:left;transition:all .18s;line-height:1.3;}
+.choice-btn:hover:not(:disabled){background:rgba(255,255,255,0.13);border-color:var(--sky);transform:translateY(-2px);}
+.choice-btn:disabled{cursor:default;}
+.choice-letter{width:26px;height:26px;border-radius:7px;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;flex-shrink:0;transition:all .18s;}
+.choice-btn.correct{background:rgba(46,139,87,0.22);border-color:rgba(46,139,87,0.6);}
+.choice-btn.correct .choice-letter{background:var(--green);color:#fff;}
+.choice-btn.wrong{background:rgba(224,92,58,0.18);border-color:rgba(224,92,58,0.5);opacity:.7;}
+.choice-btn.wrong .choice-letter{background:var(--coral);color:#fff;}
+.choice-btn.reveal{background:rgba(46,139,87,0.12);border-color:rgba(46,139,87,0.4);}
+.choice-btn.reveal .choice-letter{background:rgba(46,139,87,0.5);color:#fff;}
+.quiz-feedback{font-size:.9rem;font-weight:600;text-align:center;min-height:1.3em;}
+.quiz-feedback.ok{color:#7dd8a5;}.quiz-feedback.no{color:#f08060;}
+.quiz-next-btn{width:100%;}
+.quiz-result-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem;gap:1.2rem;max-width:480px;margin:0 auto;width:100%;}
+.quiz-result-trophy{font-size:4.5rem;animation:float 2s ease-in-out infinite;}
+.quiz-result-title{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,5vw,2.4rem);}
+.quiz-result-score{font-size:1.1rem;color:var(--gold);}
+.quiz-result-actions{display:flex;gap:.75rem;flex-wrap:wrap;justify-content:center;margin-top:.5rem;}
+@media(max-width:480px){.quiz-choices{grid-template-columns:1fr;}}
+
 /* ── PIN GATE ── */
 .pin-overlay{display:none;position:fixed;inset:0;z-index:500;background:rgba(10,35,66,0.92);backdrop-filter:blur(10px);align-items:center;justify-content:center;}
 .pin-overlay.open{display:flex;}
@@ -254,6 +285,7 @@ h1.title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4rem);f
     <div class="role-cards">
       <div class="role-card" onclick="showHostSetup()"><div class="role-icon">🎓</div><h2>Host <span style="font-size:.65rem;background:rgba(255,255,255,0.1);border-radius:20px;padding:.1rem .5rem;vertical-align:middle;font-family:DM Sans,sans-serif;font-weight:400;">PIN required</span></h2><p>Manage question sets & run the game</p></div>
       <div class="role-card" onclick="showPlayerSetup()"><div class="role-icon">🙋</div><h2>Player</h2><p>Join a room, buzz in, and answer!</p></div>
+      <div class="role-card" onclick="startQuiz()"><div class="role-icon">📝</div><h2>Quiz</h2><p>Practice with multiple-choice geography questions</p></div>
       <div class="role-card" onclick="toggleLibManager()" style="margin-top:1rem;min-width:100%;max-width:480px;padding:1rem 1.5rem;display:flex;align-items:center;gap:1rem;text-align:left;opacity:.75;">
         <div class="role-icon" style="font-size:1.8rem;">🔐</div>
         <div><h2 style="font-size:1.1rem;margin-bottom:.2rem;">Question Library <span style="font-size:.7rem;background:rgba(255,255,255,0.1);border-radius:20px;padding:.1rem .5rem;vertical-align:middle;font-family:DM Sans,sans-serif;font-weight:400;">Host only</span></h2><p style="font-size:.85rem;">Build & manage your question bank — persists across all games</p></div>
@@ -287,6 +319,15 @@ h1.title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4rem);f
       </div>
     </div>
   </div>
+</div>
+
+<!-- QUIZ SCREEN -->
+<div id="quiz" class="screen">
+  <div class="topbar">
+    <div class="topbar-brand">🌍 GeoChallenge</div>
+    <button class="btn btn-ghost btn-sm" onclick="goHome()">← Home</button>
+  </div>
+  <div id="quiz-content"></div>
 </div>
 
 <div id="host" class="screen">
@@ -1096,6 +1137,147 @@ async function autoConnect(){
   }catch(e){hideLoading();alert('Firebase connection failed: '+e.message);}
 }
 autoConnect();
+
+// ── QUIZ ──────────────────────────────────────────────────────────────────────
+const QUIZ_QS=[
+  {q:"What is the capital of Australia?",choices:["Sydney","Melbourne","Canberra","Brisbane"],a:2},
+  {q:"Which country has the largest land area in the world?",choices:["Canada","China","United States","Russia"],a:3},
+  {q:"What is the longest river in the world?",choices:["Amazon","Congo","Nile","Yangtze"],a:2},
+  {q:"Which continent contains the Sahara Desert?",choices:["Asia","Australia","Africa","South America"],a:2},
+  {q:"What is the capital of Brazil?",choices:["Rio de Janeiro","São Paulo","Brasília","Salvador"],a:2},
+  {q:"Which is the largest ocean on Earth?",choices:["Atlantic","Indian","Arctic","Pacific"],a:3},
+  {q:"Mount Everest belongs to which mountain range?",choices:["Andes","Alps","Rockies","Himalayas"],a:3},
+  {q:"What is the capital of Canada?",choices:["Toronto","Ottawa","Vancouver","Montreal"],a:1},
+  {q:"Which country has the most natural lakes?",choices:["Russia","United States","Finland","Canada"],a:3},
+  {q:"What is the smallest country in the world by area?",choices:["Monaco","San Marino","Liechtenstein","Vatican City"],a:3},
+  {q:"Which desert is the largest cold desert on Earth?",choices:["Gobi","Sahara","Atacama","Antarctic"],a:3},
+  {q:"What is the capital of South Africa's executive government?",choices:["Cape Town","Johannesburg","Pretoria","Durban"],a:2},
+  {q:"Lake Baikal, the world's deepest lake, is located in which country?",choices:["China","Kazakhstan","Mongolia","Russia"],a:3},
+  {q:"Which country contains the majority of the Amazon rainforest?",choices:["Peru","Colombia","Venezuela","Brazil"],a:3},
+  {q:"Which strait separates Europe from Africa?",choices:["Malacca","Bering","Gibraltar","Hormuz"],a:2},
+  {q:"Which country has the longest coastline in the world?",choices:["Norway","Russia","Australia","Canada"],a:3},
+  {q:"The Atacama Desert is located on which continent?",choices:["Africa","Asia","South America","Australia"],a:2},
+  {q:"What is the capital of New Zealand?",choices:["Auckland","Christchurch","Wellington","Hamilton"],a:2},
+  {q:"Which African country has the largest population?",choices:["Ethiopia","Egypt","South Africa","Nigeria"],a:3},
+  {q:"The Dead Sea borders which two countries?",choices:["Egypt & Israel","Syria & Lebanon","Israel & Jordan","Iraq & Kuwait"],a:2},
+  {q:"Which city is the capital of Japan?",choices:["Osaka","Kyoto","Hiroshima","Tokyo"],a:3},
+  {q:"What is the capital of Argentina?",choices:["Montevideo","Santiago","Buenos Aires","Lima"],a:2},
+  {q:"Which country is home to the ancient city of Petra?",choices:["Egypt","Saudi Arabia","Jordan","Israel"],a:2},
+  {q:"What is the tallest mountain in Africa?",choices:["Mount Kenya","Mount Kilimanjaro","Mount Elgon","Ras Dashen"],a:1},
+  {q:"Which river flows through Egypt?",choices:["Congo","Zambezi","Niger","Nile"],a:3},
+  {q:"What is the capital of India?",choices:["Mumbai","Kolkata","New Delhi","Bangalore"],a:2},
+  {q:"Which country has the most people in the world?",choices:["United States","India","China","Indonesia"],a:1},
+  {q:"The Great Barrier Reef is located off the coast of which country?",choices:["New Zealand","Papua New Guinea","Indonesia","Australia"],a:3},
+  {q:"What is the capital of Kenya?",choices:["Nairobi","Kampala","Dar es Salaam","Addis Ababa"],a:0},
+  {q:"Which mountain range runs along the western coast of South America?",choices:["Rockies","Appalachians","Andes","Sierra Madre"],a:2},
+  {q:"What is the currency of Japan?",choices:["Won","Yuan","Baht","Yen"],a:3},
+  {q:"Which country owns Greenland?",choices:["Canada","Norway","Iceland","Denmark"],a:3},
+  {q:"What is the capital of Egypt?",choices:["Alexandria","Luxor","Cairo","Giza"],a:2},
+  {q:"Which is the largest country in South America by area?",choices:["Argentina","Colombia","Peru","Brazil"],a:3},
+  {q:"The Volga is the longest river in which continent?",choices:["Asia","North America","Africa","Europe"],a:3},
+  {q:"What is the capital of Turkey?",choices:["Istanbul","Izmir","Bursa","Ankara"],a:3},
+  {q:"Which country is the largest in Africa by area?",choices:["Democratic Republic of Congo","Sudan","Libya","Algeria"],a:3},
+  {q:"What is the capital of Mexico?",choices:["Guadalajara","Monterrey","Puebla","Mexico City"],a:3},
+  {q:"The Yangtze River flows through which country?",choices:["Vietnam","India","Japan","China"],a:3},
+  {q:"Which country has the most time zones?",choices:["Russia","USA","China","Australia"],a:0},
+  {q:"What is the capital of South Korea?",choices:["Busan","Incheon","Seoul","Daegu"],a:2},
+  {q:"Which country is known as the Land of the Rising Sun?",choices:["China","Thailand","South Korea","Japan"],a:3},
+  {q:"What is the capital of Spain?",choices:["Barcelona","Seville","Valencia","Madrid"],a:3},
+  {q:"Which ocean lies between Africa and Australia?",choices:["Atlantic","Pacific","Arctic","Indian"],a:3},
+  {q:"What is the largest island in the world?",choices:["Borneo","Madagascar","New Guinea","Greenland"],a:3},
+  {q:"Which country is Machu Picchu located in?",choices:["Bolivia","Colombia","Ecuador","Peru"],a:3},
+  {q:"What is the capital of Germany?",choices:["Munich","Hamburg","Frankfurt","Berlin"],a:3},
+  {q:"The Serengeti National Park is in which country?",choices:["Kenya","South Africa","Botswana","Tanzania"],a:3},
+  {q:"Which sea is the saltiest in the world?",choices:["Red Sea","Caspian Sea","Dead Sea","Mediterranean Sea"],a:2},
+  {q:"What is the capital of Saudi Arabia?",choices:["Jeddah","Mecca","Medina","Riyadh"],a:3},
+  {q:"Which country has the most UNESCO World Heritage Sites?",choices:["France","Spain","China","Italy"],a:3},
+  {q:"Victoria Falls lies on the border of which two countries?",choices:["Tanzania & Mozambique","Botswana & Namibia","Zambia & Zimbabwe","Angola & Congo"],a:2},
+  {q:"What is the capital of Pakistan?",choices:["Karachi","Lahore","Peshawar","Islamabad"],a:3},
+  {q:"Which country is the Colosseum located in?",choices:["Greece","France","Spain","Italy"],a:3},
+  {q:"What is the name of the world's largest hot desert?",choices:["Arabian","Kalahari","Gobi","Sahara"],a:3},
+  {q:"Which country is bordered by both the Atlantic and Indian Oceans?",choices:["Mozambique","Angola","Namibia","South Africa"],a:3},
+  {q:"What is the capital of Ukraine?",choices:["Lviv","Odesa","Kharkiv","Kyiv"],a:3},
+  {q:"Which city is known as the 'City of Canals'?",choices:["Amsterdam","Bangkok","Venice","Copenhagen"],a:2},
+  {q:"The Bosphorus Strait connects which two bodies of water?",choices:["Atlantic & Mediterranean","Red Sea & Indian Ocean","Persian Gulf & Arabian Sea","Black Sea & Sea of Marmara"],a:3},
+  {q:"What is the capital of the Philippines?",choices:["Cebu","Davao","Quezon City","Manila"],a:3},
+];
+
+let quizState={qs:[],idx:0,score:0,answered:false};
+
+function _shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function startQuiz(){
+  quizState={qs:_shuffle(QUIZ_QS).slice(0,10),idx:0,score:0,answered:false};
+  showScreen('quiz');
+  renderQuizQ();
+}
+
+function renderQuizQ(){
+  const {qs,idx,score}=quizState;
+  const q=qs[idx];
+  const letters=['A','B','C','D'];
+  const pct=Math.round((idx/qs.length)*100);
+  document.getElementById('quiz-content').innerHTML=`
+    <div class="quiz-wrap">
+      <div class="quiz-meta">
+        <span class="quiz-q-label">Question ${idx+1} of ${qs.length}</span>
+        <span class="quiz-score-pill">⭐ ${score} pts</span>
+      </div>
+      <div class="quiz-prog-track"><div class="quiz-prog-fill" style="width:${pct}%"></div></div>
+      <div class="quiz-card"><div class="quiz-q-text">${esc(q.q)}</div></div>
+      <div class="quiz-choices">
+        ${q.choices.map((c,i)=>`<button class="choice-btn" onclick="selectAnswer(${i})">
+          <span class="choice-letter">${letters[i]}</span>${esc(c)}
+        </button>`).join('')}
+      </div>
+      <div class="quiz-feedback" id="quiz-feedback"></div>
+      <button class="btn btn-primary quiz-next-btn" id="quiz-next-btn" style="display:none" onclick="nextQuizQ()">
+        ${idx+1<qs.length?'Next question →':'See results'}
+      </button>
+    </div>`;
+}
+
+function selectAnswer(chosen){
+  if(quizState.answered)return;
+  quizState.answered=true;
+  const q=quizState.qs[quizState.idx];
+  const correct=chosen===q.a;
+  if(correct)quizState.score+=10;
+  document.querySelectorAll('.choice-btn').forEach((b,i)=>{
+    b.disabled=true;
+    if(i===q.a&&correct)b.classList.add('correct');
+    if(i===chosen&&!correct)b.classList.add('wrong');
+    if(i===q.a&&!correct)b.classList.add('reveal');
+  });
+  const fb=document.getElementById('quiz-feedback');
+  if(correct){fb.textContent='✓ Correct! +10 pts';fb.className='quiz-feedback ok';}
+  else{fb.textContent='✗ Not quite — the correct answer is highlighted';fb.className='quiz-feedback no';}
+  document.getElementById('quiz-next-btn').style.display='block';
+}
+
+function nextQuizQ(){
+  quizState.idx++;quizState.answered=false;
+  if(quizState.idx>=quizState.qs.length){showQuizResult();return;}
+  renderQuizQ();
+}
+
+function showQuizResult(){
+  const {score,qs}=quizState;
+  const max=qs.length*10;
+  const pct=Math.round(score/max*100);
+  const trophy=pct>=80?'🏆':pct>=50?'🥈':'🌍';
+  const msg=pct>=80?'Excellent work!':pct>=50?'Good effort!':'Keep practicing!';
+  document.getElementById('quiz-content').innerHTML=`
+    <div class="quiz-result-wrap">
+      <div class="quiz-result-trophy">${trophy}</div>
+      <div class="quiz-result-title">${msg}</div>
+      <div class="quiz-result-score">${score} / ${max} points &middot; ${pct}%</div>
+      <div class="quiz-result-actions">
+        <button class="btn btn-primary" onclick="startQuiz()">Play again</button>
+        <button class="btn btn-ghost" onclick="goHome()">← Home</button>
+      </div>
+    </div>`;
+}
 </script>
 
 <!-- PIN GATE MODAL -->
