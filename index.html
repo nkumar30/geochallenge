@@ -230,6 +230,19 @@ h1.title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4rem);f
 @media(max-width:800px){.host-layout{grid-template-columns:1fr;}.host-sidebar{border-left:none;border-top:1px solid rgba(255,255,255,0.08);}.sets-grid{grid-template-columns:1fr 1fr;}}
 @media(max-width:480px){.role-cards{flex-direction:column;}.buzzer-btn{width:130px;height:130px;font-size:1.2rem;}.sets-grid{grid-template-columns:1fr;}}
 
+/* ── QUESTION QUEUE ── */
+.q-queue-btn{background:rgba(232,160,32,0.18);color:var(--gold);}
+.q-queue-btn:hover{background:rgba(232,160,32,0.38)!important;}
+.q-queue-btn.in-queue{background:rgba(46,139,87,0.22)!important;color:#7dd8a5!important;}
+.queue-tab-badge{display:inline-block;min-width:17px;height:17px;line-height:17px;text-align:center;background:var(--gold);color:var(--ocean);border-radius:99px;font-size:.68rem;font-weight:700;padding:0 4px;margin-left:.35rem;vertical-align:middle;}
+.queue-tab-badge.hidden{display:none;}
+.queue-item{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:.7rem .9rem;margin-bottom:.45rem;display:flex;align-items:center;gap:.6rem;}
+.queue-pos{font-size:.75rem;color:var(--gold);font-weight:700;width:18px;flex-shrink:0;text-align:center;}
+.queue-item-body{flex:1;min-width:0;}
+.queue-item-text{font-size:.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.queue-item-ans{font-size:.73rem;color:#7dd8a5;margin-top:.15rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.queue-item-btns{display:flex;gap:.28rem;flex-shrink:0;}
+
 /* ── QUIZ SCREEN ── */
 #quiz{align-items:center;}
 .quiz-wrap{flex:1;display:flex;flex-direction:column;align-items:center;padding:1.5rem 1.5rem 2.5rem;max-width:620px;margin:0 auto;width:100%;gap:1.1rem;}
@@ -408,6 +421,7 @@ h1.title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4rem);f
         <button class="host-tab" onclick="switchTab('tab-sets',this)">📦 Sets</button>
         <button class="host-tab" onclick="switchTab('tab-import',this)">✨ Import</button>
         <button class="host-tab" onclick="switchTab('tab-cats',this)">🏷 Categories</button>
+        <button class="host-tab" onclick="switchTab('tab-queue',this);renderQueueTab()">🗂 Queue<span class="queue-tab-badge hidden" id="queue-tab-badge">0</span></button>
       </div>
 
       <div id="tab-bank" class="tab-panel active">
@@ -474,6 +488,8 @@ h1.title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4rem);f
           </div>
           <div style="margin-top:1.5rem;" id="cat-stats"></div>
         </div>
+      <div id="tab-queue" class="tab-panel">
+        <div id="queue-panel-content"><p style="color:rgba(255,255,255,0.38);font-size:.87rem;">No questions queued. Use the ↓ button in the Bank tab to add questions.</p></div>
       </div>
     </div>
 
@@ -918,7 +934,17 @@ window.revealAnswer=async function(){
   await roomRef.update({answerVisible:true,paused:true});
 };
 window.clearBuzzers=async function(){await roomRef.update({buzzers:[]});currentBuzzer=null;};
-window.nextQuestion=async function(){stopReadTimer();await roomRef.update({currentQ:-1,answerVisible:false,buzzers:[],status:'waiting',wordIdx:0,paused:false});currentBuzzer=null;};
+window.nextQuestion=async function(){
+  stopReadTimer();
+  if(questionQueue.length>0){
+    const qId=questionQueue.shift();
+    const bankQs=getBankQs(_state||{});
+    const idx=bankQs.findIndex(q=>q.id===qId);
+    renderQueueTab();renderQuestionBank();
+    if(idx>=0){selectQuestion(idx);return;}
+  }
+  await roomRef.update({currentQ:-1,answerVisible:false,buzzers:[],status:'waiting',wordIdx:0,paused:false});currentBusser=null;currentBuzzer=null;
+};
 window.resetUsed=async function(){const lib=LS();const qs=(lib.questions||[]).map(q=>({...q,used:false}));await libUpdate({questions:qs});toast('Reset!');};
 window.awardCorrect=function(){const s=S();if(!s)return;const bz=normBuzzers(s.buzzers);if(!bz.length){toast('No one buzzed in');return;}openJudgeModal(bz[0],s);};
 window.awardWrong=async function(){
@@ -1046,6 +1072,46 @@ function renderHostUI(state){
   const pc=Object.keys(state.players||{}).length;document.getElementById('player-count').textContent=`${pc} player${pc!==1?'s':''} connected`;
 }
 
+// ── QUESTION QUEUE ────────────────────────────────────────────────────────────
+let questionQueue=[];
+window.addToQueue=function(qId){
+  if(questionQueue.includes(qId)){toast('Already in queue');return;}
+  questionQueue.push(qId);renderQueueTab();renderQuestionBank();toast('Added to queue');
+};
+window.removeFromQueue=function(pos){questionQueue.splice(pos,1);renderQueueTab();renderQuestionBank();};
+window.moveQueueItem=function(pos,dir){
+  const np=pos+dir;if(np<0||np>=questionQueue.length)return;
+  [questionQueue[pos],questionQueue[np]]=[questionQueue[np],questionQueue[pos]];renderQueueTab();
+};
+window.loadQueueItem=function(pos){
+  const qId=questionQueue[pos];const bankQs=getBankQs(_state||{});
+  const idx=bankQs.findIndex(q=>q.id===qId);
+  questionQueue.splice(pos,1);renderQueueTab();renderQuestionBank();
+  if(idx>=0)selectQuestion(idx);else toast('Question not found');
+};
+window.renderQueueTab=function(){
+  const badge=document.getElementById('queue-tab-badge');
+  if(badge){if(questionQueue.length){badge.textContent=questionQueue.length;badge.classList.remove('hidden');}else{badge.classList.add('hidden');}}
+  const panel=document.getElementById('queue-panel-content');if(!panel)return;
+  if(!questionQueue.length){panel.innerHTML='<p style="color:rgba(255,255,255,0.38);font-size:.87rem;">No questions queued. Use the ↓ button in the Bank tab to add questions.</p>';return;}
+  const bankQs=getBankQs(_state||{});
+  panel.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;">
+    <span style="font-size:.85rem;color:rgba(255,255,255,0.5);">${questionQueue.length} question${questionQueue.length!==1?'s':''} queued · Next → will auto-advance</span>
+    <button class="btn btn-ghost btn-sm" onclick="questionQueue=[];renderQueueTab();renderQuestionBank();">Clear all</button>
+  </div>`+questionQueue.map((qId,pos)=>{
+    const q=bankQs.find(x=>x.id===qId);if(!q)return'';
+    return`<div class="queue-item">
+      <div class="queue-pos">${pos+1}</div>
+      <div class="queue-item-body"><div class="queue-item-text">${esc(q.q)}</div><div class="queue-item-ans">→ ${esc(q.a)}</div></div>
+      <div class="queue-item-btns">
+        <button class="btn btn-primary btn-sm" onclick="loadQueueItem(${pos})" title="Play now">▶</button>
+        <button class="q-action-btn" onclick="moveQueueItem(${pos},-1)" ${pos===0?'disabled':''} title="Move up">↑</button>
+        <button class="q-action-btn" onclick="moveQueueItem(${pos},1)" ${pos===questionQueue.length-1?'disabled':''} title="Move down">↓</button>
+        <button class="q-action-btn q-del-btn" onclick="removeFromQueue(${pos})" title="Remove">×</button>
+      </div>
+    </div>`;}).join('');
+};
+
 window.renderQuestionBank=function(){
   const state=_state;if(!state)return;const cats=state.categories||[];const sets=state.sets||[];const allQs=state.questions||[];
   const search=(document.getElementById('q-search')?.value||'').toLowerCase();const bankQs=getBankQs(state);
@@ -1054,7 +1120,7 @@ window.renderQuestionBank=function(){
   const counts={};bankQs.forEach(q=>{const c=q.cat||'Uncategorized';counts[c]=(counts[c]||0)+1;});
   const bar=document.getElementById('cat-filter-bar');bar.innerHTML=`<button class="filter-btn ${activeCatFilter==='all'?'active':''}" style="${activeCatFilter==='all'?'background:var(--wave);border-color:var(--wave);':''}" onclick="setCatFilter('all')">All (${bankQs.length})</button>`+cats.filter(c=>counts[c]).map(c=>{const color=catColor(c,cats);const active=activeCatFilter===c;return`<button class="filter-btn ${active?'active':''}" style="${active?`background:${color}33;border-color:${color};color:#fff`:''}" onclick="setCatFilter('${esc(c)}')">${esc(c)} (${counts[c]||0})</button>`;}).join('');
   const list=document.getElementById('q-list');if(!qs.length){list.innerHTML=`<p style="color:rgba(255,255,255,0.38);font-size:.87rem;">${search||activeCatFilter!=='all'?'No matching questions.':'No questions yet!'}</p>`;return;}
-  list.innerHTML=qs.map(q=>{const bankIdx=bankQs.findIndex(x=>x.id===q.id);const isActive=state.currentQ===bankIdx;const qSets=(q.sets||[]).map(sid=>sets.find(s=>s.id===sid)).filter(Boolean);return`<div class="q-item ${isActive?'active-q':''} ${q.used?'used-q':''}" onclick="selectQuestion(${bankIdx})"><div class="q-item-actions"><button class="q-action-btn" title="Add to set" onclick="event.stopPropagation();openAddToSet('${q.id}')" style="background:rgba(77,166,214,0.2);color:var(--sky);">+</button><button class="q-action-btn q-del-btn" onclick="event.stopPropagation();deleteQuestion('${q.id}')">×</button></div><div class="q-item-top">${catBadge(q.cat,cats)}${qSets.map(st=>`<span style="font-size:.67rem;color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.08);padding:.12rem .4rem;border-radius:10px;">${esc(st.icon)} ${esc(st.name)}</span>`).join('')}<span class="q-item-num">Q${bankIdx+1}${q.used?' · used':''}</span></div><div class="q-item-text">${esc(q.q)}</div><div class="q-item-ans">→ ${esc(q.a)}</div></div>`;}).join('');
+  list.innerHTML=qs.map(q=>{const bankIdx=bankQs.findIndex(x=>x.id===q.id);const isActive=state.currentQ===bankIdx;const qSets=(q.sets||[]).map(sid=>sets.find(s=>s.id===sid)).filter(Boolean);return`<div class="q-item ${isActive?'active-q':''} ${q.used?'used-q':''}" onclick="selectQuestion(${bankIdx})"><div class="q-item-actions"><button class="q-action-btn q-queue-btn ${questionQueue.includes(q.id)?'in-queue':''}" title="${questionQueue.includes(q.id)?'In queue':'Add to queue'}" onclick="event.stopPropagation();addToQueue('${q.id}')">${questionQueue.includes(q.id)?'✓':'↓'}</button><button class="q-action-btn" title="Add to set" onclick="event.stopPropagation();openAddToSet('${q.id}')" style="background:rgba(77,166,214,0.2);color:var(--sky);">+</button><button class="q-action-btn q-del-btn" onclick="event.stopPropagation();deleteQuestion('${q.id}')">×</button></div><div class="q-item-top">${catBadge(q.cat,cats)}${qSets.map(st=>`<span style="font-size:.67rem;color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.08);padding:.12rem .4rem;border-radius:10px;">${esc(st.icon)} ${esc(st.name)}</span>`).join('')}<span class="q-item-num">Q${bankIdx+1}${q.used?' · used':''}</span></div><div class="q-item-text">${esc(q.q)}</div><div class="q-item-ans">→ ${esc(q.a)}</div></div>`;}).join('');
 };
 window.setCatFilter=function(cat){activeCatFilter=cat;renderQuestionBank();};
 function renderSetsTab(sets,allQs){const grid=document.getElementById('sets-grid');grid.innerHTML=sets.map(st=>{const count=allQs.filter(q=>(q.sets||[]).includes(st.id)).length;const isActive=activeSetFilter===st.id;return`<div class="set-card ${isActive?'active-set':''}" onclick="loadSet('${st.id}')"><div class="set-card-actions"><button class="q-action-btn" onclick="event.stopPropagation();openEditSetModal('${st.id}')" style="background:rgba(77,166,214,0.2);color:var(--sky);font-size:11px;">✏</button><button class="q-action-btn q-del-btn" onclick="event.stopPropagation();deleteSet('${st.id}')">×</button></div><div class="set-card-icon">${esc(st.icon||'📦')}</div><div class="set-card-name">${esc(st.name)}</div><div class="set-card-meta">${count} question${count!==1?'s':''} · ${st.desc?esc(st.desc):'No description'}</div>${isActive?'<div class="set-active-badge">▶ Active</div>':''}</div>`;}).join('')+`<div class="new-set-card" onclick="openNewSetModal()"><div style="font-size:1.8rem;">+</div><span>New Question Set</span></div>`;}
