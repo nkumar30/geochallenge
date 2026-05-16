@@ -245,6 +245,21 @@ h1.title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4rem);f
 
 /* ── QUIZ SCREEN ── */
 #quiz{align-items:center;}
+.quiz-mode-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;gap:1.5rem;max-width:520px;margin:0 auto;width:100%;text-align:center;}
+.quiz-mode-title{font-family:'Playfair Display',serif;font-size:clamp(1.4rem,4vw,2rem);}
+.quiz-mode-subtitle{font-size:.95rem;color:rgba(255,255,255,0.5);margin-top:-.5rem;}
+.quiz-mode-cards{display:flex;gap:1.2rem;width:100%;}
+.quiz-mode-card{flex:1;padding:1.8rem 1.2rem;cursor:pointer;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:16px;transition:all .22s;text-align:center;}
+.quiz-mode-card:hover{background:rgba(255,255,255,0.12);transform:translateY(-4px);}
+.quiz-mode-card.timed:hover{border-color:var(--coral);}
+.quiz-mode-card.classic:hover{border-color:var(--sky);}
+.quiz-mode-icon{font-size:2.5rem;margin-bottom:.75rem;}
+.quiz-mode-card h3{font-family:'Playfair Display',serif;font-size:1.25rem;margin-bottom:.4rem;}
+.quiz-mode-card p{font-size:.85rem;color:rgba(255,255,255,0.55);line-height:1.4;}
+.quiz-timer-row{width:100%;display:flex;align-items:center;gap:.7rem;}
+.quiz-timer-track{flex:1;height:6px;background:rgba(255,255,255,0.1);border-radius:99px;overflow:hidden;}
+.quiz-timer-fill{height:100%;border-radius:99px;transition:width 1s linear,background .4s;}
+.quiz-timer-num{font-size:.82rem;font-weight:700;min-width:26px;text-align:right;transition:color .4s;}
 .quiz-wrap{flex:1;display:flex;flex-direction:column;align-items:center;padding:1.5rem 1.5rem 2.5rem;max-width:620px;margin:0 auto;width:100%;gap:1.1rem;}
 .quiz-meta{display:flex;align-items:center;justify-content:space-between;width:100%;}
 .quiz-q-label{font-size:.8rem;color:rgba(255,255,255,0.45);letter-spacing:.06em;text-transform:uppercase;}
@@ -1268,28 +1283,89 @@ const QUIZ_QS=[
   {q:"What is the capital of the Philippines?",choices:["Cebu","Davao","Quezon City","Manila"],a:3},
 ];
 
-let quizState={qs:[],idx:0,score:0,answered:false};
+let quizState={qs:[],idx:0,score:0,answered:false,timed:false};
+let quizTimer=null;
+const QUIZ_TIME=15;
 
 function _shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
 function startQuiz(){
-  quizState={qs:_shuffle(QUIZ_QS).slice(0,10),idx:0,score:0,answered:false};
+  clearQuizTimer();
   showScreen('quiz');
+  document.getElementById('quiz-content').innerHTML=`
+    <div class="quiz-mode-wrap">
+      <div class="quiz-mode-title">Choose your mode</div>
+      <div class="quiz-mode-subtitle">10 random geography questions</div>
+      <div class="quiz-mode-cards">
+        <div class="quiz-mode-card timed" onclick="startQuizMode(true)">
+          <div class="quiz-mode-icon">⚡</div>
+          <h3>Timed</h3>
+          <p>15 seconds per question — think fast or lose the point!</p>
+        </div>
+        <div class="quiz-mode-card classic" onclick="startQuizMode(false)">
+          <div class="quiz-mode-icon">🧠</div>
+          <h3>Classic</h3>
+          <p>No time limit — take your time and think it through</p>
+        </div>
+      </div>
+      <button class="btn btn-ghost" onclick="goHome()">← Home</button>
+    </div>`;
+}
+
+function startQuizMode(timed){
+  quizState={qs:_shuffle(QUIZ_QS).slice(0,10),idx:0,score:0,answered:false,timed};
   renderQuizQ();
 }
 
+function clearQuizTimer(){if(quizTimer){clearInterval(quizTimer);quizTimer=null;}}
+
+function startQuizTimer(){
+  clearQuizTimer();
+  let left=QUIZ_TIME;
+  _updateTimer(left);
+  quizTimer=setInterval(()=>{
+    left--;
+    _updateTimer(left);
+    if(left<=0){clearQuizTimer();quizTimeOut();}
+  },1000);
+}
+
+function _updateTimer(left){
+  const fill=document.getElementById('quiz-timer-fill');
+  const num=document.getElementById('quiz-timer-num');
+  if(!fill||!num)return;
+  const pct=(left/QUIZ_TIME)*100;
+  const color=left>7?'var(--green)':left>3?'var(--gold)':'var(--coral)';
+  fill.style.width=pct+'%';fill.style.background=color;
+  num.textContent=left+'s';num.style.color=color;
+}
+
+function quizTimeOut(){
+  if(quizState.answered)return;
+  quizState.answered=true;
+  const q=quizState.qs[quizState.idx];
+  document.querySelectorAll('.choice-btn').forEach((b,i)=>{b.disabled=true;if(i===q.a)b.classList.add('reveal');});
+  const fb=document.getElementById('quiz-feedback');
+  fb.textContent="⏱ Time's up! The correct answer is highlighted";fb.className='quiz-feedback no';
+  document.getElementById('quiz-next-btn').style.display='block';
+}
+
 function renderQuizQ(){
-  const {qs,idx,score}=quizState;
+  const {qs,idx,score,timed}=quizState;
   const q=qs[idx];
   const letters=['A','B','C','D'];
   const pct=Math.round((idx/qs.length)*100);
   document.getElementById('quiz-content').innerHTML=`
     <div class="quiz-wrap">
       <div class="quiz-meta">
-        <span class="quiz-q-label">Question ${idx+1} of ${qs.length}</span>
+        <span class="quiz-q-label">${timed?'⚡':'🧠'} Question ${idx+1} of ${qs.length}</span>
         <span class="quiz-score-pill">⭐ ${score} pts</span>
       </div>
       <div class="quiz-prog-track"><div class="quiz-prog-fill" style="width:${pct}%"></div></div>
+      ${timed?`<div class="quiz-timer-row">
+        <div class="quiz-timer-track"><div class="quiz-timer-fill" id="quiz-timer-fill" style="width:100%;background:var(--green)"></div></div>
+        <span class="quiz-timer-num" id="quiz-timer-num" style="color:var(--green)">${QUIZ_TIME}s</span>
+      </div>`:''}
       <div class="quiz-card"><div class="quiz-q-text">${esc(q.q)}</div></div>
       <div class="quiz-choices">
         ${q.choices.map((c,i)=>`<button class="choice-btn" onclick="selectAnswer(${i})">
@@ -1301,10 +1377,12 @@ function renderQuizQ(){
         ${idx+1<qs.length?'Next question →':'See results'}
       </button>
     </div>`;
+  if(timed)startQuizTimer();
 }
 
 function selectAnswer(chosen){
   if(quizState.answered)return;
+  clearQuizTimer();
   quizState.answered=true;
   const q=quizState.qs[quizState.idx];
   const correct=chosen===q.a;
@@ -1322,13 +1400,15 @@ function selectAnswer(chosen){
 }
 
 function nextQuizQ(){
+  clearQuizTimer();
   quizState.idx++;quizState.answered=false;
   if(quizState.idx>=quizState.qs.length){showQuizResult();return;}
   renderQuizQ();
 }
 
 function showQuizResult(){
-  const {score,qs}=quizState;
+  clearQuizTimer();
+  const {score,qs,timed}=quizState;
   const max=qs.length*10;
   const pct=Math.round(score/max*100);
   const trophy=pct>=80?'🏆':pct>=50?'🥈':'🌍';
@@ -1338,6 +1418,7 @@ function showQuizResult(){
       <div class="quiz-result-trophy">${trophy}</div>
       <div class="quiz-result-title">${msg}</div>
       <div class="quiz-result-score">${score} / ${max} points &middot; ${pct}%</div>
+      <div style="font-size:.82rem;color:rgba(255,255,255,0.4);margin-top:-.4rem;">${timed?'⚡ Timed mode':'🧠 Classic mode'}</div>
       <div class="quiz-result-actions">
         <button class="btn btn-primary" onclick="startQuiz()">Play again</button>
         <button class="btn btn-ghost" onclick="goHome()">← Home</button>
