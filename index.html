@@ -230,6 +230,20 @@ h1.title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4rem);f
 @media(max-width:800px){.host-layout{grid-template-columns:1fr;}.host-sidebar{border-left:none;border-top:1px solid rgba(255,255,255,0.08);}.sets-grid{grid-template-columns:1fr 1fr;}}
 @media(max-width:480px){.role-cards{flex-direction:column;}.buzzer-btn{width:130px;height:130px;font-size:1.2rem;}.sets-grid{grid-template-columns:1fr;}}
 
+/* ── BANK GROUP VIEW ── */
+.bank-group-toggle{display:flex;gap:.3rem;margin-bottom:.65rem;}
+.bgt-btn{padding:.28rem .75rem;border-radius:7px;border:1px solid rgba(255,255,255,0.14);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.5);font-size:.78rem;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;}
+.bgt-btn:hover{background:rgba(255,255,255,0.1);color:#fff;}
+.bgt-btn.active{background:var(--wave);border-color:var(--wave);color:#fff;}
+.bank-section-hdr{display:flex;align-items:center;gap:.55rem;padding:.45rem .1rem;cursor:pointer;user-select:none;border-radius:7px;margin-top:.3rem;}
+.bank-section-hdr:hover{background:rgba(255,255,255,0.04);}
+.bank-section-title{font-size:.82rem;font-weight:600;flex:1;}
+.bank-section-count{font-size:.71rem;color:rgba(255,255,255,0.35);background:rgba(255,255,255,0.08);border-radius:99px;padding:.1rem .48rem;}
+.bank-section-arrow{font-size:.65rem;color:rgba(255,255,255,0.3);transition:transform .15s;width:12px;flex-shrink:0;}
+.bank-section-arrow.open{transform:rotate(0deg);}
+.bank-section-arrow.closed{transform:rotate(-90deg);}
+.bank-section-body{margin-bottom:.35rem;}
+
 /* ── QUESTION QUEUE ── */
 .q-queue-btn{background:rgba(232,160,32,0.18);color:var(--gold);}
 .q-queue-btn:hover{background:rgba(232,160,32,0.38)!important;}
@@ -260,6 +274,13 @@ h1.title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4rem);f
 .quiz-timer-track{flex:1;height:6px;background:rgba(255,255,255,0.1);border-radius:99px;overflow:hidden;}
 .quiz-timer-fill{height:100%;border-radius:99px;transition:width 1s linear,background .4s;}
 .quiz-timer-num{font-size:.82rem;font-weight:700;min-width:26px;text-align:right;transition:color .4s;}
+.quiz-cat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.7rem;width:100%;}
+.quiz-cat-card{padding:.9rem 1rem;cursor:pointer;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:12px;transition:all .2s;display:flex;align-items:center;gap:.7rem;font-size:.9rem;font-weight:500;}
+.quiz-cat-card:hover{background:rgba(255,255,255,0.13);border-color:var(--sky);transform:translateY(-2px);}
+.quiz-cat-card.all-cats{grid-column:1/-1;justify-content:center;border-color:rgba(255,255,255,0.22);background:rgba(255,255,255,0.08);}
+.quiz-cat-count{font-size:.74rem;color:rgba(255,255,255,0.38);margin-left:auto;font-weight:400;}
+.quiz-cat-badge{font-size:.68rem;padding:.15rem .52rem;border-radius:99px;background:rgba(77,166,214,0.18);color:var(--sky);border:1px solid rgba(77,166,214,0.28);white-space:nowrap;}
+@media(max-width:480px){.quiz-cat-grid{grid-template-columns:1fr;}.quiz-cat-card.all-cats{grid-column:unset;}}
 .quiz-wrap{flex:1;display:flex;flex-direction:column;align-items:center;padding:1.5rem 1.5rem 2.5rem;max-width:620px;margin:0 auto;width:100%;gap:1.1rem;}
 .quiz-meta{display:flex;align-items:center;justify-content:space-between;width:100%;}
 .quiz-q-label{font-size:.8rem;color:rgba(255,255,255,0.45);letter-spacing:.06em;text-transform:uppercase;}
@@ -445,6 +466,7 @@ h1.title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4rem);f
           <button class="btn btn-ghost btn-sm" onclick="toggleAddForm()">+ Add</button>
           <button class="btn-link" style="font-size:.78rem;white-space:nowrap;" onclick="resetUsed()">↺ Reset used</button>
         </div>
+        <div id="bank-group-bar"></div>
         <div id="cat-filter-bar" class="filter-row"></div>
         <div id="add-q-panel" class="add-q-panel" style="display:none">
           <h4>New Question</h4>
@@ -1127,15 +1149,90 @@ window.renderQueueTab=function(){
     </div>`;}).join('');
 };
 
+let bankGroupMode='flat';
+let collapsedSections=new Set();
+window.setBankGroupMode=function(mode){bankGroupMode=mode;renderQuestionBank();};
+window.toggleBankSection=function(key){if(collapsedSections.has(key))collapsedSections.delete(key);else collapsedSections.add(key);renderQuestionBank();};
+
 window.renderQuestionBank=function(){
-  const state=_state;if(!state)return;const cats=state.categories||[];const sets=state.sets||[];const allQs=state.questions||[];
-  const search=(document.getElementById('q-search')?.value||'').toLowerCase();const bankQs=getBankQs(state);
-  let qs=[...bankQs];if(activeCatFilter!=='all')qs=qs.filter(q=>(q.cat||'Uncategorized')===activeCatFilter);if(search)qs=qs.filter(q=>q.q.toLowerCase().includes(search)||q.a.toLowerCase().includes(search));
-  document.getElementById('q-count').textContent=`(${qs.length} shown${allQs.length!==qs.length?' of '+allQs.length:''})`;
-  const counts={};bankQs.forEach(q=>{const c=q.cat||'Uncategorized';counts[c]=(counts[c]||0)+1;});
-  const bar=document.getElementById('cat-filter-bar');bar.innerHTML=`<button class="filter-btn ${activeCatFilter==='all'?'active':''}" style="${activeCatFilter==='all'?'background:var(--wave);border-color:var(--wave);':''}" onclick="setCatFilter('all')">All (${bankQs.length})</button>`+cats.filter(c=>counts[c]).map(c=>{const color=catColor(c,cats);const active=activeCatFilter===c;return`<button class="filter-btn ${active?'active':''}" style="${active?`background:${color}33;border-color:${color};color:#fff`:''}" onclick="setCatFilter('${esc(c)}')">${esc(c)} (${counts[c]||0})</button>`;}).join('');
-  const list=document.getElementById('q-list');if(!qs.length){list.innerHTML=`<p style="color:rgba(255,255,255,0.38);font-size:.87rem;">${search||activeCatFilter!=='all'?'No matching questions.':'No questions yet!'}</p>`;return;}
-  list.innerHTML=qs.map(q=>{const bankIdx=bankQs.findIndex(x=>x.id===q.id);const isActive=state.currentQ===bankIdx;const qSets=(q.sets||[]).map(sid=>sets.find(s=>s.id===sid)).filter(Boolean);return`<div class="q-item ${isActive?'active-q':''} ${q.used?'used-q':''}" onclick="selectQuestion(${bankIdx})"><div class="q-item-actions"><button class="q-action-btn q-queue-btn ${questionQueue.includes(q.id)?'in-queue':''}" title="${questionQueue.includes(q.id)?'In queue':'Add to queue'}" onclick="event.stopPropagation();addToQueue('${q.id}')">${questionQueue.includes(q.id)?'✓':'↓'}</button><button class="q-action-btn" title="Add to set" onclick="event.stopPropagation();openAddToSet('${q.id}')" style="background:rgba(77,166,214,0.2);color:var(--sky);">+</button><button class="q-action-btn q-del-btn" onclick="event.stopPropagation();deleteQuestion('${q.id}')">×</button></div><div class="q-item-top">${catBadge(q.cat,cats)}${qSets.map(st=>`<span style="font-size:.67rem;color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.08);padding:.12rem .4rem;border-radius:10px;">${esc(st.icon)} ${esc(st.name)}</span>`).join('')}<span class="q-item-num">Q${bankIdx+1}${q.used?' · used':''}</span></div><div class="q-item-text">${esc(q.q)}</div><div class="q-item-ans">→ ${esc(q.a)}</div></div>`;}).join('');
+  const state=_state;if(!state)return;
+  const cats=state.categories||[];const sets=state.sets||[];const allQs=state.questions||[];
+  const search=(document.getElementById('q-search')?.value||'').toLowerCase();
+  const bankQs=getBankQs(state);
+
+  // group toggle bar
+  const gb=document.getElementById('bank-group-bar');
+  if(gb)gb.innerHTML=`<div class="bank-group-toggle">
+    <button class="bgt-btn${bankGroupMode==='flat'?' active':''}" onclick="setBankGroupMode('flat')">All</button>
+    <button class="bgt-btn${bankGroupMode==='category'?' active':''}" onclick="setBankGroupMode('category')">By Category</button>
+    <button class="bgt-btn${bankGroupMode==='set'?' active':''}" onclick="setBankGroupMode('set')">By Set</button>
+  </div>`;
+
+  // category filter bar — only visible in flat mode
+  const bar=document.getElementById('cat-filter-bar');
+  if(bankGroupMode==='flat'){
+    bar.style.display='';
+    const counts={};bankQs.forEach(q=>{const c=q.cat||'Uncategorized';counts[c]=(counts[c]||0)+1;});
+    bar.innerHTML=`<button class="filter-btn ${activeCatFilter==='all'?'active':''}" style="${activeCatFilter==='all'?'background:var(--wave);border-color:var(--wave);':''}" onclick="setCatFilter('all')">All (${bankQs.length})</button>`+cats.filter(c=>counts[c]).map(c=>{const color=catColor(c,cats);const active=activeCatFilter===c;return`<button class="filter-btn ${active?'active':''}" style="${active?`background:${color}33;border-color:${color};color:#fff`:''}" onclick="setCatFilter('${esc(c)}')">${esc(c)} (${counts[c]||0})</button>`;}).join('');
+  }else{bar.style.display='none';}
+
+  // filter by search (and cat filter in flat mode)
+  let qs=[...bankQs];
+  if(bankGroupMode==='flat'&&activeCatFilter!=='all')qs=qs.filter(q=>(q.cat||'Uncategorized')===activeCatFilter);
+  if(search)qs=qs.filter(q=>q.q.toLowerCase().includes(search)||q.a.toLowerCase().includes(search));
+  document.getElementById('q-count').textContent=`(${qs.length}${allQs.length!==qs.length?' of '+allQs.length:''})`;
+
+  // q-item builder
+  const mkItem=q=>{
+    const bankIdx=bankQs.findIndex(x=>x.id===q.id);
+    const isActive=state.currentQ===bankIdx;
+    const qSets=(q.sets||[]).map(sid=>sets.find(s=>s.id===sid)).filter(Boolean);
+    return`<div class="q-item ${isActive?'active-q':''} ${q.used?'used-q':''}" onclick="selectQuestion(${bankIdx})"><div class="q-item-actions"><button class="q-action-btn q-queue-btn ${questionQueue.includes(q.id)?'in-queue':''}" title="${questionQueue.includes(q.id)?'In queue':'Add to queue'}" onclick="event.stopPropagation();addToQueue('${q.id}')">${questionQueue.includes(q.id)?'✓':'↓'}</button><button class="q-action-btn" title="Add to set" onclick="event.stopPropagation();openAddToSet('${q.id}')" style="background:rgba(77,166,214,0.2);color:var(--sky);">+</button><button class="q-action-btn q-del-btn" onclick="event.stopPropagation();deleteQuestion('${q.id}')">×</button></div><div class="q-item-top">${catBadge(q.cat,cats)}${qSets.map(st=>`<span style="font-size:.67rem;color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.08);padding:.12rem .4rem;border-radius:10px;">${esc(st.icon)} ${esc(st.name)}</span>`).join('')}<span class="q-item-num">Q${bankIdx+1}${q.used?' · used':''}</span></div><div class="q-item-text">${esc(q.q)}</div><div class="q-item-ans">→ ${esc(q.a)}</div></div>`;
+  };
+
+  // section builder
+  const mkSection=(key,label,items,color='')=>{
+    const collapsed=collapsedSections.has(key);
+    return`<div class="bank-section-hdr" onclick="toggleBankSection('${key}')">
+      <span class="bank-section-arrow ${collapsed?'closed':'open'}">▼</span>
+      <span class="bank-section-title"${color?` style="color:${color}"`:''}>${label}</span>
+      <span class="bank-section-count">${items.length}</span>
+    </div>${collapsed?'':`<div class="bank-section-body">${items.map(mkItem).join('')}</div>`}`;
+  };
+
+  const list=document.getElementById('q-list');
+
+  // ── FLAT mode ──
+  if(bankGroupMode==='flat'){
+    if(!qs.length){list.innerHTML=`<p style="color:rgba(255,255,255,0.38);font-size:.87rem;">${search||activeCatFilter!=='all'?'No matching questions.':'No questions yet!'}</p>`;return;}
+    list.innerHTML=qs.map(mkItem).join('');return;
+  }
+
+  // ── BY CATEGORY mode ──
+  if(bankGroupMode==='category'){
+    if(!qs.length){list.innerHTML=`<p style="color:rgba(255,255,255,0.38);font-size:.87rem;">No questions found.</p>`;return;}
+    const groups={};
+    qs.forEach(q=>{const k=q.cat||'__none__';if(!groups[k])groups[k]=[];groups[k].push(q);});
+    const ordered=[...cats.filter(c=>groups[c]),...(groups['__none__']?['__none__']:[])];
+    list.innerHTML=ordered.map(k=>{
+      if(k==='__none__')return mkSection('cat___none__','— Uncategorized',groups['__none__'],'rgba(255,255,255,0.35)');
+      return mkSection('cat_'+k,catBadge(k,cats)||k,groups[k],catColor(k,cats));
+    }).join('');return;
+  }
+
+  // ── BY SET mode ──
+  if(bankGroupMode==='set'){
+    if(!qs.length){list.innerHTML=`<p style="color:rgba(255,255,255,0.38);font-size:.87rem;">No questions found.</p>`;return;}
+    const setMap={};sets.forEach(s=>{setMap[s.id]=[];});const noSet=[];
+    qs.forEach(q=>{
+      const qSetIds=(q.sets||[]).filter(sid=>sets.find(s=>s.id===sid));
+      if(qSetIds.length)qSetIds.forEach(sid=>{if(setMap[sid])setMap[sid].push(q);});
+      else noSet.push(q);
+    });
+    let html=sets.filter(s=>setMap[s.id]?.length).map(s=>mkSection('set_'+s.id,`${esc(s.icon||'📦')} ${esc(s.name)}`,setMap[s.id])).join('');
+    if(noSet.length)html+=mkSection('set___none__','— No Set',noSet,'rgba(255,255,255,0.35)');
+    list.innerHTML=html||`<p style="color:rgba(255,255,255,0.38);font-size:.87rem;">No questions found.</p>`;
+  }
 };
 window.setCatFilter=function(cat){activeCatFilter=cat;renderQuestionBank();};
 function renderSetsTab(sets,allQs){const grid=document.getElementById('sets-grid');grid.innerHTML=sets.map(st=>{const count=allQs.filter(q=>(q.sets||[]).includes(st.id)).length;const isActive=activeSetFilter===st.id;return`<div class="set-card ${isActive?'active-set':''}" onclick="loadSet('${st.id}')"><div class="set-card-actions"><button class="q-action-btn" onclick="event.stopPropagation();openEditSetModal('${st.id}')" style="background:rgba(77,166,214,0.2);color:var(--sky);font-size:11px;">✏</button><button class="q-action-btn q-del-btn" onclick="event.stopPropagation();deleteSet('${st.id}')">×</button></div><div class="set-card-icon">${esc(st.icon||'📦')}</div><div class="set-card-name">${esc(st.name)}</div><div class="set-card-meta">${count} question${count!==1?'s':''} · ${st.desc?esc(st.desc):'No description'}</div>${isActive?'<div class="set-active-badge">▶ Active</div>':''}</div>`;}).join('')+`<div class="new-set-card" onclick="openNewSetModal()"><div style="font-size:1.8rem;">+</div><span>New Question Set</span></div>`;}
@@ -1220,67 +1317,80 @@ async function autoConnect(){
 autoConnect();
 
 // ── QUIZ ──────────────────────────────────────────────────────────────────────
-const QUIZ_QS=[
-  {q:"What is the capital of Australia?",choices:["Sydney","Melbourne","Canberra","Brisbane"],a:2},
-  {q:"Which country has the largest land area in the world?",choices:["Canada","China","United States","Russia"],a:3},
-  {q:"What is the longest river in the world?",choices:["Amazon","Congo","Nile","Yangtze"],a:2},
-  {q:"Which continent contains the Sahara Desert?",choices:["Asia","Australia","Africa","South America"],a:2},
-  {q:"What is the capital of Brazil?",choices:["Rio de Janeiro","São Paulo","Brasília","Salvador"],a:2},
-  {q:"Which is the largest ocean on Earth?",choices:["Atlantic","Indian","Arctic","Pacific"],a:3},
-  {q:"Mount Everest belongs to which mountain range?",choices:["Andes","Alps","Rockies","Himalayas"],a:3},
-  {q:"What is the capital of Canada?",choices:["Toronto","Ottawa","Vancouver","Montreal"],a:1},
-  {q:"Which country has the most natural lakes?",choices:["Russia","United States","Finland","Canada"],a:3},
-  {q:"What is the smallest country in the world by area?",choices:["Monaco","San Marino","Liechtenstein","Vatican City"],a:3},
-  {q:"Which desert is the largest cold desert on Earth?",choices:["Gobi","Sahara","Atacama","Antarctic"],a:3},
-  {q:"What is the capital of South Africa's executive government?",choices:["Cape Town","Johannesburg","Pretoria","Durban"],a:2},
-  {q:"Lake Baikal, the world's deepest lake, is located in which country?",choices:["China","Kazakhstan","Mongolia","Russia"],a:3},
-  {q:"Which country contains the majority of the Amazon rainforest?",choices:["Peru","Colombia","Venezuela","Brazil"],a:3},
-  {q:"Which strait separates Europe from Africa?",choices:["Malacca","Bering","Gibraltar","Hormuz"],a:2},
-  {q:"Which country has the longest coastline in the world?",choices:["Norway","Russia","Australia","Canada"],a:3},
-  {q:"The Atacama Desert is located on which continent?",choices:["Africa","Asia","South America","Australia"],a:2},
-  {q:"What is the capital of New Zealand?",choices:["Auckland","Christchurch","Wellington","Hamilton"],a:2},
-  {q:"Which African country has the largest population?",choices:["Ethiopia","Egypt","South Africa","Nigeria"],a:3},
-  {q:"The Dead Sea borders which two countries?",choices:["Egypt & Israel","Syria & Lebanon","Israel & Jordan","Iraq & Kuwait"],a:2},
-  {q:"Which city is the capital of Japan?",choices:["Osaka","Kyoto","Hiroshima","Tokyo"],a:3},
-  {q:"What is the capital of Argentina?",choices:["Montevideo","Santiago","Buenos Aires","Lima"],a:2},
-  {q:"Which country is home to the ancient city of Petra?",choices:["Egypt","Saudi Arabia","Jordan","Israel"],a:2},
-  {q:"What is the tallest mountain in Africa?",choices:["Mount Kenya","Mount Kilimanjaro","Mount Elgon","Ras Dashen"],a:1},
-  {q:"Which river flows through Egypt?",choices:["Congo","Zambezi","Niger","Nile"],a:3},
-  {q:"What is the capital of India?",choices:["Mumbai","Kolkata","New Delhi","Bangalore"],a:2},
-  {q:"Which country has the most people in the world?",choices:["United States","India","China","Indonesia"],a:1},
-  {q:"The Great Barrier Reef is located off the coast of which country?",choices:["New Zealand","Papua New Guinea","Indonesia","Australia"],a:3},
-  {q:"What is the capital of Kenya?",choices:["Nairobi","Kampala","Dar es Salaam","Addis Ababa"],a:0},
-  {q:"Which mountain range runs along the western coast of South America?",choices:["Rockies","Appalachians","Andes","Sierra Madre"],a:2},
-  {q:"What is the currency of Japan?",choices:["Won","Yuan","Baht","Yen"],a:3},
-  {q:"Which country owns Greenland?",choices:["Canada","Norway","Iceland","Denmark"],a:3},
-  {q:"What is the capital of Egypt?",choices:["Alexandria","Luxor","Cairo","Giza"],a:2},
-  {q:"Which is the largest country in South America by area?",choices:["Argentina","Colombia","Peru","Brazil"],a:3},
-  {q:"The Volga is the longest river in which continent?",choices:["Asia","North America","Africa","Europe"],a:3},
-  {q:"What is the capital of Turkey?",choices:["Istanbul","Izmir","Bursa","Ankara"],a:3},
-  {q:"Which country is the largest in Africa by area?",choices:["Democratic Republic of Congo","Sudan","Libya","Algeria"],a:3},
-  {q:"What is the capital of Mexico?",choices:["Guadalajara","Monterrey","Puebla","Mexico City"],a:3},
-  {q:"The Yangtze River flows through which country?",choices:["Vietnam","India","Japan","China"],a:3},
-  {q:"Which country has the most time zones?",choices:["Russia","USA","China","Australia"],a:0},
-  {q:"What is the capital of South Korea?",choices:["Busan","Incheon","Seoul","Daegu"],a:2},
-  {q:"Which country is known as the Land of the Rising Sun?",choices:["China","Thailand","South Korea","Japan"],a:3},
-  {q:"What is the capital of Spain?",choices:["Barcelona","Seville","Valencia","Madrid"],a:3},
-  {q:"Which ocean lies between Africa and Australia?",choices:["Atlantic","Pacific","Arctic","Indian"],a:3},
-  {q:"What is the largest island in the world?",choices:["Borneo","Madagascar","New Guinea","Greenland"],a:3},
-  {q:"Which country is Machu Picchu located in?",choices:["Bolivia","Colombia","Ecuador","Peru"],a:3},
-  {q:"What is the capital of Germany?",choices:["Munich","Hamburg","Frankfurt","Berlin"],a:3},
-  {q:"The Serengeti National Park is in which country?",choices:["Kenya","South Africa","Botswana","Tanzania"],a:3},
-  {q:"Which sea is the saltiest in the world?",choices:["Red Sea","Caspian Sea","Dead Sea","Mediterranean Sea"],a:2},
-  {q:"What is the capital of Saudi Arabia?",choices:["Jeddah","Mecca","Medina","Riyadh"],a:3},
-  {q:"Which country has the most UNESCO World Heritage Sites?",choices:["France","Spain","China","Italy"],a:3},
-  {q:"Victoria Falls lies on the border of which two countries?",choices:["Tanzania & Mozambique","Botswana & Namibia","Zambia & Zimbabwe","Angola & Congo"],a:2},
-  {q:"What is the capital of Pakistan?",choices:["Karachi","Lahore","Peshawar","Islamabad"],a:3},
-  {q:"Which country is the Colosseum located in?",choices:["Greece","France","Spain","Italy"],a:3},
-  {q:"What is the name of the world's largest hot desert?",choices:["Arabian","Kalahari","Gobi","Sahara"],a:3},
-  {q:"Which country is bordered by both the Atlantic and Indian Oceans?",choices:["Mozambique","Angola","Namibia","South Africa"],a:3},
-  {q:"What is the capital of Ukraine?",choices:["Lviv","Odesa","Kharkiv","Kyiv"],a:3},
-  {q:"Which city is known as the 'City of Canals'?",choices:["Amsterdam","Bangkok","Venice","Copenhagen"],a:2},
-  {q:"The Bosphorus Strait connects which two bodies of water?",choices:["Atlantic & Mediterranean","Red Sea & Indian Ocean","Persian Gulf & Arabian Sea","Black Sea & Sea of Marmara"],a:3},
-  {q:"What is the capital of the Philippines?",choices:["Cebu","Davao","Quezon City","Manila"],a:3},
+const QUIZ_CATEGORIES=[
+  {id:'capitals',name:'Capitals',icon:'🏛️',qs:[
+    {q:"What is the capital of Australia?",choices:["Sydney","Melbourne","Canberra","Brisbane"],a:2},
+    {q:"What is the capital of Brazil?",choices:["Rio de Janeiro","São Paulo","Brasília","Salvador"],a:2},
+    {q:"What is the capital of Canada?",choices:["Toronto","Ottawa","Vancouver","Montreal"],a:1},
+    {q:"What is the capital of South Africa's executive government?",choices:["Cape Town","Johannesburg","Pretoria","Durban"],a:2},
+    {q:"What is the capital of New Zealand?",choices:["Auckland","Christchurch","Wellington","Hamilton"],a:2},
+    {q:"Which city is the capital of Japan?",choices:["Osaka","Kyoto","Hiroshima","Tokyo"],a:3},
+    {q:"What is the capital of Argentina?",choices:["Montevideo","Santiago","Buenos Aires","Lima"],a:2},
+    {q:"What is the capital of India?",choices:["Mumbai","Kolkata","New Delhi","Bangalore"],a:2},
+    {q:"What is the capital of Kenya?",choices:["Nairobi","Kampala","Dar es Salaam","Addis Ababa"],a:0},
+    {q:"What is the capital of Egypt?",choices:["Alexandria","Luxor","Cairo","Giza"],a:2},
+    {q:"What is the capital of Turkey?",choices:["Istanbul","Izmir","Bursa","Ankara"],a:3},
+    {q:"What is the capital of Mexico?",choices:["Guadalajara","Monterrey","Puebla","Mexico City"],a:3},
+    {q:"What is the capital of South Korea?",choices:["Busan","Incheon","Seoul","Daegu"],a:2},
+    {q:"What is the capital of Spain?",choices:["Barcelona","Seville","Valencia","Madrid"],a:3},
+    {q:"What is the capital of Germany?",choices:["Munich","Hamburg","Frankfurt","Berlin"],a:3},
+    {q:"What is the capital of Saudi Arabia?",choices:["Jeddah","Mecca","Medina","Riyadh"],a:3},
+    {q:"What is the capital of Pakistan?",choices:["Karachi","Lahore","Peshawar","Islamabad"],a:3},
+    {q:"What is the capital of Ukraine?",choices:["Lviv","Odesa","Kharkiv","Kyiv"],a:3},
+    {q:"What is the capital of the Philippines?",choices:["Cebu","Davao","Quezon City","Manila"],a:3},
+  ]},
+  {id:'water',name:'Oceans & Rivers',icon:'🌊',qs:[
+    {q:"What is the longest river in the world?",choices:["Amazon","Congo","Nile","Yangtze"],a:2},
+    {q:"Which is the largest ocean on Earth?",choices:["Atlantic","Indian","Arctic","Pacific"],a:3},
+    {q:"Lake Baikal, the world's deepest lake, is in which country?",choices:["China","Kazakhstan","Mongolia","Russia"],a:3},
+    {q:"Which strait separates Europe from Africa?",choices:["Malacca","Bering","Gibraltar","Hormuz"],a:2},
+    {q:"The Volga is the longest river on which continent?",choices:["Asia","North America","Africa","Europe"],a:3},
+    {q:"The Yangtze River flows through which country?",choices:["Vietnam","India","Japan","China"],a:3},
+    {q:"Which ocean lies between Africa and Australia?",choices:["Atlantic","Pacific","Arctic","Indian"],a:3},
+    {q:"What is the largest island in the world?",choices:["Borneo","Madagascar","New Guinea","Greenland"],a:3},
+    {q:"Which sea is the saltiest in the world?",choices:["Red Sea","Caspian Sea","Dead Sea","Mediterranean Sea"],a:2},
+    {q:"The Bosphorus Strait connects which two bodies of water?",choices:["Atlantic & Mediterranean","Red Sea & Indian Ocean","Persian Gulf & Arabian Sea","Black Sea & Sea of Marmara"],a:3},
+    {q:"Which is the longest river in South America?",choices:["Nile","Mississippi","Amazon","Congo"],a:2},
+    {q:"The Dead Sea borders which two countries?",choices:["Egypt & Israel","Syria & Lebanon","Israel & Jordan","Iraq & Kuwait"],a:2},
+  ]},
+  {id:'landforms',name:'Mountains & Deserts',icon:'⛰️',qs:[
+    {q:"Mount Everest belongs to which mountain range?",choices:["Andes","Alps","Rockies","Himalayas"],a:3},
+    {q:"Which desert is the largest cold desert on Earth?",choices:["Gobi","Sahara","Atacama","Antarctic"],a:3},
+    {q:"The Atacama Desert is located on which continent?",choices:["Africa","Asia","South America","Australia"],a:2},
+    {q:"What is the tallest mountain in Africa?",choices:["Mount Kenya","Mount Kilimanjaro","Mount Elgon","Ras Dashen"],a:1},
+    {q:"Which mountain range runs along the western coast of South America?",choices:["Rockies","Appalachians","Andes","Sierra Madre"],a:2},
+    {q:"What is the name of the world's largest hot desert?",choices:["Arabian","Kalahari","Gobi","Sahara"],a:3},
+    {q:"Which continent contains the Sahara Desert?",choices:["Asia","Australia","Africa","South America"],a:2},
+    {q:"The Hindu Kush mountain range is mainly in which country?",choices:["India","Nepal","Iran","Afghanistan"],a:3},
+  ]},
+  {id:'countries',name:'Countries & Records',icon:'🌍',qs:[
+    {q:"Which country has the largest land area in the world?",choices:["Canada","China","United States","Russia"],a:3},
+    {q:"Which country has the most natural lakes?",choices:["Russia","United States","Finland","Canada"],a:3},
+    {q:"What is the smallest country in the world by area?",choices:["Monaco","San Marino","Liechtenstein","Vatican City"],a:3},
+    {q:"Which country contains the majority of the Amazon rainforest?",choices:["Peru","Colombia","Venezuela","Brazil"],a:3},
+    {q:"Which country has the longest coastline in the world?",choices:["Norway","Russia","Australia","Canada"],a:3},
+    {q:"Which African country has the largest population?",choices:["Ethiopia","Egypt","South Africa","Nigeria"],a:3},
+    {q:"Which country has the most people in the world?",choices:["United States","India","China","Indonesia"],a:1},
+    {q:"What is the currency of Japan?",choices:["Won","Yuan","Baht","Yen"],a:3},
+    {q:"Which country owns Greenland?",choices:["Canada","Norway","Iceland","Denmark"],a:3},
+    {q:"Which is the largest country in South America by area?",choices:["Argentina","Colombia","Peru","Brazil"],a:3},
+    {q:"Which country has the most time zones?",choices:["Russia","USA","China","Australia"],a:0},
+    {q:"Which country is known as the Land of the Rising Sun?",choices:["China","Thailand","South Korea","Japan"],a:3},
+    {q:"Which country is the largest in Africa by area?",choices:["DR Congo","Sudan","Libya","Algeria"],a:3},
+    {q:"Which country is bordered by both the Atlantic and Indian Oceans?",choices:["Mozambique","Angola","Namibia","South Africa"],a:3},
+  ]},
+  {id:'landmarks',name:'Landmarks & Culture',icon:'🗺️',qs:[
+    {q:"Which country is home to the ancient city of Petra?",choices:["Egypt","Saudi Arabia","Jordan","Israel"],a:2},
+    {q:"The Great Barrier Reef is located off the coast of which country?",choices:["New Zealand","Papua New Guinea","Indonesia","Australia"],a:3},
+    {q:"Which country is Machu Picchu located in?",choices:["Bolivia","Colombia","Ecuador","Peru"],a:3},
+    {q:"The Serengeti National Park is in which country?",choices:["Kenya","South Africa","Botswana","Tanzania"],a:3},
+    {q:"Which country has the most UNESCO World Heritage Sites?",choices:["France","Spain","China","Italy"],a:3},
+    {q:"Victoria Falls lies on the border of which two countries?",choices:["Tanzania & Mozambique","Botswana & Namibia","Zambia & Zimbabwe","Angola & Congo"],a:2},
+    {q:"Which country is the Colosseum located in?",choices:["Greece","France","Spain","Italy"],a:3},
+    {q:"Which city is known as the 'City of Canals'?",choices:["Amsterdam","Bangkok","Venice","Copenhagen"],a:2},
+    {q:"The Taj Mahal is located in which city?",choices:["Delhi","Mumbai","Jaipur","Agra"],a:3},
+    {q:"Angkor Wat is located in which country?",choices:["Thailand","Vietnam","Myanmar","Cambodia"],a:3},
+  ]},
 ];
 
 let quizState={qs:[],idx:0,score:0,answered:false,timed:false};
@@ -1297,12 +1407,12 @@ function startQuiz(){
       <div class="quiz-mode-title">Choose your mode</div>
       <div class="quiz-mode-subtitle">10 random geography questions</div>
       <div class="quiz-mode-cards">
-        <div class="quiz-mode-card timed" onclick="startQuizMode(true)">
+        <div class="quiz-mode-card timed" onclick="showCategorySelect(true)">
           <div class="quiz-mode-icon">⚡</div>
           <h3>Timed</h3>
           <p>15 seconds per question — think fast or lose the point!</p>
         </div>
-        <div class="quiz-mode-card classic" onclick="startQuizMode(false)">
+        <div class="quiz-mode-card classic" onclick="showCategorySelect(false)">
           <div class="quiz-mode-icon">🧠</div>
           <h3>Classic</h3>
           <p>No time limit — take your time and think it through</p>
@@ -1312,8 +1422,30 @@ function startQuiz(){
     </div>`;
 }
 
-function startQuizMode(timed){
-  quizState={qs:_shuffle(QUIZ_QS).slice(0,10),idx:0,score:0,answered:false,timed};
+function showCategorySelect(timed){
+  const allCount=QUIZ_CATEGORIES.reduce((s,c)=>s+c.qs.length,0);
+  document.getElementById('quiz-content').innerHTML=`
+    <div class="quiz-mode-wrap">
+      <div class="quiz-mode-title">Choose a category</div>
+      <div class="quiz-mode-subtitle">${timed?'⚡ Timed':'🧠 Classic'} · 10 questions</div>
+      <div class="quiz-cat-grid">
+        <div class="quiz-cat-card all-cats" onclick="startQuizMode(${timed},'all')">
+          🌐 All Categories <span class="quiz-cat-count">${allCount} questions</span>
+        </div>
+        ${QUIZ_CATEGORIES.map(c=>`<div class="quiz-cat-card" onclick="startQuizMode(${timed},'${c.id}')">
+          <span>${c.icon}</span> ${c.name} <span class="quiz-cat-count">${c.qs.length} questions</span>
+        </div>`).join('')}
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="startQuiz()">← Back</button>
+    </div>`;
+}
+
+function startQuizMode(timed,catId='all'){
+  const pool=catId==='all'
+    ?QUIZ_CATEGORIES.flatMap(c=>c.qs.map(q=>({...q,cat:c.name,catIcon:c.icon})))
+    :(()=>{const cat=QUIZ_CATEGORIES.find(c=>c.id===catId);return(cat?.qs||[]).map(q=>({...q,cat:cat.name,catIcon:cat.icon}));})();
+  const count=Math.min(10,pool.length);
+  quizState={qs:_shuffle(pool).slice(0,count),idx:0,score:0,answered:false,timed,catId};
   renderQuizQ();
 }
 
@@ -1366,7 +1498,10 @@ function renderQuizQ(){
         <div class="quiz-timer-track"><div class="quiz-timer-fill" id="quiz-timer-fill" style="width:100%;background:var(--green)"></div></div>
         <span class="quiz-timer-num" id="quiz-timer-num" style="color:var(--green)">${QUIZ_TIME}s</span>
       </div>`:''}
-      <div class="quiz-card"><div class="quiz-q-text">${esc(q.q)}</div></div>
+      <div class="quiz-card">
+        ${q.cat?`<div style="margin-bottom:.5rem;"><span class="quiz-cat-badge">${q.catIcon||''} ${esc(q.cat)}</span></div>`:''}
+        <div class="quiz-q-text">${esc(q.q)}</div>
+      </div>
       <div class="quiz-choices">
         ${q.choices.map((c,i)=>`<button class="choice-btn" onclick="selectAnswer(${i})">
           <span class="choice-letter">${letters[i]}</span>${esc(c)}
@@ -1418,7 +1553,7 @@ function showQuizResult(){
       <div class="quiz-result-trophy">${trophy}</div>
       <div class="quiz-result-title">${msg}</div>
       <div class="quiz-result-score">${score} / ${max} points &middot; ${pct}%</div>
-      <div style="font-size:.82rem;color:rgba(255,255,255,0.4);margin-top:-.4rem;">${timed?'⚡ Timed mode':'🧠 Classic mode'}</div>
+      <div style="font-size:.82rem;color:rgba(255,255,255,0.4);margin-top:-.4rem;">${timed?'⚡ Timed':'🧠 Classic'} · ${catId==='all'?'All Categories':(QUIZ_CATEGORIES.find(c=>c.id===catId)?.icon+' '+QUIZ_CATEGORIES.find(c=>c.id===catId)?.name)||catId}</div>
       <div class="quiz-result-actions">
         <button class="btn btn-primary" onclick="startQuiz()">Play again</button>
         <button class="btn btn-ghost" onclick="goHome()">← Home</button>
