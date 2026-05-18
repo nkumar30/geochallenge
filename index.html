@@ -1156,7 +1156,10 @@ window.toggleBankSection=function(key){if(collapsedSections.has(key))collapsedSe
 
 window.renderQuestionBank=function(){
   const state=_state;if(!state)return;
-  const cats=state.categories||[];const sets=state.sets||[];const allQs=state.questions||[];
+  const lib=LS();
+  const cats=lib.categories||state.categories||[];
+  const sets=lib.sets||state.sets||[];
+  const allQs=lib.questions||state.questions||[];
   const search=(document.getElementById('q-search')?.value||'').toLowerCase();
   const bankQs=getBankQs(state);
 
