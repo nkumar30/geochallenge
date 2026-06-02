@@ -345,6 +345,29 @@ h1.title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4rem);f
 .hub-cfg-in{flex:1;padding:.45rem .75rem;border-radius:7px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#fff;font-size:.82rem;font-family:'DM Sans',sans-serif;outline:none;}
 .hub-cfg-in:focus{border-color:var(--sky);}
 .hub-no-data{font-size:.82rem;color:rgba(255,255,255,0.35);font-style:italic;}
+
+/* task detail */
+.hub-task-block{margin-bottom:.7rem;}
+.hub-task-header{display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem;}
+.hub-task-icon{font-size:.85rem;}
+.hub-task-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.4);}
+.hub-task-label.done{color:#7dd8a5;}
+.hub-task-desc{font-size:.82rem;color:rgba(255,255,255,0.7);line-height:1.45;padding-left:1.3rem;margin-bottom:.3rem;}
+.hub-task-done-btn{font-size:.68rem;padding:.18rem .55rem;border-radius:999px;border:1px solid rgba(255,255,255,0.18);background:transparent;color:rgba(255,255,255,0.4);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;margin-left:auto;}
+.hub-task-done-btn:hover{border-color:#7dd8a5;color:#7dd8a5;}
+.hub-task-done-btn.done{border-color:#7dd8a5;color:#7dd8a5;background:rgba(46,139,87,0.15);}
+.hub-divider-line{height:1px;background:rgba(255,255,255,0.07);margin:.5rem 0;}
+
+/* score entry */
+.hub-score-display{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.05);border-radius:10px;padding:.65rem .85rem;}
+.hub-score-val{font-size:1.6rem;font-weight:800;color:var(--gold);}
+.hub-score-meta{font-size:.7rem;color:rgba(255,255,255,0.4);margin-top:1px;}
+.hub-score-edit{font-size:.7rem;color:var(--sky);cursor:pointer;text-decoration:underline;}
+.hub-score-tally{display:flex;gap:12px;}
+.hub-tally-item{text-align:center;}
+.hub-tally-n{font-size:1rem;font-weight:700;}
+.hub-tally-l{font-size:.65rem;color:rgba(255,255,255,0.4);}
+.hub-session-trend{font-size:.78rem;font-weight:700;min-width:20px;text-align:center;}
 </style>
 </head>
 <body>
@@ -365,13 +388,12 @@ h1.title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4rem);f
     <!-- LEFT: today + weak areas + recent -->
     <div class="hub-left">
       <!-- Today -->
+      <!-- Today -->
       <div class="hub-today">
         <div class="hub-day-label" id="hub-day-label">Loading…</div>
         <div class="hub-day-title" id="hub-day-title">—</div>
-        <div class="hub-tasks" id="hub-tasks"></div>
-        <div id="hub-score-area">
-          <div style="font-size:.8rem;color:rgba(255,255,255,0.35);font-style:italic;">No score yet today</div>
-        </div>
+        <div id="hub-tasks-detail"></div>
+        <div id="hub-score-area" style="margin-top:.75rem;"></div>
       </div>
 
       <!-- Weak areas -->
@@ -380,13 +402,30 @@ h1.title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4rem);f
           <span>⚠️ Weak Areas</span>
           <span style="font-size:.65rem;color:rgba(255,255,255,0.25);">click to load into generator</span>
         </div>
-        <div id="hub-weak-areas"><div class="hub-no-data">Connect tracker to see weak areas</div></div>
+        <div id="hub-weak-areas"><div class="hub-no-data">Complete quizzes to track weak areas</div></div>
       </div>
 
       <!-- Recent sessions -->
       <div>
-        <div class="hub-section-label"><span>📋 Recent Sessions</span></div>
-        <div id="hub-recent-sessions"><div class="hub-no-data">Connect tracker to see history</div></div>
+        <div class="hub-section-label">
+          <span>📋 Recent Sessions</span>
+          <button onclick="hubLogScore()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.6);border-radius:6px;font-size:.68rem;padding:.2rem .6rem;cursor:pointer;font-family:inherit;">+ Log</button>
+        </div>
+        <div id="hub-recent-sessions"><div class="hub-no-data">No sessions yet — run a quiz to start tracking</div></div>
+      </div>
+
+      <!-- Log score modal trigger area -->
+      <div id="hub-log-modal" style="display:none;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:1rem;">
+        <div style="font-size:.75rem;font-weight:700;color:var(--sky);margin-bottom:.6rem;text-transform:uppercase;letter-spacing:1px;">Log Today's Score</div>
+        <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
+          <input type="number" id="hub-score-input" min="0" max="100" placeholder="Score %" style="flex:1;min-width:80px;padding:.45rem .7rem;border-radius:7px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);color:#fff;font-size:.9rem;font-family:'DM Sans',sans-serif;outline:none;">
+          <input type="number" id="hub-right-input" min="0" placeholder="✓ Right" style="width:70px;padding:.45rem .7rem;border-radius:7px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);color:#fff;font-size:.85rem;font-family:'DM Sans',sans-serif;outline:none;">
+          <input type="number" id="hub-wrong-input" min="0" placeholder="✗ Wrong" style="width:70px;padding:.45rem .7rem;border-radius:7px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);color:#fff;font-size:.85rem;font-family:'DM Sans',sans-serif;outline:none;">
+        </div>
+        <div style="display:flex;gap:.5rem;margin-top:.6rem;">
+          <button onclick="hubSaveScore()" class="btn btn-green btn-sm" style="flex:1;">Save</button>
+          <button onclick="document.getElementById('hub-log-modal').style.display='none'" class="btn btn-ghost btn-sm">Cancel</button>
+        </div>
       </div>
     </div>
 
@@ -1553,40 +1592,73 @@ const HUB_CFG_KEY='geode_hub_cfg';
 const HUB_TRACKER_KEY='gc_tracker_cfg';
 const TRACKER_START=new Date('2026-04-20');
 
-// Study plan prompts (mirrors GeoDE Tracker)
+// ── STUDY PLAN (nationals + internationals through Day 65) ──
 const HUB_PLAN={
-  1:{title:'South America Foundations',prompt:'Quiz me on South American capitals, rivers, and physical geography — 10 pyramidal tossups. Include Amazon, Andes, Atacama, Pampas.'},
-  2:{title:'South America Advanced',prompt:'Quiz me on South American geography — 10 pyramidal tossups. Include Patagonia, Iguazu Falls, Galápagos, Pantanal, Orinoco.'},
-  3:{title:'Central America & Caribbean',prompt:'Quiz me on Central America and Caribbean geography — 10 pyramidal tossups. Include Panama Canal, Greater Antilles, Hispaniola, Cuba.'},
-  4:{title:'North America Physical',prompt:'Quiz me on North American physical geography — 10 pyramidal tossups. Include Rockies, Appalachians, Mississippi, Great Lakes.'},
-  5:{title:'Western Europe',prompt:'Quiz me on Western European geography — 10 pyramidal tossups. Include Alps, Rhine, Pyrenees, British Isles.'},
-  6:{title:'Central & Eastern Europe',prompt:'Quiz me on Central and Eastern European geography — 10 pyramidal tossups. Include Danube, Carpathians, Balkans, Vistula.'},
-  7:{title:'Russia & Former Soviet',prompt:'Quiz me on Russian and former Soviet geography — 10 pyramidal tossups. Include Siberia, Urals, Volga, Caucasus.'},
-  8:{title:'East Africa',prompt:'Quiz me on East African geography — 10 pyramidal tossups. Include Great Rift Valley, Lake Victoria, Horn of Africa, Nile sources.'},
-  9:{title:'West & Central Africa',prompt:'Quiz me on West and Central African geography — 10 pyramidal tossups. Include Niger River, Congo Basin, Sahel, Gulf of Guinea.'},
-  10:{title:'Southern Africa',prompt:'Quiz me on Southern African geography — 10 pyramidal tossups. Include Kalahari, Drakensberg, Zambezi, Victoria Falls, Madagascar.'},
-  11:{title:'North Africa & Sahara',prompt:'Quiz me on North African geography — 10 pyramidal tossups. Include Nile Delta, Sahara, Atlas Mountains, Suez Canal.'},
-  12:{title:'Middle East',prompt:'Quiz me on Middle Eastern geography — 10 pyramidal tossups. Include Tigris-Euphrates, Persian Gulf, Levant, Dead Sea.'},
-  13:{title:'South Asia',prompt:'Quiz me on South Asian geography — 10 pyramidal tossups. Include Himalayas, Ganges, Deccan Plateau, Indus, Brahmaputra.'},
-  14:{title:'East Asia',prompt:'Quiz me on East Asian geography — 10 pyramidal tossups. Include Yangtze, Yellow River, Korean Peninsula, Gobi.'},
-  15:{title:'Southeast Asia',prompt:'Quiz me on Southeast Asian geography — 10 pyramidal tossups. Include Mekong, Strait of Malacca, Indonesian archipelago.'},
-  16:{title:'Central Asia & Caucasus',prompt:'Quiz me on Central Asian and Caucasian geography — 10 pyramidal tossups. Include Fergana, Pamir, Aral Sea, Silk Road cities, Caucasus.'},
-  17:{title:'Oceans & Seas',prompt:'Quiz me on world oceans, seas, and straits — 10 pyramidal tossups. Include Strait of Malacca, Bosphorus, Strait of Hormuz.'},
-  18:{title:'Mountains & Highlands',prompt:'Quiz me on world mountain ranges and peaks — 10 pyramidal tossups. Include Himalayas, Andes, Alps, Atlas, Kilimanjaro.'},
-  19:{title:'Rivers & Lakes',prompt:'Quiz me on world rivers and lakes — 10 pyramidal tossups. Include Amazon, Nile, Congo, Baikal, Caspian.'},
-  20:{title:'Islands & Archipelagos',prompt:'Quiz me on world islands and archipelagos — 10 pyramidal tossups. Include Borneo, Madagascar, Greenland, Caribbean islands.'},
-  21:{title:'Capitals Deep Dive',prompt:'Quiz me on world capitals — 10 pyramidal tossups. Include unusual capitals, co-capitals, recently moved capitals.'},
-  22:{title:'Physical Geography Terms',prompt:'Quiz me on physical geography terms — 10 pyramidal tossups. Include fjords, deltas, wadis, atolls, escarpments, ergs.'},
-  23:{title:'Topic Pattern Review',prompt:'Quiz me on mixed geography at nationals difficulty — 10 pyramidal tossups spanning all continents.'},
-  24:{title:'Australia & Oceania',prompt:'Quiz me on Australian and Pacific geography — 10 pyramidal tossups. Include Great Barrier Reef, Outback, Murray-Darling, Melanesia.'},
-  25:{title:'Mock Nationals Set 1',prompt:'Quiz me on nationals-level geography across all topics — 15 pyramidal tossups. Mixed difficulty, all continents.'},
-  26:{title:'Mock Nationals Set 2',prompt:'Quiz me on geography topics with high miss rates — 10 pyramidal tossups.'},
-  27:{title:'Mock Nationals Set 3',prompt:'Quiz me on mixed international geography — 10 pyramidal tossups including oceans, straits, capitals, physical features.'},
-  28:{title:'Speed Round Drill',prompt:'Give me 15 short geography questions at fast drill pace — capitals, rivers, countries.'},
-  29:{title:'Weak Topic Remediation',prompt:'Quiz me on the geographic areas where I have been weakest — 10 pyramidal tossups at high difficulty.'},
-  30:{title:'Final Mock',prompt:'Give me a full 20-question nationals simulation — pyramidal tossups, mixed topics, highest difficulty.'},
-  31:{title:'Day Before — Light Review',prompt:'Quiz me on geography I am confident about — 10 easy-to-medium pyramidal tossups for confidence building.'},
+  1:{title:'South America Foundations',k:'Brazil, Argentina, Chile, Peru — capitals, key rivers, borders',b:'10 fast-fire capitals and rivers of South America',s:'Mixed SA geography quiz — aim for 80%+',prompt:'Quiz me on South American capitals, rivers, and physical geography — 10 pyramidal tossups. Include Amazon, Andes, Atacama, Pampas, Orinoco.'},
+  2:{title:'South America Advanced',k:'Patagonia, Iguazu, Galápagos, Pantanal, Angel Falls, Drake Passage',b:'Drill: name the country for each South American feature',s:'Full SA quiz — all 13 countries + major features',prompt:'Quiz me on South American geography — 10 pyramidal tossups. Include Patagonia, Iguazu Falls, Galápagos, Pantanal, Orinoco, Drake Passage.'},
+  3:{title:'Central America & Caribbean',k:'Panama Canal, Greater/Lesser Antilles, Hispaniola, Trinidad',b:'Islands drill — Caribbean countries and capitals',s:'Central America + Caribbean quiz',prompt:'Quiz me on Central America and Caribbean geography — 10 pyramidal tossups. Include Panama Canal, Greater Antilles, Hispaniola, Cuba, Trinidad.'},
+  4:{title:'North America Physical',k:'Rockies, Appalachians, Mississippi system, Great Lakes, Gulf Coast',b:'US rivers and mountain ranges — name them on a blank map',s:'North American physical geography quiz',prompt:'Quiz me on North American physical geography — 10 pyramidal tossups. Include Rockies, Appalachians, Mississippi River system, Great Lakes, Colorado River.'},
+  5:{title:'Western Europe',k:'Alps, Rhine, Pyrenees, British Isles, Iberian Peninsula',b:'European capitals speed drill — 30 seconds each',s:'Western Europe geography quiz',prompt:'Quiz me on Western European geography — 10 pyramidal tossups. Include Alps, Rhine, Pyrenees, British Isles, Loire, Seine, Iberian Peninsula.'},
+  6:{title:'Central & Eastern Europe',k:'Danube, Carpathians, Balkans, Vistula, Dnieper, Baltic states',b:'Eastern European capitals and major rivers drill',s:'Central & Eastern Europe quiz',prompt:'Quiz me on Central and Eastern European geography — 10 pyramidal tossups. Include Danube, Carpathians, Balkans, Vistula, Black Sea coast.'},
+  7:{title:'Russia & Former Soviet',k:'Siberia, Ural Mountains, Volga, Lake Baikal, Caucasus ranges',b:'CIS country capitals and major features drill',s:'Russia and former Soviet states quiz',prompt:'Quiz me on Russian and former Soviet geography — 10 pyramidal tossups. Include Siberia, Urals, Volga, Caspian Sea, Caucasus, Lake Baikal.'},
+  8:{title:'East Africa',k:'Great Rift Valley, Lake Victoria, Lake Tanganyika, Horn of Africa, Nile sources',b:'East African country-capital drill',s:'East Africa geography quiz',prompt:'Quiz me on East African geography — 10 pyramidal tossups. Include Great Rift Valley, Lake Victoria, Horn of Africa, Nile sources, Kilimanjaro.'},
+  9:{title:'West & Central Africa',k:'Niger River delta, Congo Basin, Sahel zone, Gulf of Guinea, Lake Chad',b:'West African capitals and rivers drill',s:'West and Central Africa quiz',prompt:'Quiz me on West and Central African geography — 10 pyramidal tossups. Include Niger River, Congo Basin, Sahel, Gulf of Guinea, Lake Chad.'},
+  10:{title:'Southern Africa',k:'Kalahari, Drakensberg, Zambezi, Victoria Falls, Madagascar features',b:'Southern Africa blank-map drill',s:'Southern Africa quiz including Madagascar',prompt:'Quiz me on Southern African geography — 10 pyramidal tossups. Include Kalahari, Drakensberg, Zambezi, Victoria Falls, Madagascar, Mozambique Channel.'},
+  11:{title:'North Africa & Sahara',k:'Nile Delta, Sahara features (ergs, regs, oases), Atlas Mountains, Suez Canal',b:'North Africa capitals and key features drill',s:'North Africa geography quiz',prompt:'Quiz me on North African geography — 10 pyramidal tossups. Include Nile Delta, Sahara, Atlas Mountains, Suez Canal, Western Sahara.'},
+  12:{title:'Middle East',k:'Tigris-Euphrates, Persian Gulf, Levant coast, Dead Sea, Arabian Peninsula',b:'Middle East country capitals speed drill',s:'Middle East geography quiz',prompt:'Quiz me on Middle Eastern geography — 10 pyramidal tossups. Include Tigris-Euphrates, Persian Gulf, Levant, Dead Sea, Arabian Peninsula, Strait of Hormuz.'},
+  13:{title:'South Asia',k:'Himalayas, Ganges system, Deccan Plateau, Indus, Brahmaputra gorge',b:'South Asia features and capitals drill',s:'South Asia geography quiz',prompt:'Quiz me on South Asian geography — 10 pyramidal tossups. Include Himalayas, Ganges, Deccan Plateau, Indus, Brahmaputra, Western Ghats.'},
+  14:{title:'East Asia',k:'Yangtze, Yellow River, Gobi Desert, Korean Peninsula, Japan island chain',b:'East Asia country features rapid-fire drill',s:'East Asia geography quiz',prompt:'Quiz me on East Asian geography — 10 pyramidal tossups. Include Yangtze, Yellow River, Korean Peninsula, Gobi, Manchuria, Taiwan Strait.'},
+  15:{title:'Southeast Asia',k:'Mekong Delta, Strait of Malacca, Indonesian archipelago, Indochina Peninsula',b:'SEA capitals and archipelago islands drill',s:'Southeast Asia geography quiz',prompt:'Quiz me on Southeast Asian geography — 10 pyramidal tossups. Include Mekong, Strait of Malacca, Indonesian archipelago, Indochina, Philippines.'},
+  16:{title:'Central Asia & Caucasus',k:'Fergana Valley, Pamir Plateau, Aral Sea, Silk Road cities, Caucasus peaks',b:'Stan countries — capitals and key features drill',s:'Central Asia and Caucasus quiz',prompt:'Quiz me on Central Asian and Caucasian geography — 10 pyramidal tossups. Include Fergana Valley, Pamir, Aral Sea, Silk Road cities, Caucasus mountains.'},
+  17:{title:'Oceans & Seas',k:'All named seas, straits, gulfs — Malacca, Bosphorus, Hormuz, Bering',b:'Straits of the world — which two bodies they connect',s:'Oceans and seas geography quiz',prompt:'Quiz me on world oceans, seas, and straits — 10 pyramidal tossups. Include Strait of Malacca, Bosphorus, Strait of Hormuz, Bering Strait, Drake Passage.'},
+  18:{title:'Mountains & Highlands',k:'Seven Summits, major ranges by continent, highest peaks',b:'Match peak to country/range drill',s:'World mountains geography quiz',prompt:'Quiz me on world mountain ranges and peaks — 10 pyramidal tossups. Include Himalayas, Andes, Alps, Atlas, Kilimanjaro, Denali, Vinson Massif.'},
+  19:{title:'Rivers & Lakes',k:"World's longest rivers, deepest lakes, major deltas and drainage basins",b:'River-to-ocean matching drill — 20 rivers',s:'Rivers and lakes world geography quiz',prompt:'Quiz me on world rivers and lakes — 10 pyramidal tossups. Include Amazon, Nile, Congo, Yangtze, Lake Baikal, Caspian Sea, Great Lakes system.'},
+  20:{title:'Islands & Archipelagos',k:'Major island groups, key islands, formation types (volcanic, coral, continental)',b:'Island to country matching drill',s:'World islands geography quiz',prompt:'Quiz me on world islands and archipelagos — 10 pyramidal tossups. Include Borneo, Madagascar, Greenland, Caribbean, Galapagos, Indonesian islands.'},
+  21:{title:'Capitals Deep Dive',k:'All world capitals — unusual ones, co-capitals, recently moved (Naypyidaw, Dodoma, Nusantara)',b:'Capitals speed drill — 30 in 3 minutes',s:'World capitals comprehensive quiz',prompt:'Quiz me on world capitals — 10 pyramidal tossups. Include unusual and recently moved capitals like Naypyidaw, Dodoma, Nusantara, Astana, Abuja.'},
+  22:{title:'Physical Geography Terms',k:'Fjords, deltas, atolls, wadis, escarpments, ergs, regs, moraines, drumlins',b:'Definition-to-term matching for 20 geography terms',s:'Physical geography vocabulary quiz',prompt:'Quiz me on physical geography terms and features — 10 pyramidal tossups. Include fjords, deltas, wadis, atolls, escarpments, ergs, karst, moraines.'},
+  23:{title:'Topic Pattern Review',k:'Review question sets from past nationals — identify repeating topics and power clues',b:'Interrupt drill: buzz as early as you can on past questions',s:'Mixed nationals-difficulty quiz spanning all regions',prompt:'Quiz me on mixed geography at nationals difficulty — 10 pyramidal tossups spanning all continents. Use obscure early clues with well-known giveaways.'},
+  24:{title:'Australia & Oceania',k:'Great Barrier Reef, Outback, Murray-Darling, Melanesia, Polynesia, Micronesia',b:'Pacific island nations and capitals drill',s:'Australia and Oceania geography quiz',prompt:'Quiz me on Australian and Pacific geography — 10 pyramidal tossups. Include Great Barrier Reef, Outback, Murray-Darling Basin, Melanesia, Polynesia.'},
+  25:{title:'Mock Nationals Set 1',k:'Full mixed set — read past nationals questions for early clue patterns',b:'Power buzz drill — interrupt as early as possible',s:'Full timed mock: 15 pyramidal tossups, all regions',prompt:'Quiz me on nationals-level geography across all topics — 15 pyramidal tossups. Mixed difficulty, all continents, championship-level obscure early clues.'},
+  26:{title:'Mock Nationals Set 2',k:'Focus on categories missed in Day 25 — deep Wikipedia read on 2 missed answers',b:'Clue-trigger log: write the single word that triggers each missed answer',s:'Full timed mock: 15 pyramidal tossups focused on weak areas',prompt:'Quiz me on geography topics I have been weakest on — 12 pyramidal tossups at high difficulty. Focus on rivers, straits, and island nations.'},
+  27:{title:'Mock Nationals Set 3',k:'2021-22 Nationals topic overlap — what appeared in both years',b:'Interrupt drill using this set — no pausing allowed',s:'Full mixed nationals simulation — timed',prompt:'Quiz me on mixed international geography — 10 pyramidal tossups. Include oceans, straits, capitals, physical features across all continents.'},
+  28:{title:'Speed Round Drill',k:'Quick-answer format — 1 fact per location, capitals and rivers',b:'20 questions in 5 minutes — short answer only',s:'Speed round: 20 questions, 15 seconds each',prompt:'Give me 15 geography questions at fast drill pace — one-sentence questions, concise answers. Cover capitals, rivers, mountains across all regions.'},
+  29:{title:'Weak Topic Remediation',k:'Target top 3 lowest-scoring categories — deep read on each',b:'10 questions on each weak topic only',s:'Focused quiz on identified weak areas',prompt:'Quiz me on the geographic areas I have been weakest on — 10 pyramidal tossups at high difficulty targeting missed topics.'},
+  30:{title:'Final Mock',k:'Full nationals conditions — 20 questions, timed, no hints',b:'Practice buzzing mid-sentence on full pyramidal questions',s:'Full 20-question nationals simulation — highest difficulty',prompt:'Give me a full 20-question nationals simulation — pyramidal tossups, mixed topics, highest difficulty. Include power clues and end with well-known giveaways.'},
+  31:{title:'Day Before — Light Review',k:'Only topics you are confident on — build positive momentum',b:'Easy 10-question drill — reinforce strengths',s:'10 easy-to-medium questions for confidence building',prompt:'Quiz me on geography I am confident about — 10 easy-to-medium pyramidal tossups for confidence building. Avoid very obscure clues.'},
+  // ── INTERNATIONALS PREP (Days 32–65) ──
+  32:{title:'International Physical Geography',k:'World physical extremes — deepest lake, longest river, highest plateau, driest desert',b:'Extremes drill: tallest/deepest/longest/largest for each category',s:'International physical geography quiz — championship level',prompt:'Quiz me on international physical geography extremes — 10 pyramidal tossups. Include Mariana Trench, Tibetan Plateau, Atacama, Lake Baikal, Amazon discharge.'},
+  33:{title:'European Deep Dive',k:'Lesser-known European features: Dinaric Alps, Rhodope, Masif Central, Ebro, Tagus',b:'European rivers to sea — match each river to its sea/ocean',s:'Advanced European geography quiz',prompt:'Quiz me on advanced European geography — 10 pyramidal tossups. Include Dinaric Alps, Rhodope Mountains, Masif Central, Ebro, Tagus, Po, Dnieper.'},
+  34:{title:'Asian Deep Dive',k:'Indochina rivers, Central Asian basins, Arabian Peninsula geography, Siberian plateaus',b:'Asian rivers: source, length, delta — rapid-fire drill',s:'Advanced Asian geography quiz',prompt:'Quiz me on advanced Asian geography — 10 pyramidal tossups. Include Mekong tributaries, Irrawaddy, Amu Darya, Syr Darya, Zagros Mountains, Thar Desert.'},
+  35:{title:'African Deep Dive',k:'Congo Basin tributaries, East African volcanoes, Saharan features, West African deltas',b:'African rivers and drainage basins drill',s:'Advanced African geography quiz',prompt:'Quiz me on advanced African geography — 10 pyramidal tossups. Include Congo tributaries, East African volcanoes, Saharan ergs, Niger Inland Delta.'},
+  36:{title:'Americas Deep Dive',k:'Amazon tributaries, Canadian Shield, Central American volcanoes, Andean altiplano',b:'Americas drainage systems — name the river from its tributary',s:'Advanced Americas geography quiz',prompt:'Quiz me on advanced geography of the Americas — 10 pyramidal tossups. Include Amazon tributaries, Canadian Shield, altiplano, Orinoco Llanos.'},
+  37:{title:'Oceania & Polar Regions',k:'Pacific island groups, Antarctic geography, Arctic Ocean features, New Zealand geology',b:'Pacific island group to country matching drill',s:'Oceania and polar geography quiz',prompt:'Quiz me on Oceania and polar geography — 10 pyramidal tossups. Include Pacific island groups, Antarctic geography, Ross Ice Shelf, Arctic Ocean features.'},
+  38:{title:'Deserts of the World',k:'All major deserts — location, type, key features, countries they span',b:'Desert to continent/country matching drill',s:'World deserts geography quiz',prompt:'Quiz me on world deserts — 10 pyramidal tossups. Include Sahara, Gobi, Atacama, Arabian, Great Basin, Namib, Patagonian, Thar, Kalahari.'},
+  39:{title:'World Seas & Straits Advanced',k:'All marginal seas, key straits, historical shipping routes, choke points',b:'Straits connecting drill — 20 straits in 4 minutes',s:'Advanced world seas and straits quiz',prompt:'Quiz me on world seas and straits at championship difficulty — 10 pyramidal tossups. Include marginal seas, straits, gulfs, and their strategic importance.'},
+  40:{title:'Island Nations Advanced',k:'All 50+ island nations — capitals, archipelago names, geographic features',b:'Island nation capital speed drill — 25 nations in 3 minutes',s:'Island nations comprehensive quiz',prompt:'Quiz me on world island nations — 10 pyramidal tossups. Include Pacific microstates, Caribbean nations, Indian Ocean islands, Mediterranean island states.'},
+  41:{title:'World Rivers Advanced',k:'River sources, tributaries, deltas, drainage basins — all continents',b:'River source-to-sea tracing drill',s:'Advanced world rivers quiz',prompt:'Quiz me on world rivers at advanced level — 10 pyramidal tossups. Include tributaries, sources, drainage basins, and delta systems across all continents.'},
+  42:{title:'Landlocked Countries',k:'All 44 landlocked countries — location, neighbors, key features',b:'Landlocked country neighbor drill',s:'Landlocked countries geography quiz',prompt:'Quiz me on landlocked countries geography — 10 pyramidal tossups. Include all landlocked countries, their neighbors, and key geographic features.'},
+  43:{title:'Mountain Systems Advanced',k:'All major mountain systems — formation, extent, highest peaks, key passes',b:'Mountain system to continent/country matching',s:'Advanced mountain systems quiz',prompt:'Quiz me on world mountain systems at championship difficulty — 10 pyramidal tossups. Include formation types, extent, key passes, and associated ranges.'},
+  44:{title:'International Mock Set 1',k:'Full international question set — read IGC past questions for clue patterns',b:'Power interrupt drill on international questions',s:'15-question international mock — all regions, hardest difficulty',prompt:'Quiz me on international geography championship level — 15 pyramidal tossups. All world regions, highest difficulty, obscure early clues, geographic relationships.'},
+  45:{title:'International Mock Set 2',k:'Focus on missed categories from Day 44 — deep read on specific weak regions',b:'Clue-word trigger practice for missed answers',s:'15-question international mock — focused on weak areas',prompt:'Quiz me on international geography focusing on my weakest areas — 12 pyramidal tossups. Use championship-level clues about physical features, rivers, and islands.'},
+  46:{title:'Cultural Geography',k:'UNESCO sites, colonial history geography, language geography, religious geography',b:'UNESCO site to country drill',s:'Cultural and historical geography quiz',prompt:'Quiz me on cultural and historical geography — 10 pyramidal tossups. Include UNESCO World Heritage sites, historical capitals, geographic cultural regions.'},
+  47:{title:'Economic Geography',k:'Major trading straits, resource-rich regions, port cities, economic zones',b:'Choke points — match strait to its strategic resource/trade route',s:'Economic and strategic geography quiz',prompt:'Quiz me on economic and strategic geography — 10 pyramidal tossups. Include major port cities, trading straits, resource regions, economic zones.'},
+  48:{title:'Climate Zones & Biomes',k:'Köppen climate zones, major biomes by region, climate anomalies',b:'Climate zone to region matching drill',s:'Climate and biome geography quiz',prompt:'Quiz me on world climate zones and biomes — 10 pyramidal tossups. Include Köppen zones, monsoon regions, Mediterranean climates, boreal forests, tundra.'},
+  49:{title:'Geopolitical Geography',k:'Border disputes, divided cities, exclaves/enclaves, newest nations',b:'Exclave/enclave identification drill',s:'Geopolitical geography quiz',prompt:'Quiz me on geopolitical geography — 10 pyramidal tossups. Include exclaves, enclaves, border disputes, divided cities, newest independent nations.'},
+  50:{title:'World Capitals Advanced',k:'Planned capitals, moved capitals, multi-capital countries, capital cities on rivers',b:'River the capital sits on — 30 capitals in 5 minutes',s:'Advanced world capitals quiz',prompt:'Quiz me on world capitals at advanced level — 10 pyramidal tossups. Include planned capitals, recently moved capitals, rivers they sit on.'},
+  51:{title:'Middle East & North Africa Advanced',k:'Levant rivers, MENA coastal features, Gulf states geography, Nile tributaries',b:'MENA blank-map drill: 20 countries and key features from memory',s:'Advanced MENA geography quiz',prompt:'Quiz me on advanced Middle East and North Africa geography — 10 pyramidal tossups. Include Levant rivers, Gulf geography, North African coasts, Nile system.'},
+  52:{title:'South & Southeast Asia Advanced',k:'Indus tributaries, Mekong Delta countries, Indonesian geology, Sri Lanka features',b:'South and Southeast Asian river systems drill',s:'Advanced S/SE Asia geography quiz',prompt:'Quiz me on advanced South and Southeast Asian geography — 10 pyramidal tossups. Include Indus tributaries, Mekong Delta, Indonesian geology, monsoon regions.'},
+  53:{title:'Sub-Saharan Africa Advanced',k:'Congo tributaries, Southern African drainage, East African lakes depth and area',b:'African lakes — name, country, and key features drill',s:'Advanced Sub-Saharan Africa quiz',prompt:'Quiz me on advanced Sub-Saharan African geography — 10 pyramidal tossups. Include Congo system, East African lakes, Southern African rivers, Sahel.'},
+  54:{title:'Mock International Set 3',k:'Past IGC questions analysis — what topics appeared in 2022 AND 2023',b:'Interrupt drill using today simulation questions — no pausing',s:'Full IGC-style simulation — 20 questions timed',prompt:'Give me a full 20-question international geography simulation — pyramidal tossups at championship difficulty, all world regions equally represented.'},
+  55:{title:'Mock International Set 4',k:'Target top 3 weak topics from all mock rounds',b:'10-question interrupt drill on weak topics only',s:'IGC Parts 1+3 again timed — compare to previous score',prompt:'Quiz me on geography topics where I have been weakest across all sessions — 15 pyramidal tossups at maximum difficulty.'},
+  56:{title:'Speed & Accuracy Drill',k:'Review power-clue patterns — what single fact identifies each answer uniquely',b:'20 questions in 4 minutes — buzz as early as possible',s:'Speed round: 20 short questions, 10 seconds each',prompt:'Give me 20 rapid-fire geography questions for speed drilling — short answers, all regions, championship vocabulary. One-sentence questions only.'},
+  57:{title:'Remediation Sprint',k:'Deep-read 3 weakest topics — Wikipedia read + write 3 key facts each',b:'10-question drill on each of the 3 weak topics',s:'Focused remediation quiz on bottom 3 categories',prompt:'Quiz me intensively on my 3 weakest geographic areas — 15 pyramidal tossups with maximum difficulty early clues.'},
+  58:{title:'Final International Mock',k:'Full IGC conditions — timed, no notes, score honestly',b:'Power interruption practice on full-length questions',s:'Full 25-question international mock — ultimate difficulty',prompt:'Give me a full 25-question international geography championship simulation — pyramidal tossups, all regions, championship difficulty, power clues.'},
+  59:{title:'Confidence Building',k:'Review strongest topics — reinforce what you know cold',b:'Easy-medium drill on high-confidence topics',s:'10 confidence questions — topics you know well',prompt:'Quiz me on geography I know confidently — 10 medium-difficulty pyramidal tossups. Mix of regions, avoid very obscure clues, build confidence.'},
+  60:{title:'Day Before Finals — Rest & Review',k:'Light review only — 10 minutes max, no new material',b:'5 easy questions for warm-up only',s:'Quick 5-question confidence check — no stress',prompt:'Give me 5 easy geography questions for a light pre-competition warm-up. Well-known facts only, no obscure clues.'},
 };
+
+const HUB_SESSIONS_KEY='geode_local_sessions';
+const HUB_TASKS_KEY='geode_task_status';
 
 function hubDayNum(){
   const diff=Math.floor((new Date()-TRACKER_START)/864e5);
@@ -1595,15 +1667,43 @@ function hubDayNum(){
 function hubCfg(){try{return JSON.parse(localStorage.getItem(HUB_CFG_KEY)||'{}')}catch{return{}}}
 function hubSetCfg(c){localStorage.setItem(HUB_CFG_KEY,JSON.stringify(c))}
 
+// ── LOCAL SESSION STORAGE ──
+function getLocalSessions(){try{return JSON.parse(localStorage.getItem(HUB_SESSIONS_KEY)||'[]');}catch{return[];}}
+function saveLocalSession(session){
+  const sessions=getLocalSessions();
+  // Replace today's session if it exists
+  const today=new Date().toDateString();
+  const idx=sessions.findIndex(s=>new Date(s.ts).toDateString()===today);
+  if(idx>=0)sessions[idx]=session; else sessions.push(session);
+  sessions.sort((a,b)=>b.ts-a.ts);
+  localStorage.setItem(HUB_SESSIONS_KEY,JSON.stringify(sessions.slice(0,30)));
+}
+
+function getTaskStatus(){try{return JSON.parse(localStorage.getItem(HUB_TASKS_KEY)||'{}');}catch{return{};}}
+function setTaskDone(dayNum,phase){
+  const status=getTaskStatus();
+  if(!status[dayNum])status[dayNum]={};
+  status[dayNum][phase]=true;
+  localStorage.setItem(HUB_TASKS_KEY,JSON.stringify(status));
+}
+
 // ── INIT ──
 function initHub(){
   const n=hubDayNum();
-  const plan=HUB_PLAN[n]||{title:'Day '+n+' — Internationals',prompt:'Quiz me on advanced international geography — 10 pyramidal tossups at nationals championship difficulty.'};
+  const plan=HUB_PLAN[n]||{title:'Day '+n+' — Internationals Prep',k:'Review weakest topics from recent sessions',b:'Interrupt drill on 10 challenging questions',s:'Full mock quiz at championship difficulty',prompt:'Quiz me on advanced international geography — 10 pyramidal tossups at championship difficulty across all world regions.'};
   document.getElementById('hub-day-label').textContent=`Day ${n} · ${new Date().toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'})}`;
   document.getElementById('hub-day-title').textContent=plan.title;
-  document.getElementById('hub-prompt').value=plan.prompt;
-  // Tasks placeholder
-  renderHubTasks({});
+
+  // Render task detail (with content)
+  renderHubTasksDetail(n, plan);
+  // Score area
+  renderHubScoreArea(getLocalSessions().find(s=>new Date(s.ts).toDateString()===new Date().toDateString())||{});
+  // Recent sessions from local storage
+  renderHubRecentSessions(null);
+  // Weak areas from local storage
+  renderHubWeakAreasLocal();
+  // Smart prompt
+  buildSmartPrompt(n, plan);
   // Try to connect tracker
   hubConnectTracker();
 }
@@ -1626,14 +1726,13 @@ function hubConnectTracker(){
       if(snap.exists){
         hubAllDayData=snap.data();
         hubTodayData=hubAllDayData['d'+hubDayNum()]||{};
-        renderHubTasks(hubTodayData);
+        const n=hubDayNum();
+        const plan=HUB_PLAN[n]||{};
+        renderHubTasksDetail(n,plan);
         renderHubScoreArea(hubTodayData);
         renderHubWeakAreas(hubAllDayData);
         renderHubRecentSessions(hubAllDayData);
-        // Update prompt from stored tracker prompt if available
-        if(hubTodayData.prompt&&hubTodayData.prompt.trim()){
-          document.getElementById('hub-prompt').value=hubTodayData.prompt;
-        }
+        buildSmartPrompt(n,plan);
       }
       hubSetSyncStatus(true,'Tracker synced');
     },()=>hubSetSyncStatus(false,'Sync error'));
@@ -1648,45 +1747,90 @@ function hubSetSyncStatus(online,label){
 }
 
 // ── RENDER FUNCTIONS ──
-function renderHubTasks(dayData){
-  const phases=[{k:'k',label:'📚 Knowledge'},{k:'b',label:'🎯 Buzz Drill'},{k:'s',label:'📝 Simulation'}];
-  document.getElementById('hub-tasks').innerHTML=phases.map(p=>`
-    <span class="hub-task${dayData[p.k]===true?' done':''}">${p.label}</span>`).join('');
+function renderHubTasksDetail(dayNum, plan){
+  const status=getTaskStatus();
+  const dayStatus=status[dayNum]||{};
+  // Merge tracker data if available
+  if(hubTodayData.k!==undefined)dayStatus.k=hubTodayData.k;
+  if(hubTodayData.b!==undefined)dayStatus.b=hubTodayData.b;
+  if(hubTodayData.s!==undefined)dayStatus.s=hubTodayData.s;
+
+  const phases=[
+    {key:'k',icon:'📚',label:'Knowledge',desc:plan.k||'Study today\'s geographic topics in depth'},
+    {key:'b',icon:'🎯',label:'Buzz Drill',desc:plan.b||'Practice buzzing in early on tossup questions'},
+    {key:'s',icon:'📝',label:'Simulation',desc:plan.s||'Full timed practice quiz under test conditions'},
+  ];
+  const el=document.getElementById('hub-tasks-detail');
+  el.innerHTML=phases.map(p=>{
+    const done=dayStatus[p.key]===true;
+    return`<div class="hub-task-block">
+      <div class="hub-task-header">
+        <span class="hub-task-icon">${p.icon}</span>
+        <span class="hub-task-label${done?' done':''}">${p.label}${done?' ✓':''}</span>
+        <button class="hub-task-done-btn${done?' done':''}" onclick="hubMarkDone(${dayNum},'${p.key}')">${done?'✓ Done':'Mark done'}</button>
+      </div>
+      <div class="hub-task-desc">${esc(p.desc)}</div>
+    </div>`;
+  }).join('<div class="hub-divider-line"></div>');
 }
 
+window.hubMarkDone=function(dayNum,phase){
+  setTaskDone(dayNum,phase);
+  const n=hubDayNum();
+  const plan=HUB_PLAN[n]||{};
+  renderHubTasksDetail(n,plan);
+  toast('✓ Marked done');
+};
+
 function renderHubScoreArea(d){
+  const el=document.getElementById('hub-score-area');
+  if(!d){el.innerHTML='';return;}
   const score=d.score;
   const right=d.right||0; const wrong=d.wrong||0;
-  const el=document.getElementById('hub-score-area');
-  if(score!=null){
-    el.innerHTML=`<div class="hub-score-row"><div><div class="hub-score-big">${score}%</div><div class="hub-score-sub">Today's score</div></div><div class="hub-tally"><div class="hub-tally-item"><div class="hub-tally-n" style="color:#7dd8a5">${right}</div><div class="hub-tally-l">Correct</div></div><div class="hub-tally-item"><div class="hub-tally-n" style="color:#f08060">${wrong}</div><div class="hub-tally-l">Wrong</div></div></div></div>`;
-  }else if(right+wrong>0){
-    const auto=Math.round(right/(right+wrong)*100);
-    el.innerHTML=`<div class="hub-score-row"><div><div class="hub-score-big">${auto}%</div><div class="hub-score-sub">From Q&A log</div></div><div class="hub-tally"><div class="hub-tally-item"><div class="hub-tally-n" style="color:#7dd8a5">${right}</div><div class="hub-tally-l">Correct</div></div><div class="hub-tally-item"><div class="hub-tally-n" style="color:#f08060">${wrong}</div><div class="hub-tally-l">Wrong</div></div></div></div>`;
+  if(score!=null||right+wrong>0){
+    const displayScore=score!=null?score:(right+wrong>0?Math.round(right/(right+wrong)*100):null);
+    const scoreColor=displayScore>=80?'#7dd8a5':displayScore>=60?'#facc15':'#f08060';
+    el.innerHTML=`<div class="hub-score-display">
+      <div><div class="hub-score-val" style="color:${scoreColor}">${displayScore}%</div><div class="hub-score-meta">Today's score · <span class="hub-score-edit" onclick="hubLogScore()">Edit</span></div></div>
+      <div class="hub-score-tally">
+        <div class="hub-tally-item"><div class="hub-tally-n" style="color:#7dd8a5">${right}</div><div class="hub-tally-l">✓</div></div>
+        <div class="hub-tally-item"><div class="hub-tally-n" style="color:#f08060">${wrong}</div><div class="hub-tally-l">✗</div></div>
+      </div>
+    </div>`;
   }else{
-    el.innerHTML=`<div style="font-size:.8rem;color:rgba(255,255,255,0.35);font-style:italic;">No score yet today — run a quiz to see it here</div>`;
+    el.innerHTML=`<div style="font-size:.8rem;color:rgba(255,255,255,0.38);font-style:italic;padding:.3rem 0;">No score yet today — run a quiz or <span style="color:var(--sky);cursor:pointer;text-decoration:underline;" onclick="hubLogScore()">log manually</span></div>`;
   }
 }
 
-function renderHubWeakAreas(allData){
+function buildWeakTopicMap(allData){
+  // allData can be tracker Firestore data OR local sessions array
   const topicMap={};
-  Object.values(allData).forEach(d=>{
-    (d.questions||[]).forEach(q=>{
-      if(!q.topic)return;
-      if(!topicMap[q.topic])topicMap[q.topic]={r:0,w:0};
-      if(q.result==='right')topicMap[q.topic].r++;
-      else if(q.result==='wrong')topicMap[q.topic].w++;
+  const processQs=(questions)=>{
+    (questions||[]).forEach(q=>{
+      if(!q.topic&&!q.cat)return;
+      const key=q.topic||q.cat;
+      if(!topicMap[key])topicMap[key]={r:0,w:0};
+      if(q.result==='right'||q.correct===true)topicMap[key].r++;
+      else if(q.result==='wrong'||q.correct===false)topicMap[key].w++;
     });
-  });
+  };
+  if(Array.isArray(allData)){
+    allData.forEach(s=>processQs(s.questions));
+  }else{
+    Object.values(allData||{}).forEach(d=>processQs(d.questions));
+  }
+  return topicMap;
+}
+
+function renderWeakAreas(topicMap){
   const weak=Object.entries(topicMap)
-    .filter(([,v])=>v.w>0&&(v.r+v.w)>=3) // min 3 attempts to filter noise
+    .filter(([,v])=>v.w>0&&(v.r+v.w)>=2)
     .map(([topic,v])=>({topic,missRate:Math.round(v.w/(v.r+v.w)*100),total:v.r+v.w}))
     .sort((a,b)=>b.missRate-a.missRate)
     .slice(0,5);
-
   const el=document.getElementById('hub-weak-areas');
   if(!weak.length){
-    el.innerHTML=`<div class="hub-no-data">Answer 3+ questions per topic to see weak areas</div>`;
+    el.innerHTML=`<div class="hub-no-data">Complete 2+ quizzes with categories to see weak areas</div>`;
     return;
   }
   el.innerHTML=weak.map(w=>`
@@ -1696,7 +1840,74 @@ function renderHubWeakAreas(allData){
       <div class="hub-weak-pct">${w.missRate}%</div>
       <div class="hub-weak-load">→ Load</div>
     </div>`).join('');
+  return weak;
 }
+
+function renderHubWeakAreas(allData){
+  renderWeakAreas(buildWeakTopicMap(allData));
+}
+
+function renderHubWeakAreasLocal(){
+  const sessions=getLocalSessions();
+  renderWeakAreas(buildWeakTopicMap(sessions));
+}
+
+// ── SMART PROMPT BUILDER ──
+function buildSmartPrompt(dayNum, plan){
+  const sessions=getLocalSessions();
+  const topicMap=buildWeakTopicMap(sessions);
+  const weak=Object.entries(topicMap)
+    .filter(([,v])=>v.w>0&&(v.r+v.w)>=2)
+    .map(([topic,v])=>({topic,missRate:Math.round(v.w/(v.r+v.w)*100)}))
+    .sort((a,b)=>b.missRate-a.missRate)
+    .slice(0,2);
+
+  let prompt=plan.prompt||`Quiz me on ${plan.title} — 10 pyramidal tossups at championship difficulty.`;
+
+  // Append weak area note if there are tracked weak topics
+  if(weak.length){
+    const weakTopics=weak.map(w=>w.topic).join(' and ');
+    prompt+=` Also include questions on ${weakTopics} where recent performance has been weak.`;
+  }
+  document.getElementById('hub-prompt').value=prompt;
+}
+
+// ── SCORE LOGGING ──
+window.hubLogScore=function(){
+  const modal=document.getElementById('hub-log-modal');
+  const today=getLocalSessions().find(s=>new Date(s.ts).toDateString()===new Date().toDateString());
+  if(today){
+    document.getElementById('hub-score-input').value=today.score||'';
+    document.getElementById('hub-right-input').value=today.right||'';
+    document.getElementById('hub-wrong-input').value=today.wrong||'';
+  }else{
+    document.getElementById('hub-score-input').value='';
+    document.getElementById('hub-right-input').value='';
+    document.getElementById('hub-wrong-input').value='';
+  }
+  modal.style.display=modal.style.display==='none'?'block':'none';
+};
+
+window.hubSaveScore=function(){
+  const scoreVal=parseInt(document.getElementById('hub-score-input').value);
+  const right=parseInt(document.getElementById('hub-right-input').value)||0;
+  const wrong=parseInt(document.getElementById('hub-wrong-input').value)||0;
+  if(isNaN(scoreVal)||scoreVal<0||scoreVal>100){toast('⚠️ Enter a score between 0–100');return;}
+  const n=hubDayNum();
+  const plan=HUB_PLAN[n]||{};
+  const session={ts:Date.now(),dayNum:n,title:plan.title||`Day ${n}`,score:scoreVal,right,wrong,questions:[]};
+  saveLocalSession(session);
+  document.getElementById('hub-log-modal').style.display='none';
+  renderHubScoreArea(session);
+  renderHubRecentSessions(hubAllDayData&&Object.keys(hubAllDayData).length?hubAllDayData:null);
+  renderHubWeakAreasLocal();
+  // Also push to tracker if connected
+  if(hubTrackerDb){
+    const dayKey='d'+n;
+    hubTrackerDb.collection('geobee').doc('tracker').set({[dayKey]:{score:scoreVal,right,wrong,mode:'tally'}},{merge:true}).catch(()=>{});
+  }
+  toast('✅ Score logged!');
+};
 
 window.hubLoadWeakTopic=function(topic){
   const n=hubDayNum();
@@ -1707,26 +1918,42 @@ window.hubLoadWeakTopic=function(topic){
   toast(`Loaded: ${topic}`);
 };
 
-function renderHubRecentSessions(allData){
-  const sessions=[];
-  const days=Object.keys(allData).filter(k=>k.startsWith('d')).map(k=>({key:k,n:parseInt(k.slice(1)),data:allData[k]}));
-  days.sort((a,b)=>b.n-a.n);
-  days.forEach(({n,data})=>{
-    const score=data.score!=null?data.score:(data.right+data.wrong>0?Math.round(data.right/(data.right+data.wrong)*100):null);
-    if(score==null)return;
-    const plan=HUB_PLAN[n];
-    const date=new Date(TRACKER_START.getTime()+(n-1)*864e5);
-    sessions.push({n,score,title:plan?plan.title:`Day ${n}`,date});
-  });
+function renderHubRecentSessions(trackerAllData){
+  // Prefer tracker data if available, fall back to local sessions
+  let sessions=[];
+
+  if(trackerAllData&&Object.keys(trackerAllData).length){
+    const days=Object.keys(trackerAllData).filter(k=>k.startsWith('d')).map(k=>({n:parseInt(k.slice(1)),data:trackerAllData[k]}));
+    days.sort((a,b)=>b.n-a.n);
+    days.forEach(({n,data})=>{
+      const score=data.score!=null?data.score:(data.right+data.wrong>0?Math.round(data.right/(data.right+data.wrong)*100):null);
+      if(score==null)return;
+      const plan=HUB_PLAN[n];
+      sessions.push({score,title:plan?plan.title:`Day ${n}`,date:new Date(TRACKER_START.getTime()+(n-1)*864e5),right:data.right||0,wrong:data.wrong||0});
+    });
+  }else{
+    sessions=getLocalSessions().map(s=>({score:s.score,title:s.title||`Day ${s.dayNum||'?'}`,date:new Date(s.ts),right:s.right||0,wrong:s.wrong||0}));
+  }
+
   const el=document.getElementById('hub-recent-sessions');
-  if(!sessions.length){el.innerHTML=`<div class="hub-no-data">No sessions recorded yet</div>`;return;}
-  el.innerHTML=sessions.slice(0,4).map(s=>{
+  if(!sessions.length){
+    el.innerHTML=`<div class="hub-no-data">No sessions yet — log a score after your first quiz</div>`;
+    return;
+  }
+
+  el.innerHTML=sessions.slice(0,4).map((s,i)=>{
     const color=s.score>=80?'#7dd8a5':s.score>=60?'#facc15':'#f08060';
     const dateStr=s.date.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    const prev=sessions[i+1];
+    let trend='';
+    if(prev&&prev.score!=null){
+      const diff=s.score-prev.score;
+      trend=diff>0?`<span style="color:#7dd8a5;font-size:.75rem;">↑${diff}</span>`:diff<0?`<span style="color:#f08060;font-size:.75rem;">↓${Math.abs(diff)}</span>`:`<span style="color:rgba(255,255,255,.3);font-size:.75rem;">→</span>`;
+    }
     return`<div class="hub-session">
       <div class="hub-session-score" style="color:${color}">${s.score}%</div>
       <div class="hub-session-topic">${esc(s.title)}</div>
-      <div class="hub-session-date">${dateStr}</div>
+      <div style="display:flex;align-items:center;gap:4px;">${trend}<div class="hub-session-date">${dateStr}</div></div>
     </div>`;
   }).join('');
 }
@@ -1767,38 +1994,68 @@ Output ONLY the question lines.`;
   document.getElementById('hub-gen-msg').textContent=`Generating ${count} questions…`;
 
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:5000,system:sysPrompt,messages:[{role:'user',content:prompt}]})
-    });
-    const data=await res.json();
+    let res, data;
+    try{
+      res=await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+          'x-api-key':key,
+          'anthropic-version':'2023-06-01',
+          'anthropic-dangerous-direct-browser-access':'true'
+        },
+        body:JSON.stringify({
+          model:'claude-sonnet-4-6',
+          max_tokens:5000,
+          system:sysPrompt,
+          messages:[{role:'user',content:prompt}]
+        })
+      });
+    }catch(fetchErr){
+      console.error('Fetch failed:',fetchErr);
+      throw new Error('Network error — check your internet connection ('+fetchErr.message+')');
+    }
+
+    try{
+      data=await res.json();
+    }catch(jsonErr){
+      console.error('JSON parse failed, status:',res.status);
+      throw new Error('Bad response from API (HTTP '+res.status+')');
+    }
+
+    console.log('API response:',data);
+
     if(!res.ok||data.type==='error'||data.error){
-      const msg=(data.error?.message)||(data.error?.type)||(`HTTP ${res.status}`);
+      const msg=(data?.error?.message)||(data?.error?.type)||('API error HTTP '+res.status);
       throw new Error(msg);
     }
-    if(!data.content||!data.content.length)throw new Error('Empty response from Claude');
-    const raw=data.content[0]?.text||'';
+    if(!data.content||!data.content.length)throw new Error('Empty response — try again');
 
-    // Parse into GeoChallenge question objects
+    const raw=data.content[0]?.text||'';
+    console.log('Raw response (first 200):', raw.slice(0,200));
+
     const lines=raw.split('\n').map(l=>l.trim()).filter(l=>l.startsWith('Q:'));
     hubQuestions=lines.map((l,i)=>{
-      const qMatch=l.match(/Q:\s*(.+?)\s*\|\s*A:\s*(.+?)(?:\s*\|\s*C:\s*(.+))?(?:\s*\|\s*W|$)/);
+      const qMatch=l.match(/Q:\s*(.+?)\s*\|\s*A:\s*(.+?)(?:\s*\|\s*C:\s*(.+?))?(?:\s*\|\s*W|$)/);
       if(!qMatch)return null;
-      const q=qMatch[1].trim(), a=qMatch[2].trim(), cat=(qMatch[3]||'').trim().replace(/\s*\|.*/,'');
-      // For MCQ, extract wrong answers
-      const w1m=l.match(/W1:\s*(.+?)\s*(?:\|)/); const w2m=l.match(/W2:\s*(.+?)\s*(?:\|)/); const w3m=l.match(/W3:\s*(.+?)(?:\s*\||$)/);
+      const q=qMatch[1].trim();
+      const a=qMatch[2].trim();
+      const cat=(qMatch[3]||'').trim().replace(/\s*\|.*/,'');
+      const w1m=l.match(/W1:\s*(.+?)\s*\|/);
+      const w2m=l.match(/W2:\s*(.+?)\s*\|/);
+      const w3m=l.match(/W3:\s*(.+?)(?:\s*\||$)/);
       const wrongOpts=[w1m?w1m[1].trim():null,w2m?w2m[1].trim():null,w3m?w3m[1].trim():null].filter(Boolean);
-      return{id:'hub_'+Date.now()+'_'+i,q,a,cat,sets:[],used:false,_wrongOpts:wrongOpts};
+      return{id:'hub_q_'+i+'_'+Date.now(),q,a,cat:cat||'Geography',sets:[],used:false,_wrongOpts:wrongOpts};
     }).filter(Boolean);
 
-    if(!hubQuestions.length)throw new Error('No valid questions parsed — try again');
+    if(!hubQuestions.length)throw new Error('No questions parsed — Claude may not have used the Q:/A: format');
 
     document.getElementById('hub-ready-label').textContent=`${hubQuestions.length} questions ready to load`;
     document.getElementById('hub-gen-ready').style.display='block';
     toast(`✅ ${hubQuestions.length} questions generated!`);
   }catch(e){
-    toast('❌ '+(e.message||'Generation failed — check API key'));
+    console.error('hubGenerate error:',e);
+    toast('❌ '+(e.message||e.toString()||'Generation failed'));
     hubQuestions=[];
   }finally{
     document.getElementById('hub-gen-btn').disabled=false;
