@@ -856,6 +856,7 @@ AI will figure it out!"></textarea>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script>
 
 const FIREBASE_CONFIG = {
@@ -1868,23 +1869,36 @@ window.hubOpenSettings=function(){
 };
 window.hubCloseSettings=function(){document.getElementById('hub-settings-modal').classList.remove('open');};
 window.hubSaveSettings=function(){
-  const claudeK=document.getElementById('hcfg-claude').value.trim();
-  const fbKey=document.getElementById('hcfg-fbkey').value.trim();
-  const fbPid=document.getElementById('hcfg-fbpid').value.trim();
-  const fbAid=document.getElementById('hcfg-fbaid').value.trim();
-  const name=document.getElementById('hcfg-name').value.trim();
-  const cfg=hubCfg();
-  if(claudeK)cfg.claudeKey=claudeK;
-  if(name)cfg.hostName=name;
-  hubSetCfg(cfg);
-  if(fbKey&&fbPid&&fbAid){
-    const tc={apiKey:fbKey,projectId:fbPid,appId:fbAid};
-    localStorage.setItem(HUB_TRACKER_KEY,JSON.stringify(tc));
-    localStorage.setItem(TC_KEY,JSON.stringify(tc));
+  try{
+    const claudeK=document.getElementById('hcfg-claude').value.trim();
+    const fbKey=document.getElementById('hcfg-fbkey').value.trim();
+    const fbPid=document.getElementById('hcfg-fbpid').value.trim();
+    const fbAid=document.getElementById('hcfg-fbaid').value.trim();
+    const name=document.getElementById('hcfg-name').value.trim();
+
+    // Always read existing config first so we don't wipe fields the user didn't touch
+    const cfg=hubCfg();
+    if(claudeK)cfg.claudeKey=claudeK;
+    if(name)cfg.hostName=name;
+    hubSetCfg(cfg);
+
+    // Save Firebase credentials to both hub key and GeoChallenge tracker bridge key
+    if(fbKey&&fbPid&&fbAid){
+      const tc={apiKey:fbKey,projectId:fbPid,appId:fbAid};
+      localStorage.setItem(HUB_TRACKER_KEY,JSON.stringify(tc));
+      try{localStorage.setItem(TC_KEY,JSON.stringify(tc));}catch(_){}
+    }
+
+    // Close modal and confirm — these must always run
+    hubCloseSettings();
+    toast('✅ Settings saved');
+
+    // Try to connect tracker in background — errors here are non-fatal
+    setTimeout(()=>{try{hubConnectTracker();}catch(e){console.warn('Tracker connect error:',e);}},100);
+  }catch(e){
+    console.error('hubSaveSettings error:',e);
+    toast('❌ Save failed: '+e.message);
   }
-  hubCloseSettings();
-  toast('✅ Settings saved');
-  hubConnectTracker();
 };
 
 // ── BOOT ──
