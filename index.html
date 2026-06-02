@@ -1232,8 +1232,9 @@ window.smartParse=async function(){
   document.getElementById('btn-smart-parse').disabled=true;
   const cats=(S()?.categories||[]);
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,messages:[{role:'user',
+    const _spKey=hubCfg().claudeKey||localStorage.getItem('gc_claude_key')||'';
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',mode:'cors',headers:{'Content-Type':'application/json','x-api-key':_spKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4000,messages:[{role:'user',
         content:'Extract ALL question-answer pairs from this text. Available categories: '+(cats.length?cats.join(', '):'none')+'. Suggest the best matching category or leave blank. Return ONLY a valid JSON array, example: [{"q":"...","a":"...","cat":"..."}]. Text to parse: '+text}]})});
     const data=await res.json();
     const raw=data.content?.find(c=>c.type==='text')?.text||'[]';
@@ -1311,8 +1312,9 @@ window.aiJudge=async function(){
   const s=S();if(!s)return;const bankQs=getBankQs(s);const q=bankQs[s.currentQ];
   const fb=document.getElementById('judge-fb');fb.textContent='🤔 Checking…';fb.className='judge-fb';fb.style.display='block';
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:80,messages:[{role:'user',
+    const _ajKey=hubCfg().claudeKey||localStorage.getItem('gc_claude_key')||'';
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',mode:'cors',headers:{'Content-Type':'application/json','x-api-key':_ajKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:80,messages:[{role:'user',
         content:`Geography bee. Q: "${q.q}". Official A: "${q.a}". Player said: "${given}". Correct (allow spelling variations/alternate names)? Reply ONLY JSON: {"correct":true/false,"feedback":"brief"}`}]})});
     const data=await res.json();
     const p=JSON.parse((data.content?.find(c=>c.type==='text')?.text||'{}').replace(/```json|```/g,'').trim());
@@ -1960,10 +1962,18 @@ function renderHubRecentSessions(trackerAllData){
 
 // ── GENERATE ──
 window.hubGenerate=async function(){
+  console.log('hubGenerate called');
   const cfg=hubCfg();
-  // Also check the old hub key and gc_claude_key for backwards compat
   const key=cfg.claudeKey||localStorage.getItem('gc_claude_key')||'';
-  if(!key){toast('⚠️ Add your Claude API key in ⚙ Settings first');hubOpenSettings();return;}
+  console.log('API key present:', !!key);
+  if(!key){
+    // Flash the settings button to make it obvious
+    const settingsBtn=document.querySelector('.hub-actions button');
+    if(settingsBtn){settingsBtn.style.background='rgba(224,92,58,0.4)';setTimeout(()=>settingsBtn.style.background='',1500);}
+    toast('⚠️ Enter your Claude API key in ⚙ Settings first');
+    hubOpenSettings();
+    return;
+  }
 
   const prompt=document.getElementById('hub-prompt').value.trim();
   if(!prompt){toast('⚠️ Enter a topic prompt first');return;}
@@ -1998,6 +2008,7 @@ Output ONLY the question lines.`;
     try{
       res=await fetch('https://api.anthropic.com/v1/messages',{
         method:'POST',
+        mode:'cors',
         headers:{
           'Content-Type':'application/json',
           'x-api-key':key,
@@ -2012,8 +2023,12 @@ Output ONLY the question lines.`;
         })
       });
     }catch(fetchErr){
-      console.error('Fetch failed:',fetchErr);
-      throw new Error('Network error — check your internet connection ('+fetchErr.message+')');
+      console.error('Fetch error detail:',fetchErr.name, fetchErr.message, fetchErr);
+      // CORS/network diagnostic
+      if(fetchErr.message==='Failed to fetch'||fetchErr.message==='NetworkError when attempting to fetch resource.'){
+        throw new Error('CORS error — the API call was blocked by the browser. Check the console for details. Try: ensure the API key is saved in ⚙ Settings.');
+      }
+      throw new Error('Fetch failed: '+fetchErr.message+' ('+fetchErr.name+')');
     }
 
     try{
